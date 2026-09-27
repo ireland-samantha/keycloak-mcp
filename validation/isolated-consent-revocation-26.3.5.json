@@ -1,0 +1,13 @@
+{
+  "catalogVersion": "26.3.5",
+  "catalogSha256": "c13a159f13ddaf20f11d4c7f93511589461f4779893941e8446809253e2300d5",
+  "configuration": "disposable default-feature Keycloak 26.3.5; password grant only to create an offline-token fixture",
+  "rows": [
+    {
+      "operation": "DELETE /admin/realms/{realm}/users/{user-id}/consents/{client}",
+      "status": 204,
+      "readback": true
+    }
+  ],
+  "fixturesRemoved": true
+}

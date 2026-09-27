@@ -1,0 +1,34 @@
+{
+  "name": "keycloak-mcp",
+  "version": "0.1.0",
+  "description": "Keycloak Admin REST MCP server and Hearth extension with compensating workflows",
+  "type": "module",
+  "license": "MIT",
+  "repository": { "type": "git", "url": "git+https://github.com/ireland-samantha/keycloak-mcp.git" },
+  "files": ["src", "data", "hearth", "hearth.plugin.json", "openclaw.plugin.json", "validation", "README.md", "VALIDATION.md", "SECURITY.md", "LICENSE", "NOTICE.md"],
+  "bin": {
+    "keycloak-mcp": "./src/index.js"
+  },
+  "exports": {
+    ".": "./src/api.js",
+    "./hearth": "./hearth/index.js"
+  },
+  "hearth": { "extensions": ["./hearth/index.js"] },
+  "openclaw": { "extensions": ["./hearth/index.js"] },
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node --test",
+    "live:soak": "node scripts/live-soak.mjs",
+    "live:coverage": "node scripts/live-coverage.mjs",
+    "check": "node --check src/index.js && node --check src/api.js && node --check src/server.js && node --check src/keycloak.js && node --check src/workflow.js && node --check hearth/index.js && node --check scripts/live-soak.mjs && node --check scripts/live-coverage.mjs && npm test",
+    "catalog:update": "node scripts/update-catalog.mjs"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/server": "2.1.0",
+    "pg": "8.16.3",
+    "zod": "4.6.5"
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "at": "2026-09-27T00:12:59.527Z",
+  "realm": "keycloak-mcp-isolated",
+  "catalogVersion": "26.3.5",
+  "catalogSha256": "c13a159f13ddaf20f11d4c7f93511589461f4779893941e8446809253e2300d5",
+  "distinctMutationOperations": 4,
+  "rows": [
+    {
+      "operation": "POST /admin/realms/{realm}/clients",
+      "state": "OBSERVED_PASS",
+      "status": 201
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/push-revocation",
+      "state": "OBSERVED_PASS",
+      "status": 200
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/clients/{client-uuid}",
+      "state": "OBSERVED_PASS",
+      "status": 204
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/identity-provider/import-config",
+      "state": "OBSERVED_PASS",
+      "status": 200
+    }
+  ],
+  "failure": null
+}

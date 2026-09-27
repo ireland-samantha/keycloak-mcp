@@ -1,0 +1,25 @@
+{
+  "at": "2026-09-27T00:14:42.242Z",
+  "realm": "keycloak-mcp-isolated",
+  "catalogVersion": "26.3.5",
+  "catalogSha256": "c13a159f13ddaf20f11d4c7f93511589461f4779893941e8446809253e2300d5",
+  "distinctMutationOperations": 3,
+  "rows": [
+    {
+      "operation": "POST /admin/realms/{realm}/identity-provider/instances",
+      "state": "OBSERVED_PASS",
+      "status": 201
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/identity-provider/instances/{alias}/reload-keys",
+      "state": "OBSERVED_PASS",
+      "status": 200
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/identity-provider/instances/{alias}",
+      "state": "OBSERVED_PASS",
+      "status": 204
+    }
+  ],
+  "failure": null
+}

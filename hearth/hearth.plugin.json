@@ -1,0 +1,24 @@
+{
+  "id": "keycloak-mcp",
+  "name": "Keycloak Admin",
+  "description": "Service-account Keycloak Admin REST catalog and compensating workflows.",
+  "version": "0.1.0",
+  "configSchema": { "type": "object", "properties": { "configPath": { "type": "string", "minLength": 1 } }, "additionalProperties": false },
+  "activation": { "onStartup": true },
+  "contracts": {
+    "tools": [
+      "keycloak_search_operations",
+      "keycloak_describe_operation",
+      "keycloak_describe_schema",
+      "keycloak_read",
+      "keycloak_workflow"
+    ]
+  },
+  "toolMetadata": {
+    "keycloak_search_operations": { "replaySafe": true },
+    "keycloak_describe_operation": { "replaySafe": true },
+    "keycloak_describe_schema": { "replaySafe": true },
+    "keycloak_read": { "replaySafe": true },
+    "keycloak_workflow": { "replaySafe": false }
+  }
+}

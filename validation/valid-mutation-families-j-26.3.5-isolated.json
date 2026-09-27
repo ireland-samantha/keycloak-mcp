@@ -1,0 +1,50 @@
+{
+  "at": "2026-09-26T22:35:27.041Z",
+  "realm": "keycloak-mcp-isolated",
+  "catalogVersion": "26.3.5",
+  "catalogSha256": "c13a159f13ddaf20f11d4c7f93511589461f4779893941e8446809253e2300d5",
+  "distinctMutationOperations": 7,
+  "rows": [
+    {
+      "operation": "PUT /admin/realms/{realm}/authentication/required-actions/{alias}",
+      "state": "OBSERVED_PASS",
+      "status": 204
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/authentication/required-actions/{alias}/raise-priority",
+      "state": "OBSERVED_PASS",
+      "status": 204
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/authentication/required-actions/{alias}/lower-priority",
+      "state": "OBSERVED_PASS",
+      "status": 204
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/authentication/required-actions/{alias}",
+      "state": "OBSERVED_PASS",
+      "status": 204
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients",
+      "state": "OBSERVED_PASS",
+      "status": 201
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server",
+      "state": "OBSERVED_PASS",
+      "status": 204
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/clients/{client-uuid}",
+      "state": "OBSERVED_PASS",
+      "status": 204
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/partialImport",
+      "state": "OBSERVED_PASS",
+      "status": 200
+    }
+  ],
+  "failure": null
+}

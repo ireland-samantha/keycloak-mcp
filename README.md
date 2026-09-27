@@ -1,0 +1,141 @@
+# keycloak-mcp
+
+A standalone Keycloak Admin REST interface for Claude Code, Codex, Hearth, and JavaScript callers. It uses **OAuth 2.0 client credentials only**. No user password, browser login, or operator token is accepted by the runtime.
+
+The pinned `latest` catalog represents all **413 method/path operations across 273 paths** in the [official Keycloak Admin REST OpenAPI definition](https://www.keycloak.org/docs-api/latest/rest-api/index.html) downloaded on 2026-09-26. A second bundled catalog covers the [Keycloak 26.3.5 Admin REST definition](https://www.keycloak.org/docs-api/26.3.5/rest-api/openapi.json) with 374 operations. Set `KEYCLOAK_MCP_CATALOG_VERSION=26.3.5` for a 26.3.5 server; the default is `latest`. Search and describe tools make the selected surface usable without placing hundreds of tools in an LLM context. `npm run catalog:update` regenerates both catalogs from upstream; review their diffs and rerun checks before release. Installed SPI routes can be added through a private, deployment-specific catalog; they are not part of Keycloak's official Admin REST specification.
+
+## Install and configure
+
+Requires Node.js 22 or newer. In a clone of this repository:
+
+```sh
+npm ci
+npm run check
+```
+
+Create a confidential Keycloak client with **service accounts enabled**. Grant its service-account user only the `realm-management` roles needed for the target realm. Keep the secret in a private JSON file outside the repository, for example `/Users/you/.config/keycloak-mcp/service-account.json`:
+
+```json
+{
+  "KEYCLOAK_BASE_URL": "https://keycloak.example.com",
+  "KEYCLOAK_REALM": "example",
+  "KEYCLOAK_AUTH_REALM": "master",
+  "KEYCLOAK_CLIENT_ID": "keycloak-mcp-service",
+  "KEYCLOAK_CLIENT_SECRET": "replace-me",
+  "KEYCLOAK_MCP_CATALOG_VERSION": "26.3.5",
+  "KEYCLOAK_MCP_ALLOW_WRITE": "false"
+}
+```
+
+Set file mode `0600`. The runtime rejects group-readable or world-readable configuration files. `KEYCLOAK_AUTH_REALM` names the realm that issues the service-account token; `KEYCLOAK_REALM` is the administered realm. The base URL must use HTTPS, except for loopback development.
+
+### Claude Code
+
+```sh
+claude mcp add -s user keycloak -e KEYCLOAK_MCP_CONFIG=/absolute/path/service-account.json -- node /absolute/path/keycloak-mcp/src/index.js
+```
+
+### Codex
+
+```sh
+codex mcp add keycloak --env KEYCLOAK_MCP_CONFIG=/absolute/path/service-account.json -- node /absolute/path/keycloak-mcp/src/index.js
+```
+
+### Hearth
+
+The package exposes `./hearth/index.js` and root `hearth.plugin.json` / `openclaw.plugin.json` manifests. Install the package through your Hearth extension deployment and enable `keycloak-mcp`. Set its plugin config to `{ "configPath": "/absolute/path/service-account.json" }`; the file must be private (`0600`) and visible inside the Hearth process or container. When `configPath` is set, the file is authoritative and ambient `KEYCLOAK_*` variables cannot override it. The plugin also accepts `KEYCLOAK_MCP_CONFIG` in its process environment when `configPath` is omitted. It registers the same five tools individually. If Hearth runs in a rootless container, ensure the mounted package appears owned by the container user or root; its loader can block an otherwise readable plugin with untrusted ownership. The workflow lock database must be reachable from that container before enabling writes. Validate the extension against the target Hearth release before enabling it; the standalone package does not alter an existing Hearth installation.
+
+## Tools
+
+| Tool | Effect |
+| --- | --- |
+| `keycloak_search_operations` | Find operations by path, summary, tag, or method; paginated. |
+| `keycloak_describe_operation` | Show full parameters, request bodies, and response schemas for one exact operation key. |
+| `keycloak_describe_schema` | Expand a Keycloak representation referenced by an operation. |
+| `keycloak_read` | Call a read-only catalog operation with the configured service account and realm, including GET, client-description conversion, and identity-provider certificate conversion. |
+| `keycloak_workflow` | Preflight by default. Execute up to 20 steps only with `execute=true`. |
+
+An operation key is `METHOD /admin/realms/{realm}/...` or, for a configured SPI route, `METHOD /realms/{realm}/...`. The caller supplies named path parameters in `args.path`, query values in `args.query`, and request data in `args.body` or `args.bodyBase64`. Content types must appear in the pinned specification or extension catalog. Binary responses are returned as base64. Requests and responses default to a 1 MiB limit; `KEYCLOAK_MCP_MAX_BODY_BYTES` can raise it to at most 64 MiB in a private deployment config. Response streams stop when they cross that limit. Larger responses can overwhelm an LLM context, so use Keycloak pagination where available.
+
+### Installed SPI routes
+
+Put a deployment-specific JSON catalog outside the repository, set its mode to `0600`, and set `KEYCLOAK_MCP_EXTENSION_CATALOG` to its absolute path in the private service-account config. Each route must declare whether it is read-only and whether a service-account token can call it:
+
+```json
+{
+  "source": "deployed provider inventory and route review",
+  "operations": [
+    {
+      "method": "GET",
+      "path": "/realms/{realm}/example/info",
+      "summary": "Example provider information",
+      "tags": ["example"],
+      "readOnly": true,
+      "serviceAccountSupported": true,
+      "responseTypes": ["application/json"]
+    }
+  ]
+}
+```
+
+The loader rejects duplicate official routes, URLs outside the configured realm, unsafe paths, and extension operations without an explicit service-account assessment. User-token routes can be listed with `serviceAccountSupported: false` for discovery, but the runtime refuses to call them. Extension mutations default to irreversible and require the explicit irreversible override, even when a compensation is supplied. Pin the catalog to the **running image and provider hashes**, then recheck it after every provider deployment. Authentication flows, mappers, custom grants, and introspection providers may have no new REST path; record those separately in the deployment inventory.
+
+Example dry run:
+
+```json
+{
+  "steps": [
+    {
+      "operation": "PUT /admin/realms/{realm}",
+      "args": { "body": { "displayName": "New name" } },
+      "compensate": {
+        "operation": "PUT /admin/realms/{realm}",
+        "args": { "body": { "displayName": "Previous name" } }
+      }
+    }
+  ]
+}
+```
+
+For a `POST` that returns a `Location` ending in its new resource ID, a compensation path parameter can use `"$step.locationId"`. Some Keycloak creates, including authorization resources and scopes, return a JSON `id` or `_id` without `Location`; use `"$step.responseId"` for a generated UUID in that response. The runtime accepts one binding only for a `DELETE` of that collection's direct child, checks any Location against the configured Keycloak origin and response ID, and records the resolved path in the private workflow receipt. A missing or conflicting ID leaves the write `IN_DOUBT` for manual reconciliation.
+
+Global `POST /admin/realms` is allowed only when the request body names the configured `KEYCLOAK_REALM` and its compensation is `DELETE /admin/realms/{realm}`. Before compensating a successful realm creation, the client obtains a fresh service-account token: Keycloak may add the new realm's admin roles only after the earlier token was issued. Global administration still requires the explicit `KEYCLOAK_MCP_ALLOW_REALM_ADMIN=true` setting and appropriate service-account roles.
+
+The public JavaScript API exports `KeycloakAdmin`, `WorkflowBuilder`, `runWorkflow`, `listOperations`, and `describeOperation` from `keycloak-mcp`. For example:
+
+```js
+import { KeycloakAdmin, WorkflowBuilder, configFromEnv } from 'keycloak-mcp';
+const admin = new KeycloakAdmin(configFromEnv());
+const workflow = new WorkflowBuilder(admin)
+  .step('PUT /admin/realms/{realm}', { body: { displayName: 'New name' } }, {
+    operation: 'PUT /admin/realms/{realm}',
+    args: { body: { displayName: 'Previous name' } },
+  });
+await workflow.plan(); // no network write
+await workflow.run();
+```
+
+Certificate uploads accept `contentType: 'multipart/form-data'` with a `body` object. Text fields are strings; a file field is `{ filename, contentType, base64 }`. The client builds the boundary and bounds the decoded payload. For example, use `keystoreFormat: 'Certificate PEM'` and a `file` object for either certificate upload route. Uploads still require a workflow with an explicit compensation or irreversible override.
+
+## Write safety and actual guarantees
+
+Reads are enabled by default. To execute mutations, set `KEYCLOAK_MCP_ALLOW_WRITE=true`, supply an explicit compensating operation for **every** mutation, and use one of:
+
+- `KEYCLOAK_MCP_SINGLE_WRITER=true` for a deployment that truly has one process writing this realm; or
+- `KEYCLOAK_MCP_LOCK_DATABASE_URL` for a shared PostgreSQL advisory lock across cooperating instances.
+
+The lock is per Keycloak base URL and realm. It does not fence external Keycloak administrators or unrelated clients. The PostgreSQL connection is checked before each step. A local file receipt is written before and after each step under `KEYCLOAK_MCP_JOURNAL_DIR` (default `~/.local/state/keycloak-mcp`). The receipt includes operation keys and path parameters, but omits request bodies and query values; restrict access to it because path parameters can identify users or clients. A crash, timeout, lost lock, or 5xx can leave the current step **in doubt** even when prior steps were compensated. On an operation error, the result is `IN_DOUBT`; `failedStepMayHaveCommitted` is false for a read-only failed step, and `priorStepsCompensated` reports only whether earlier compensation calls succeeded. Read back affected resources and reconcile using the receipt's `runId`.
+
+Existing-resource `DELETE` operations, credential-type disablement, and known external actions require the explicit irreversible override. External actions include sending or resending organization invitations, triggering or migrating Keycloak workflows, and fetching identity-provider metadata from a supplied URL; these effects cannot be undone by a Keycloak compensation. Disabling a stored credential cannot generally restore its prior secret. Preflight permits an otherwise irreversible compensation when it deletes the realm just created by the matching global create step, deletes a direct child using that create response's generated ID, or deletes a newly created realm role or identity-provider instance using the exact nonblank name or alias in the create body. The named exception is limited to those two create routes. A `POST` mutation can compensate only with a `DELETE` of its created direct child, keeping the same parent path; an ID or UUID path parameter must use `$step.locationId` or `$step.responseId`, not a caller-supplied ID. An update compensation must use `PUT` or `PATCH` on the same route, path parameters, and query. Other compensation bodies remain caller-declared, so preflight cannot establish that they restore prior state. Role-mapping additions require an explicit irreversible override because deleting the mapping could remove a role that was already assigned before the workflow. A successful create and compensating DELETE still require readback to establish the final state, and the lock does not fence other Keycloak writers.
+
+Read-only operations retry HTTP 502, 503, and 504 at most twice with short delays and return an `attempts` count when a retry occurs. A safe GET also refreshes an invalidated service-account token and retries once after HTTP 401. A successful `logout-all` clears the cached token. Mutations, including side-effecting GET operations, are never retried automatically because a failed response may follow a committed change.
+
+Mutations outside the configured realm are blocked unless `KEYCLOAK_MCP_ALLOW_REALM_ADMIN=true`. A GET endpoint that reloads identity-provider keys is treated as a mutation. The client-description converter POST is treated as a read after exact-version source and live response checks. The runtime rejects arbitrary URLs, unknown operation keys, undeclared query and content types, path traversal, redirects, and direct mutation calls through `keycloak_read`. Sensitive JSON fields, client certificate info and keystore downloads, installation exports, generated examples, and known secret endpoints are redacted unless `KEYCLOAK_MCP_ALLOW_SENSITIVE_READS=true`.
+
+Keycloak Admin REST does not expose a transaction spanning multiple HTTP requests. Compensations are best effort and cannot recreate deleted sessions, sent mail, rotated secrets, external side effects, or every prior representation. Known irreversible operations are blocked by default. An operator can also classify any mutation as irreversible. To run either case, set `KEYCLOAK_MCP_ALLOW_IRREVERSIBLE=true` and mark that step `irreversible=true`; a later failure returns `IN_DOUBT` even if other steps compensate. The catalog still describes every operation. The [Keycloak guide](https://www.keycloak.org/docs/latest/server_admin/) explains service-account roles and permissions.
+
+## Verification
+
+`npm run check` covers catalog uniqueness and route construction for all 413 `latest` and 374 versioned operations, token exchange, realm pinning, redaction, fail-closed preflight for all 202 latest and 184 versioned state-changing mutations, compensation, receipt states, Hearth tool registration, and private plugin config selection. The [validation record](VALIDATION.md) distinguishes 26.3.5 deployed-version evidence from the isolated 26.7.4 [413-route ledger](validation/latest-26.7.4-route-ledger.json). Each latest method/path key has at least one successful service-account call with a valid fixture across default, explicitly enabled feature, or storage-backed configurations; this is route-level evidence with the limits described in the ledger. `npm run live:soak` is opt-in and requires `KEYCLOAK_MCP_LIVE_SOAK=true`, `KEYCLOAK_MCP_SOAK_CREDENTIALS`, and a realm whose name begins `keycloak-mcp-soak-`. It runs real reads and reversible workflow cycles; use a disposable realm and verify its cleanup separately. `npm run live:coverage` uses a disposable realm to execute safe GET operations and writes a per-operation report to `KEYCLOAK_MCP_COVERAGE_OUT` when `KEYCLOAK_MCP_LIVE_COVERAGE=true`. Set `KEYCLOAK_MCP_COVERAGE_FIXTURES=true` to create one group through a compensated workflow and exercise more path-based reads; this requires a disposable realm with write-capable test credentials and a separate realm cleanup step.
+
+The `latest` and 26.3.5 definitions overlap on 372 exact method/path keys; 41 appear only in `latest`, and two 26.3.5 keys use an older path-parameter name. The catalog proves addressability of the selected documented operations. The 26.3.5 OpenAPI entry for federated identity creation omits the JSON body consumed by [Keycloak's implementation](https://github.com/keycloak/keycloak/blob/26.3.5/services/src/main/java/org/keycloak/services/resources/admin/UserResource.java). Both bundled OpenAPI versions also omit the multipart body consumed by [certificate upload](https://github.com/keycloak/keycloak/blob/26.3.5/services/src/main/java/org/keycloak/services/resources/admin/ClientAttributeCertificateResource.java). The runtime corrects these exact request descriptions without changing the pinned source. On disposable containers of the deployed 26.3.5 image, valid-fixture calls succeeded for **185 of 185** action routes across default and explicitly enabled preview/experimental feature configurations (184 state-changing routes plus the read-only converter). The default-feature aggregate is 175 of 185. `disable-credential-types` returned HTTP 204 without effect on local OTP credentials, then passed against a storage-backed user with a backing-store readback. [Keycloak's 26.3.5 admin-client source](https://github.com/keycloak/keycloak/blob/26.3.5/integration/admin-client/src/main/java/org/keycloak/admin/client/resource/UserResource.java) says this action is typically supported for users backed by a user storage provider. These route-level calls do not prove that every payload, read route, role assignment, server feature, or rollback behaves correctly, or that the tested preview features are enabled in production. The versioned source hash and live results should be recorded for each release. See [VALIDATION.md](VALIDATION.md) for the executed coverage and remaining gaps.

@@ -1,0 +1,519 @@
+{
+  "latestCatalogSource": "https://www.keycloak.org/docs-api/latest/rest-api/openapi.json",
+  "latestCatalogSha256": "ba68e1c3842c11701ec64c5f3ba23387cf53963f8d16dd7c3d45da103b9421db",
+  "deployedCatalogSha256": "c13a159f13ddaf20f11d4c7f93511589461f4779893941e8446809253e2300d5",
+  "latestOnlyCount": 41,
+  "methodCounts": {
+    "DELETE": 6,
+    "GET": 22,
+    "POST": 10,
+    "PUT": 3
+  },
+  "image": "quay.io/keycloak/keycloak:26.7.4",
+  "imageDigest": "sha256:82a77884f3af238beab1e7afd63b5f530e1b5c0590bd7aa60b40a40463e29b2c",
+  "productSourceSha256": {
+    "src/keycloak.js": "f15f36b52f5cca06c47440e29e53a979cf7373b1023cc8ac3c9ae4aecf244044",
+    "src/workflow.js": "ed3b0695ea607d59496d40bfefc768b8284de363d6d94329fdf3c109f6252c3e"
+  },
+  "scope": "At least one HTTP 2xx call per latest-only method/path key on a disposable 26.7.4 instance, through a service-account client using the product transport; some fixtures were set up with the test harness direct invocation.",
+  "limit": "This is route-level evidence. It does not prove every payload, all permissions, every rollback, or the shared latest routes on 26.7.4. The bootstrap administrator was used only to create the disposable realm and service account.",
+  "sources": [
+    {
+      "file": "latest-26.7.4-read-probe.json",
+      "sha256": "aa770b756b2618d6078dfa9bb8418e31a88dfbf9953a49a3544d09d4e78cf7dc",
+      "scriptSha256": "6664c98cc7b105b30ad3f6b3feb4c795b2c44efd3d8ff3b1d93469c2ab6e6a94",
+      "currentRerunScriptSha256": "306e4561510c100bae5be8788ae98201b4a662358c7b0ba66099b26eb7defc76"
+    },
+    {
+      "file": "latest-26.7.4-workflow-probe.json",
+      "sha256": "69bac63ada39e452acb43fcb787ca71d972de45b493b85eba12439ad5e82de27",
+      "scriptSha256": "1979300544663b1811dcc6b2c05e885be48cf19f54a37a7d6fb1a5d2e5334154",
+      "currentRerunScriptSha256": "95a27a25d9b93ba12afb3da48f9413a0dcaf73729f6c93a3d0f30b6915e81a73"
+    },
+    {
+      "file": "latest-26.7.4-group-mutation.json",
+      "sha256": "5b2a536b9d68bb643e76014bb97724627e22e386420688bf0aae49e01b0cfd87",
+      "scriptSha256": "f52425446a00e4adbabbbae7551b844ed46d88df09fbc1f2bd7e98043d321f61",
+      "currentRerunScriptSha256": "c0dbd8d85a71842b0c81c7c95ba0764175945a593f4a289459eaf063dc7afb62"
+    },
+    {
+      "file": "latest-26.7.4-saml-probe-with-user.json",
+      "sha256": "7c745347e7c8ad90300c9835eac384ada0342cf0c5d25b5a9dd5f028e6ad7035",
+      "scriptSha256": "16da305e86325e25e8bd83cf12419c95437efc0013c2df9983ec043dd1183315",
+      "currentRerunScriptSha256": "2112d55074fa034cb82be35cfe77678cbdc875bb3d8a44e79128a1151f517b0d"
+    },
+    {
+      "file": "latest-26.7.4-workflow-actions.json",
+      "sha256": "5ca849ac0f3b052f7abe0fa875bd476c67bc9193d286670d4eb22180d996f42c",
+      "scriptSha256": "8346fb2f08a8aec1d63c4871dad80533323c2130ee5073f0434e5bcc0ac001f5",
+      "currentRerunScriptSha256": "a638699b3038e926567e7ad749868898444140adea560a81be64f83d788ee767"
+    },
+    {
+      "file": "latest-26.7.4-invitation-probe.json",
+      "sha256": "d8072e40f7c692e6594a2fb8920ecfda5f58a7be23d7ca851d1e29edbad95651",
+      "scriptSha256": "0f43f10ccf407ba6b032792fdcd508093d6fe2102d0280ce5ca936fd74a07751",
+      "currentRerunScriptSha256": "e1ee5eb5402ace94e75bf19f29e0dc28c8e6a8461e2331f0a8961c65bdde20a9"
+    },
+    {
+      "file": "latest-26.7.4-idp-certificate-probe.json",
+      "sha256": "7329d2febdda5d697fdf3d8e6906012febab52c8f87ba42ba4dd67a2ffaaa06c",
+      "scriptSha256": "c02327eeb1166f8c21babb06a7251703bd788a206605491fc46512d9d470d405",
+      "currentRerunScriptSha256": "cc4a3dd4eb57645eaad11aab1f0c5ae0be8d4849883c30489bbb389b817ffc57"
+    }
+  ],
+  "rows": [
+    {
+      "operation": "DELETE /admin/realms/{realm}/organizations/{org-id}/groups/{group-id}",
+      "observations": [
+        {
+          "report": "latest-26.7.4-group-mutation.json",
+          "status": 204
+        },
+        {
+          "report": "latest-26.7.4-group-mutation.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/organizations/{org-id}/groups/{group-id}/members/{userId}",
+      "observations": [
+        {
+          "report": "latest-26.7.4-read-probe.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/organizations/{org-id}/groups/{group-id}/role-mappings/clients/{client-id}",
+      "observations": [
+        {
+          "report": "latest-26.7.4-group-mutation.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/organizations/{org-id}/groups/{group-id}/role-mappings/realm",
+      "observations": [
+        {
+          "report": "latest-26.7.4-group-mutation.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/organizations/{org-id}/invitations/{id}",
+      "observations": [
+        {
+          "report": "latest-26.7.4-invitation-probe.json",
+          "workflowStatus": "COMPLETED",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/workflows/{id}",
+      "observations": [
+        {
+          "report": "latest-26.7.4-workflow-probe.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/evaluate-scopes/generate-example-saml-response",
+      "observations": [
+        {
+          "report": "latest-26.7.4-saml-probe-with-user.json",
+          "status": 200,
+          "redacted": true
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/roles/{role-name}/composites/clients/{targetClientUuid}",
+      "observations": [
+        {
+          "report": "latest-26.7.4-group-mutation.json",
+          "status": 200,
+          "readback": true
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/organizations/{org-id}/groups",
+      "observations": [
+        {
+          "report": "latest-26.7.4-read-probe.json",
+          "status": 200,
+          "valueType": "array"
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/organizations/{org-id}/groups/group-by-path/{path}",
+      "observations": [
+        {
+          "report": "latest-26.7.4-read-probe.json",
+          "status": 200,
+          "valueType": "object"
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/organizations/{org-id}/groups/{group-id}",
+      "observations": [
+        {
+          "report": "latest-26.7.4-read-probe.json",
+          "status": 200,
+          "valueType": "object"
+        },
+        {
+          "report": "latest-26.7.4-group-mutation.json",
+          "status": 200,
+          "readback": true
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/organizations/{org-id}/groups/{group-id}/children",
+      "observations": [
+        {
+          "report": "latest-26.7.4-read-probe.json",
+          "status": 200,
+          "valueType": "array"
+        },
+        {
+          "report": "latest-26.7.4-group-mutation.json",
+          "status": 200,
+          "readback": true
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/organizations/{org-id}/groups/{group-id}/members",
+      "observations": [
+        {
+          "report": "latest-26.7.4-read-probe.json",
+          "status": 200,
+          "valueType": "array"
+        },
+        {
+          "report": "latest-26.7.4-read-probe.json",
+          "status": 200,
+          "valueType": "array"
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/organizations/{org-id}/groups/{group-id}/role-mappings",
+      "observations": [
+        {
+          "report": "latest-26.7.4-read-probe.json",
+          "status": 200,
+          "valueType": "object"
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/organizations/{org-id}/groups/{group-id}/role-mappings/clients/{client-id}",
+      "observations": [
+        {
+          "report": "latest-26.7.4-read-probe.json",
+          "status": 200,
+          "valueType": "array"
+        },
+        {
+          "report": "latest-26.7.4-group-mutation.json",
+          "status": 200,
+          "readback": true
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/organizations/{org-id}/groups/{group-id}/role-mappings/clients/{client-id}/available",
+      "observations": [
+        {
+          "report": "latest-26.7.4-read-probe.json",
+          "status": 200,
+          "valueType": "array"
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/organizations/{org-id}/groups/{group-id}/role-mappings/clients/{client-id}/composite",
+      "observations": [
+        {
+          "report": "latest-26.7.4-read-probe.json",
+          "status": 200,
+          "valueType": "array"
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/organizations/{org-id}/groups/{group-id}/role-mappings/realm",
+      "observations": [
+        {
+          "report": "latest-26.7.4-read-probe.json",
+          "status": 200,
+          "valueType": "array"
+        },
+        {
+          "report": "latest-26.7.4-group-mutation.json",
+          "status": 200,
+          "readback": true
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/organizations/{org-id}/groups/{group-id}/role-mappings/realm/available",
+      "observations": [
+        {
+          "report": "latest-26.7.4-read-probe.json",
+          "status": 200,
+          "valueType": "array"
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/organizations/{org-id}/groups/{group-id}/role-mappings/realm/composite",
+      "observations": [
+        {
+          "report": "latest-26.7.4-read-probe.json",
+          "status": 200,
+          "valueType": "array"
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/organizations/{org-id}/identity-providers/{alias}/groups",
+      "observations": [
+        {
+          "report": "latest-26.7.4-read-probe.json",
+          "status": 200,
+          "valueType": "array"
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/organizations/{org-id}/invitations",
+      "observations": [
+        {
+          "report": "latest-26.7.4-read-probe.json",
+          "status": 200,
+          "valueType": "array"
+        },
+        {
+          "report": "latest-26.7.4-invitation-probe.json",
+          "status": 200,
+          "hasInvitation": true
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/organizations/{org-id}/invitations/{id}",
+      "observations": [
+        {
+          "report": "latest-26.7.4-invitation-probe.json",
+          "status": 200,
+          "sameId": true
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/organizations/{org-id}/members/{member-id}/groups",
+      "observations": [
+        {
+          "report": "latest-26.7.4-read-probe.json",
+          "status": 200,
+          "valueType": "array"
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/roles/{role-name}/composites/clients/{targetClientUuid}",
+      "observations": [
+        {
+          "report": "latest-26.7.4-group-mutation.json",
+          "status": 200,
+          "readback": true
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/workflows",
+      "observations": [
+        {
+          "report": "latest-26.7.4-read-probe.json",
+          "status": 200,
+          "valueType": "array"
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/workflows/scheduled/{resource-id}",
+      "observations": [
+        {
+          "report": "latest-26.7.4-read-probe.json",
+          "status": 200,
+          "valueType": "array"
+        },
+        {
+          "report": "latest-26.7.4-workflow-actions.json",
+          "status": 200,
+          "hasScheduled": true
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/workflows/{id}",
+      "observations": [
+        {
+          "report": "latest-26.7.4-workflow-probe.json",
+          "status": 200,
+          "nameMatches": true
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/identity-provider/upload-certificate",
+      "observations": [
+        {
+          "report": "latest-26.7.4-idp-certificate-probe.json",
+          "status": 200,
+          "publicKeyReturned": true,
+          "privateKeyReturned": false,
+          "productWritesDisabled": true
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/organizations/{org-id}/groups",
+      "observations": [
+        {
+          "report": "latest-26.7.4-read-probe.json",
+          "status": 201
+        },
+        {
+          "report": "latest-26.7.4-group-mutation.json",
+          "status": 201
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/organizations/{org-id}/groups/{group-id}/children",
+      "observations": [
+        {
+          "report": "latest-26.7.4-group-mutation.json",
+          "status": 201
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/organizations/{org-id}/groups/{group-id}/role-mappings/clients/{client-id}",
+      "observations": [
+        {
+          "report": "latest-26.7.4-group-mutation.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/organizations/{org-id}/groups/{group-id}/role-mappings/realm",
+      "observations": [
+        {
+          "report": "latest-26.7.4-group-mutation.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/organizations/{org-id}/invitations/{id}/resend",
+      "observations": [
+        {
+          "report": "latest-26.7.4-invitation-probe.json",
+          "workflowStatus": "COMPLETED",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/workflows",
+      "observations": [
+        {
+          "report": "latest-26.7.4-workflow-probe.json",
+          "status": 201
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/workflows/migrate",
+      "observations": [
+        {
+          "report": "latest-26.7.4-workflow-actions.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/workflows/{id}/activate/{type}/{resourceId}",
+      "observations": [
+        {
+          "report": "latest-26.7.4-workflow-actions.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/workflows/{id}/deactivate/{type}/{resourceId}",
+      "observations": [
+        {
+          "report": "latest-26.7.4-workflow-actions.json",
+          "status": 204
+        },
+        {
+          "report": "latest-26.7.4-workflow-actions.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/organizations/{org-id}/groups/{group-id}",
+      "observations": [
+        {
+          "report": "latest-26.7.4-group-mutation.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/organizations/{org-id}/groups/{group-id}/members/{userId}",
+      "observations": [
+        {
+          "report": "latest-26.7.4-read-probe.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/workflows/{id}",
+      "observations": [
+        {
+          "report": "latest-26.7.4-workflow-probe.json",
+          "status": 204
+        }
+      ]
+    }
+  ],
+  "historicalProductSourceSha256": {
+    "src/keycloak.js": "529ce3ae7749f1b5138b18deecb8740ca9b9ac14581c513a31b86b53e981d86a"
+  },
+  "currentSourceRerun": "All seven fixture scripts reran in a second disposable 26.7.4 realm against this source; their redacted reports were byte-identical to the published reports.",
+  "postEvidenceWorkflowUpdate": {
+    "currentSha256": "790f4aec003659ccaf6d6a8e10529a089455ea60b8e70aee4655df57fb210bbc",
+    "cycleReport": "current-workflow-production-cycle.json",
+    "cycleReportSha256": "6759cfca4671c07c6b1da7e86c5eb9bcd74a8d97a7b449b3093c4dae3d729f88",
+    "scope": "Preflight compensation-target guard changed after the seven route reports. Their recorded workflow source hash remains the executed source; the current workflow has a separate production group compensation cycle."
+  }
+}

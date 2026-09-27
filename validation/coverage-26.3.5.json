@@ -1,0 +1,1885 @@
+{
+  "source": "https://www.keycloak.org/docs-api/26.3.5/rest-api/openapi.json",
+  "sourceSha256": "c13a159f13ddaf20f11d4c7f93511589461f4779893941e8446809253e2300d5",
+  "catalogVersion": "26.3.5",
+  "total": 374,
+  "counts": {
+    "NOT_RUN_GLOBAL_SCOPE": 1,
+    "NOT_RUN_MUTATION": 185,
+    "NOT_RUN_PATH_FIXTURE": 149,
+    "OBSERVED_FAIL": 4,
+    "OBSERVED_PASS": 35
+  },
+  "rows": [
+    {
+      "operation": "DELETE /admin/realms/{realm}",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/admin-events",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/attack-detection/brute-force/users",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/attack-detection/brute-force/users/{userId}",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/authentication/config/{id}",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/authentication/executions/{executionId}",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/authentication/flows/{id}",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/authentication/required-actions/{alias}",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/authentication/required-actions/{alias}/config",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/client-scopes/{client-scope-id}",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/client-scopes/{client-scope-id}/protocol-mappers/models/{id}",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/client-scopes/{client-scope-id}/scope-mappings/clients/{client}",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/client-scopes/{client-scope-id}/scope-mappings/realm",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/client-templates/{client-scope-id}",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/client-templates/{client-scope-id}/protocol-mappers/models/{id}",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/client-templates/{client-scope-id}/scope-mappings/clients/{client}",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/client-templates/{client-scope-id}/scope-mappings/realm",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/clients-initial-access/{id}",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/clients/{client-uuid}",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/resource/{resource-id}",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/scope/{scope-id}",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/clients/{client-uuid}/client-secret/rotated",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/clients/{client-uuid}/default-client-scopes/{clientScopeId}",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/clients/{client-uuid}/nodes/{node}",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/clients/{client-uuid}/optional-client-scopes/{clientScopeId}",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/clients/{client-uuid}/protocol-mappers/models/{id}",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/clients/{client-uuid}/roles/{role-name}",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/clients/{client-uuid}/roles/{role-name}/composites",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/clients/{client-uuid}/scope-mappings/clients/{client}",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/clients/{client-uuid}/scope-mappings/realm",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/components/{id}",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/default-default-client-scopes/{clientScopeId}",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/default-groups/{groupId}",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/default-optional-client-scopes/{clientScopeId}",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/events",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/groups/{group-id}",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/groups/{group-id}/role-mappings/clients/{client-id}",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/groups/{group-id}/role-mappings/realm",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/identity-provider/instances/{alias}",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/identity-provider/instances/{alias}/mappers/{id}",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/localization/{locale}",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/localization/{locale}/{key}",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/organizations/{org-id}",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/organizations/{org-id}/identity-providers/{alias}",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/organizations/{org-id}/members/{member-id}",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/roles-by-id/{role-id}",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/roles-by-id/{role-id}/composites",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/roles/{role-name}",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/roles/{role-name}/composites",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/sessions/{session}",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/users/{user-id}",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/users/{user-id}/consents/{client}",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/users/{user-id}/credentials/{credentialId}",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/users/{user-id}/federated-identity/{provider}",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/users/{user-id}/groups/{groupId}",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/users/{user-id}/role-mappings/clients/{client-id}",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/users/{user-id}/role-mappings/realm",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms",
+      "state": "NOT_RUN_GLOBAL_SCOPE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}",
+      "state": "OBSERVED_PASS",
+      "httpStatus": 200
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/admin-events",
+      "state": "OBSERVED_PASS",
+      "httpStatus": 200
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/attack-detection/brute-force/users/{userId}",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/authentication/authenticator-providers",
+      "state": "OBSERVED_PASS",
+      "httpStatus": 200
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/authentication/client-authenticator-providers",
+      "state": "OBSERVED_PASS",
+      "httpStatus": 200
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/authentication/config-description/{providerId}",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/authentication/config/{id}",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/authentication/executions/{executionId}",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/authentication/executions/{executionId}/config/{id}",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/authentication/flows",
+      "state": "OBSERVED_PASS",
+      "httpStatus": 200
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/authentication/flows/{flowAlias}/executions",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/authentication/flows/{id}",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/authentication/form-action-providers",
+      "state": "OBSERVED_PASS",
+      "httpStatus": 200
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/authentication/form-providers",
+      "state": "OBSERVED_PASS",
+      "httpStatus": 200
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/authentication/per-client-config-description",
+      "state": "OBSERVED_PASS",
+      "httpStatus": 200
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/authentication/required-actions",
+      "state": "OBSERVED_PASS",
+      "httpStatus": 200
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/authentication/required-actions/{alias}",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/authentication/required-actions/{alias}/config",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/authentication/required-actions/{alias}/config-description",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/authentication/unregistered-required-actions",
+      "state": "OBSERVED_PASS",
+      "httpStatus": 200
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/client-policies/policies",
+      "state": "OBSERVED_PASS",
+      "httpStatus": 200
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/client-policies/profiles",
+      "state": "OBSERVED_PASS",
+      "httpStatus": 200
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/client-registration-policy/providers",
+      "state": "OBSERVED_PASS",
+      "httpStatus": 200
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/client-scopes",
+      "state": "OBSERVED_PASS",
+      "httpStatus": 200
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/client-scopes/{client-scope-id}",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/client-scopes/{client-scope-id}/protocol-mappers/models",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/client-scopes/{client-scope-id}/protocol-mappers/models/{id}",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/client-scopes/{client-scope-id}/protocol-mappers/protocol/{protocol}",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/client-scopes/{client-scope-id}/scope-mappings",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/client-scopes/{client-scope-id}/scope-mappings/clients/{client}",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/client-scopes/{client-scope-id}/scope-mappings/clients/{client}/available",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/client-scopes/{client-scope-id}/scope-mappings/clients/{client}/composite",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/client-scopes/{client-scope-id}/scope-mappings/realm",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/client-scopes/{client-scope-id}/scope-mappings/realm/available",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/client-scopes/{client-scope-id}/scope-mappings/realm/composite",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/client-session-stats",
+      "state": "OBSERVED_PASS",
+      "httpStatus": 200
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/client-templates",
+      "state": "OBSERVED_PASS",
+      "httpStatus": 200
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/client-templates/{client-scope-id}",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/client-templates/{client-scope-id}/protocol-mappers/models",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/client-templates/{client-scope-id}/protocol-mappers/models/{id}",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/client-templates/{client-scope-id}/protocol-mappers/protocol/{protocol}",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/client-templates/{client-scope-id}/scope-mappings",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/client-templates/{client-scope-id}/scope-mappings/clients/{client}",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/client-templates/{client-scope-id}/scope-mappings/clients/{client}/available",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/client-templates/{client-scope-id}/scope-mappings/clients/{client}/composite",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/client-templates/{client-scope-id}/scope-mappings/realm",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/client-templates/{client-scope-id}/scope-mappings/realm/available",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/client-templates/{client-scope-id}/scope-mappings/realm/composite",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/client-types",
+      "state": "OBSERVED_FAIL",
+      "httpStatus": 501
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients",
+      "state": "OBSERVED_PASS",
+      "httpStatus": 200
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients-initial-access",
+      "state": "OBSERVED_PASS",
+      "httpStatus": 200
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/permission",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/permission/providers",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/permission/search",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/providers",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/search",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/resource",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/resource/{resource-id}",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/resource/{resource-id}/attributes",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/resource/{resource-id}/permissions",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/resource/{resource-id}/scopes",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/resource/search",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/scope",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/scope/{scope-id}",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/scope/{scope-id}/permissions",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/scope/{scope-id}/resources",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/scope/search",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/settings",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/certificates/{attr}",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/client-secret",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/client-secret/rotated",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/default-client-scopes",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/evaluate-scopes/generate-example-access-token",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/evaluate-scopes/generate-example-id-token",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/evaluate-scopes/generate-example-userinfo",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/evaluate-scopes/protocol-mappers",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/evaluate-scopes/scope-mappings/{roleContainerId}/granted",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/evaluate-scopes/scope-mappings/{roleContainerId}/not-granted",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/installation/providers/{providerId}",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/management/permissions",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/offline-session-count",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/offline-sessions",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/optional-client-scopes",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/protocol-mappers/models",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/protocol-mappers/models/{id}",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/protocol-mappers/protocol/{protocol}",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/roles",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/roles/{role-name}",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/roles/{role-name}/composites",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/roles/{role-name}/composites/clients/{client-uuid}",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/roles/{role-name}/composites/realm",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/roles/{role-name}/groups",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/roles/{role-name}/management/permissions",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/roles/{role-name}/users",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/scope-mappings",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/scope-mappings/clients/{client}",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/scope-mappings/clients/{client}/available",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/scope-mappings/clients/{client}/composite",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/scope-mappings/realm",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/scope-mappings/realm/available",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/scope-mappings/realm/composite",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/service-account-user",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/session-count",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/test-nodes-available",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/user-sessions",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/components",
+      "state": "OBSERVED_PASS",
+      "httpStatus": 200
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/components/{id}",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/components/{id}/sub-component-types",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/credential-registrators",
+      "state": "OBSERVED_PASS",
+      "httpStatus": 200
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/default-default-client-scopes",
+      "state": "OBSERVED_PASS",
+      "httpStatus": 200
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/default-groups",
+      "state": "OBSERVED_PASS",
+      "httpStatus": 200
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/default-optional-client-scopes",
+      "state": "OBSERVED_PASS",
+      "httpStatus": 200
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/events",
+      "state": "OBSERVED_PASS",
+      "httpStatus": 200
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/events/config",
+      "state": "OBSERVED_PASS",
+      "httpStatus": 200
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/group-by-path/{path}",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/groups",
+      "state": "OBSERVED_PASS",
+      "httpStatus": 200
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/groups/{group-id}",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/groups/{group-id}/children",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/groups/{group-id}/management/permissions",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/groups/{group-id}/members",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/groups/{group-id}/role-mappings",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/groups/{group-id}/role-mappings/clients/{client-id}",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/groups/{group-id}/role-mappings/clients/{client-id}/available",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/groups/{group-id}/role-mappings/clients/{client-id}/composite",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/groups/{group-id}/role-mappings/realm",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/groups/{group-id}/role-mappings/realm/available",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/groups/{group-id}/role-mappings/realm/composite",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/groups/count",
+      "state": "OBSERVED_PASS",
+      "httpStatus": 200
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/identity-provider/instances",
+      "state": "OBSERVED_PASS",
+      "httpStatus": 200
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/identity-provider/instances/{alias}",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/identity-provider/instances/{alias}/export",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/identity-provider/instances/{alias}/management/permissions",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/identity-provider/instances/{alias}/mapper-types",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/identity-provider/instances/{alias}/mappers",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/identity-provider/instances/{alias}/mappers/{id}",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/identity-provider/instances/{alias}/reload-keys",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/identity-provider/providers/{provider_id}",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/keys",
+      "state": "OBSERVED_PASS",
+      "httpStatus": 200
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/localization",
+      "state": "OBSERVED_PASS",
+      "httpStatus": 200
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/localization/{locale}",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/localization/{locale}/{key}",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/organizations",
+      "state": "OBSERVED_FAIL",
+      "httpStatus": 404
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/organizations/{org-id}",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/organizations/{org-id}/identity-providers",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/organizations/{org-id}/identity-providers/{alias}",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/organizations/{org-id}/members",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/organizations/{org-id}/members/{member-id}",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/organizations/{org-id}/members/{member-id}/organizations",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/organizations/{org-id}/members/count",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/organizations/count",
+      "state": "OBSERVED_FAIL",
+      "httpStatus": 404
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/organizations/members/{member-id}/organizations",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/roles",
+      "state": "OBSERVED_PASS",
+      "httpStatus": 200
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/roles-by-id/{role-id}",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/roles-by-id/{role-id}/composites",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/roles-by-id/{role-id}/composites/clients/{clientUuid}",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/roles-by-id/{role-id}/composites/realm",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/roles-by-id/{role-id}/management/permissions",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/roles/{role-name}",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/roles/{role-name}/composites",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/roles/{role-name}/composites/clients/{client-uuid}",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/roles/{role-name}/composites/realm",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/roles/{role-name}/groups",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/roles/{role-name}/management/permissions",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/roles/{role-name}/users",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/users",
+      "state": "OBSERVED_PASS",
+      "httpStatus": 200
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/users-management-permissions",
+      "state": "OBSERVED_FAIL",
+      "httpStatus": 501
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/users/{user-id}",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/users/{user-id}/configured-user-storage-credential-types",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/users/{user-id}/consents",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/users/{user-id}/credentials",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/users/{user-id}/federated-identity",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/users/{user-id}/groups",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/users/{user-id}/groups/count",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/users/{user-id}/offline-sessions/{clientUuid}",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/users/{user-id}/role-mappings",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/users/{user-id}/role-mappings/clients/{client-id}",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/users/{user-id}/role-mappings/clients/{client-id}/available",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/users/{user-id}/role-mappings/clients/{client-id}/composite",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/users/{user-id}/role-mappings/realm",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/users/{user-id}/role-mappings/realm/available",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/users/{user-id}/role-mappings/realm/composite",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/users/{user-id}/sessions",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/users/{user-id}/unmanagedAttributes",
+      "state": "NOT_RUN_PATH_FIXTURE",
+      "httpStatus": null
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/users/count",
+      "state": "OBSERVED_PASS",
+      "httpStatus": 200
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/users/profile",
+      "state": "OBSERVED_PASS",
+      "httpStatus": 200
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/users/profile/metadata",
+      "state": "OBSERVED_PASS",
+      "httpStatus": 200
+    },
+    {
+      "operation": "POST /admin/realms",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/authentication/config",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/authentication/executions",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/authentication/executions/{executionId}/config",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/authentication/executions/{executionId}/lower-priority",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/authentication/executions/{executionId}/raise-priority",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/authentication/flows",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/authentication/flows/{flowAlias}/copy",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/authentication/flows/{flowAlias}/executions/execution",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/authentication/flows/{flowAlias}/executions/flow",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/authentication/register-required-action",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/authentication/required-actions/{alias}/lower-priority",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/authentication/required-actions/{alias}/raise-priority",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/client-description-converter",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/client-scopes",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/client-scopes/{client-scope-id}/protocol-mappers/add-models",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/client-scopes/{client-scope-id}/protocol-mappers/models",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/client-scopes/{client-scope-id}/scope-mappings/clients/{client}",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/client-scopes/{client-scope-id}/scope-mappings/realm",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/client-templates",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/client-templates/{client-scope-id}/protocol-mappers/add-models",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/client-templates/{client-scope-id}/protocol-mappers/models",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/client-templates/{client-scope-id}/scope-mappings/clients/{client}",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/client-templates/{client-scope-id}/scope-mappings/realm",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients-initial-access",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/import",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/permission",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/permission/evaluate",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/evaluate",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/resource",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/scope",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/certificates/{attr}/download",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/certificates/{attr}/generate",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/certificates/{attr}/generate-and-download",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/certificates/{attr}/upload",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/certificates/{attr}/upload-certificate",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/client-secret",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/nodes",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/protocol-mappers/add-models",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/protocol-mappers/models",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/push-revocation",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/registration-access-token",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/roles",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/roles/{role-name}/composites",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/scope-mappings/clients/{client}",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/scope-mappings/realm",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/components",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/groups",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/groups/{group-id}/children",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/groups/{group-id}/role-mappings/clients/{client-id}",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/groups/{group-id}/role-mappings/realm",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/identity-provider/import-config",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/identity-provider/instances",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/identity-provider/instances/{alias}/mappers",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/localization/{locale}",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/logout-all",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/organizations",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/organizations/{org-id}/identity-providers",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/organizations/{org-id}/members",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/organizations/{org-id}/members/invite-existing-user",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/organizations/{org-id}/members/invite-user",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/partial-export",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/partialImport",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/push-revocation",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/roles",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/roles-by-id/{role-id}/composites",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/roles/{role-name}/composites",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/testSMTPConnection",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/users",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/users/{user-id}/credentials/{credentialId}/moveAfter/{newPreviousCredentialId}",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/users/{user-id}/credentials/{credentialId}/moveToFirst",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/users/{user-id}/federated-identity/{provider}",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/users/{user-id}/impersonation",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/users/{user-id}/logout",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/users/{user-id}/role-mappings/clients/{client-id}",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/users/{user-id}/role-mappings/realm",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/authentication/config/{id}",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/authentication/flows/{flowAlias}/executions",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/authentication/flows/{id}",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/authentication/required-actions/{alias}",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/authentication/required-actions/{alias}/config",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/client-policies/policies",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/client-policies/profiles",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/client-scopes/{client-scope-id}",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/client-scopes/{client-scope-id}/protocol-mappers/models/{id}",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/client-templates/{client-scope-id}",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/client-templates/{client-scope-id}/protocol-mappers/models/{id}",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/client-types",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/clients/{client-uuid}",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/resource/{resource-id}",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/scope/{scope-id}",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/clients/{client-uuid}/default-client-scopes/{clientScopeId}",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/clients/{client-uuid}/management/permissions",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/clients/{client-uuid}/optional-client-scopes/{clientScopeId}",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/clients/{client-uuid}/protocol-mappers/models/{id}",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/clients/{client-uuid}/roles/{role-name}",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/clients/{client-uuid}/roles/{role-name}/management/permissions",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/components/{id}",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/default-default-client-scopes/{clientScopeId}",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/default-groups/{groupId}",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/default-optional-client-scopes/{clientScopeId}",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/events/config",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/groups/{group-id}",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/groups/{group-id}/management/permissions",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/identity-provider/instances/{alias}",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/identity-provider/instances/{alias}/management/permissions",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/identity-provider/instances/{alias}/mappers/{id}",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/localization/{locale}/{key}",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/organizations/{org-id}",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/roles-by-id/{role-id}",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/roles-by-id/{role-id}/management/permissions",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/roles/{role-name}",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/roles/{role-name}/management/permissions",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/users-management-permissions",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/users/{user-id}",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/users/{user-id}/credentials/{credentialId}/userLabel",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/users/{user-id}/disable-credential-types",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/users/{user-id}/execute-actions-email",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/users/{user-id}/groups/{groupId}",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/users/{user-id}/reset-password",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/users/{user-id}/reset-password-email",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/users/{user-id}/send-verify-email",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/users/profile",
+      "state": "NOT_RUN_MUTATION",
+      "httpStatus": null
+    }
+  ]
+}

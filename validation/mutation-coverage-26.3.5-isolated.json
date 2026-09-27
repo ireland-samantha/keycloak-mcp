@@ -1,0 +1,944 @@
+{
+  "at": "2026-09-26T20:58:56.396Z",
+  "sourceSha256": "c13a159f13ddaf20f11d4c7f93511589461f4779893941e8446809253e2300d5",
+  "catalogVersion": "26.3.5",
+  "total": 185,
+  "states": {
+    "HTTP_NON_SUCCESS": 173,
+    "HTTP_SUCCESS": 10,
+    "NOT_RUN_REALM_LIFECYCLE": 2
+  },
+  "statuses": {
+    "200": 4,
+    "204": 6,
+    "400": 9,
+    "404": 138,
+    "500": 21,
+    "501": 5
+  },
+  "rows": [
+    {
+      "operation": "DELETE /admin/realms/{realm}",
+      "state": "NOT_RUN_REALM_LIFECYCLE"
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/admin-events",
+      "state": "HTTP_SUCCESS",
+      "httpStatus": 204
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/attack-detection/brute-force/users",
+      "state": "HTTP_SUCCESS",
+      "httpStatus": 204
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/attack-detection/brute-force/users/{userId}",
+      "state": "HTTP_SUCCESS",
+      "httpStatus": 204
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/authentication/config/{id}",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/authentication/executions/{executionId}",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/authentication/flows/{id}",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/authentication/required-actions/{alias}",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/authentication/required-actions/{alias}/config",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 400
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/client-scopes/{client-scope-id}",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/client-scopes/{client-scope-id}/protocol-mappers/models/{id}",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/client-scopes/{client-scope-id}/scope-mappings/clients/{client}",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/client-scopes/{client-scope-id}/scope-mappings/realm",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/client-templates/{client-scope-id}",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/client-templates/{client-scope-id}/protocol-mappers/models/{id}",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/client-templates/{client-scope-id}/scope-mappings/clients/{client}",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/client-templates/{client-scope-id}/scope-mappings/realm",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/clients-initial-access/{id}",
+      "state": "HTTP_SUCCESS",
+      "httpStatus": 204
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/clients/{client-uuid}",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/resource/{resource-id}",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/scope/{scope-id}",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/clients/{client-uuid}/client-secret/rotated",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/clients/{client-uuid}/default-client-scopes/{clientScopeId}",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/clients/{client-uuid}/nodes/{node}",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/clients/{client-uuid}/optional-client-scopes/{clientScopeId}",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/clients/{client-uuid}/protocol-mappers/models/{id}",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/clients/{client-uuid}/roles/{role-name}",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/clients/{client-uuid}/roles/{role-name}/composites",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/clients/{client-uuid}/scope-mappings/clients/{client}",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/clients/{client-uuid}/scope-mappings/realm",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/components/{id}",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/default-default-client-scopes/{clientScopeId}",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/default-groups/{groupId}",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/default-optional-client-scopes/{clientScopeId}",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/events",
+      "state": "HTTP_SUCCESS",
+      "httpStatus": 204
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/groups/{group-id}",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/groups/{group-id}/role-mappings/clients/{client-id}",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/groups/{group-id}/role-mappings/realm",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/identity-provider/instances/{alias}",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/identity-provider/instances/{alias}/mappers/{id}",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/localization/{locale}",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/localization/{locale}/{key}",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/organizations/{org-id}",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/organizations/{org-id}/identity-providers/{alias}",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/organizations/{org-id}/members/{member-id}",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/roles-by-id/{role-id}",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/roles-by-id/{role-id}/composites",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/roles/{role-name}",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/roles/{role-name}/composites",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/sessions/{session}",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/users/{user-id}",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/users/{user-id}/consents/{client}",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/users/{user-id}/credentials/{credentialId}",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/users/{user-id}/federated-identity/{provider}",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/users/{user-id}/groups/{groupId}",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/users/{user-id}/role-mappings/clients/{client-id}",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/users/{user-id}/role-mappings/realm",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/identity-provider/instances/{alias}/reload-keys",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "POST /admin/realms",
+      "state": "NOT_RUN_REALM_LIFECYCLE"
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/authentication/config",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 500
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/authentication/executions",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 500
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/authentication/executions/{executionId}/config",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 500
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/authentication/executions/{executionId}/lower-priority",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/authentication/executions/{executionId}/raise-priority",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/authentication/flows",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 500
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/authentication/flows/{flowAlias}/copy",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 500
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/authentication/flows/{flowAlias}/executions/execution",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 400
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/authentication/flows/{flowAlias}/executions/flow",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 400
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/authentication/register-required-action",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 500
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/authentication/required-actions/{alias}/lower-priority",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/authentication/required-actions/{alias}/raise-priority",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/client-description-converter",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 400
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/client-scopes",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 500
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/client-scopes/{client-scope-id}/protocol-mappers/add-models",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/client-scopes/{client-scope-id}/protocol-mappers/models",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/client-scopes/{client-scope-id}/scope-mappings/clients/{client}",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/client-scopes/{client-scope-id}/scope-mappings/realm",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/client-templates",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 500
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/client-templates/{client-scope-id}/protocol-mappers/add-models",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/client-templates/{client-scope-id}/protocol-mappers/models",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/client-templates/{client-scope-id}/scope-mappings/clients/{client}",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/client-templates/{client-scope-id}/scope-mappings/realm",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 500
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients-initial-access",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 500
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/import",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/permission",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/permission/evaluate",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/evaluate",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/resource",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/scope",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/certificates/{attr}/download",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/certificates/{attr}/generate",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/certificates/{attr}/generate-and-download",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/certificates/{attr}/upload",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/certificates/{attr}/upload-certificate",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/client-secret",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/nodes",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/protocol-mappers/add-models",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/protocol-mappers/models",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/push-revocation",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/registration-access-token",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/roles",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/roles/{role-name}/composites",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/scope-mappings/clients/{client}",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/scope-mappings/realm",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/components",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 500
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/groups",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 500
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/groups/{group-id}/children",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/groups/{group-id}/role-mappings/clients/{client-id}",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/groups/{group-id}/role-mappings/realm",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/identity-provider/import-config",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 400
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/identity-provider/instances",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 500
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/identity-provider/instances/{alias}/mappers",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/localization/{locale}",
+      "state": "HTTP_SUCCESS",
+      "httpStatus": 204
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/logout-all",
+      "state": "HTTP_SUCCESS",
+      "httpStatus": 200
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/organizations",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 400
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/organizations/{org-id}/identity-providers",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/organizations/{org-id}/members",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/organizations/{org-id}/members/invite-existing-user",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/organizations/{org-id}/members/invite-user",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/partial-export",
+      "state": "HTTP_SUCCESS",
+      "httpStatus": 200
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/partialImport",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 500
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/push-revocation",
+      "state": "HTTP_SUCCESS",
+      "httpStatus": 200
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/roles",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 500
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/roles-by-id/{role-id}/composites",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/roles/{role-name}/composites",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/testSMTPConnection",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 500
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/users",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 500
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/users/{user-id}/credentials/{credentialId}/moveAfter/{newPreviousCredentialId}",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/users/{user-id}/credentials/{credentialId}/moveToFirst",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/users/{user-id}/federated-identity/{provider}",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/users/{user-id}/impersonation",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/users/{user-id}/logout",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/users/{user-id}/role-mappings/clients/{client-id}",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/users/{user-id}/role-mappings/realm",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 500
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/authentication/config/{id}",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 500
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/authentication/flows/{flowAlias}/executions",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/authentication/flows/{id}",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/authentication/required-actions/{alias}",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/authentication/required-actions/{alias}/config",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 400
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/client-policies/policies",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 400
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/client-policies/profiles",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 400
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/client-scopes/{client-scope-id}",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/client-scopes/{client-scope-id}/protocol-mappers/models/{id}",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/client-templates/{client-scope-id}",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/client-templates/{client-scope-id}/protocol-mappers/models/{id}",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/client-types",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 501
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/clients/{client-uuid}",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/resource/{resource-id}",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/scope/{scope-id}",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/clients/{client-uuid}/default-client-scopes/{clientScopeId}",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/clients/{client-uuid}/management/permissions",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/clients/{client-uuid}/optional-client-scopes/{clientScopeId}",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/clients/{client-uuid}/protocol-mappers/models/{id}",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/clients/{client-uuid}/roles/{role-name}",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/clients/{client-uuid}/roles/{role-name}/management/permissions",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/components/{id}",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/default-default-client-scopes/{clientScopeId}",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/default-groups/{groupId}",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/default-optional-client-scopes/{clientScopeId}",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/events/config",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 500
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/groups/{group-id}",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/groups/{group-id}/management/permissions",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/identity-provider/instances/{alias}",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/identity-provider/instances/{alias}/management/permissions",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 501
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/identity-provider/instances/{alias}/mappers/{id}",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/localization/{locale}/{key}",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 500
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/organizations/{org-id}",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/roles-by-id/{role-id}",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/roles-by-id/{role-id}/management/permissions",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 501
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/roles/{role-name}",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/roles/{role-name}/management/permissions",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 501
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/users-management-permissions",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 501
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/users/{user-id}",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/users/{user-id}/credentials/{credentialId}/userLabel",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/users/{user-id}/disable-credential-types",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/users/{user-id}/execute-actions-email",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/users/{user-id}/groups/{groupId}",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/users/{user-id}/reset-password",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/users/{user-id}/reset-password-email",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/users/{user-id}/send-verify-email",
+      "state": "HTTP_NON_SUCCESS",
+      "httpStatus": 404
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/users/profile",
+      "state": "HTTP_SUCCESS",
+      "httpStatus": 200
+    }
+  ]
+}

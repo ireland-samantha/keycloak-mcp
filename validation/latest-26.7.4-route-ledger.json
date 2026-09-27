@@ -1,0 +1,5487 @@
+{
+  "catalogVersion": "latest",
+  "catalogSha256": "ba68e1c3842c11701ec64c5f3ba23387cf53963f8d16dd7c3d45da103b9421db",
+  "observationsSha256": "248809767c5c20074ed0a5635f326e750d847f4dbebb1e900670d04ba38efabc",
+  "total": 413,
+  "observedCount": 413,
+  "missingCount": 0,
+  "scope": "One or more successful service-account calls per method/path key on isolated Keycloak 26.7.4, across default, explicitly enabled feature, and storage-backed user configurations. Some mutations used a test-only direct transport; public product writes require workflows.",
+  "limit": "Route-level evidence under the recorded product source hashes. A later workflow preflight guard is validated separately by the linked current-source production cycle; this ledger does not claim the 413 route calls were rerun after that change. This does not prove every payload, role assignment, installed SPI route, rollback, production feature availability, or complete behavior. The credential-disable route returned 204 without effect on a local user; the counted storage-backed case changed its backing file and retained the user.",
+  "postEvidenceWorkflowUpdate": {
+    "currentSha256": "790f4aec003659ccaf6d6a8e10529a089455ea60b8e70aee4655df57fb210bbc",
+    "cycleReport": "current-workflow-production-cycle.json",
+    "cycleReportSha256": "6759cfca4671c07c6b1da7e86c5eb9bcd74a8d97a7b449b3093c4dae3d729f88",
+    "scope": "Preflight compensation-target guard changed after the route observations. The pinned route reports retain their original workflow source hash; the current workflow has a separate production group compensation cycle."
+  },
+  "cleanup": {
+    "default": {
+      "serviceToken": 200,
+      "realmRead": 200,
+      "organizationCountRead": 200,
+      "organizationCountBeforeRealmDelete": 0,
+      "workflowListRead": 200,
+      "workflowCountBeforeRealmDelete": 0,
+      "globalCycleRealmAbsent": 404,
+      "testRealmDelete": 204,
+      "testRealmAbsentRead": 404,
+      "masterServiceClientDelete": 204,
+      "masterServiceClientAbsentRead": true
+    },
+    "explicitFeatures": {
+      "serviceToken": 200,
+      "serviceRealmRead": 200,
+      "organizationsCountRead": 200,
+      "organizationsCount": 0,
+      "workflowListRead": 200,
+      "workflowListEmpty": true,
+      "realmDelete": 204,
+      "realmAbsentRead": 404
+    },
+    "storageBacked": {
+      "serviceToken": 200,
+      "serviceRealmRead": 200,
+      "organizationsCountRead": 200,
+      "organizationsCount": 0,
+      "workflowListRead": 200,
+      "workflowListEmpty": true,
+      "realmDelete": 204,
+      "realmAbsentRead": 404
+    }
+  },
+  "rows": [
+    {
+      "operation": "DELETE /admin/realms/{realm}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/global-service-cycle.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/admin-events",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-e-v3-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/attack-detection/brute-force/users",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-e-v3-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/attack-detection/brute-force/users/{userId}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-n-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/authentication/config/{id}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-l-readlogged.json",
+          "status": 204
+        },
+        {
+          "source": "default/valid-mutations-l-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/authentication/executions/{executionId}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-h-readlogged.json",
+          "status": 204
+        },
+        {
+          "source": "default/valid-mutations-q-v3-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/authentication/flows/{id}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-b-readlogged.json",
+          "status": 204
+        },
+        {
+          "source": "default/valid-mutations-h-readlogged.json",
+          "status": 204
+        },
+        {
+          "source": "default/valid-mutations-h-readlogged.json",
+          "status": 204
+        },
+        {
+          "source": "default/valid-mutations-l-readlogged.json",
+          "status": 204
+        },
+        {
+          "source": "default/valid-mutations-q-v3-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/authentication/required-actions/{alias}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-o-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/authentication/required-actions/{alias}/config",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-o-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/client-scopes/{client-scope-id}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-base-latest.json",
+          "status": 204
+        },
+        {
+          "source": "default/valid-mutations-c-readlogged.json",
+          "status": 204
+        },
+        {
+          "source": "default/valid-mutations-e-v3-readlogged.json",
+          "status": 204
+        },
+        {
+          "source": "default/valid-mutations-f-v4-readlogged.json",
+          "status": 204
+        },
+        {
+          "source": "default/valid-mutations-g-v3-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/client-scopes/{client-scope-id}/protocol-mappers/models/{id}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-c-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/client-scopes/{client-scope-id}/scope-mappings/clients/{client}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-f-v4-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/client-scopes/{client-scope-id}/scope-mappings/realm",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-c-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/client-templates/{client-scope-id}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-k-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/client-templates/{client-scope-id}/protocol-mappers/models/{id}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-k-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/client-templates/{client-scope-id}/scope-mappings/clients/{client}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-k-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/client-templates/{client-scope-id}/scope-mappings/realm",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-k-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/clients-initial-access/{id}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-f-v4-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/clients/{client-uuid}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-aa-fixed.json",
+          "status": 204
+        },
+        {
+          "source": "default/valid-mutations-w-v3.json",
+          "status": 204
+        },
+        {
+          "source": "default/valid-mutations-y-v3.json",
+          "status": 204
+        },
+        {
+          "source": "default/valid-mutations-base-latest.json",
+          "status": 204
+        },
+        {
+          "source": "default/valid-mutations-m-latest.json",
+          "status": 204
+        },
+        {
+          "source": "default/valid-mutations-d-orgreads.json",
+          "status": 204
+        },
+        {
+          "source": "default/valid-mutations-b-readlogged.json",
+          "status": 204
+        },
+        {
+          "source": "default/valid-mutations-c-readlogged.json",
+          "status": 204
+        },
+        {
+          "source": "default/valid-mutations-d-v2-readlogged.json",
+          "status": 204
+        },
+        {
+          "source": "default/valid-mutations-f-v4-readlogged.json",
+          "status": 204
+        },
+        {
+          "source": "default/valid-mutations-g-v3-readlogged.json",
+          "status": 204
+        },
+        {
+          "source": "default/valid-mutations-i-readlogged.json",
+          "status": 204
+        },
+        {
+          "source": "default/valid-mutations-j-readlogged.json",
+          "status": 204
+        },
+        {
+          "source": "default/valid-mutations-k-readlogged.json",
+          "status": 204
+        },
+        {
+          "source": "default/valid-mutations-s-readlogged.json",
+          "status": 204
+        },
+        {
+          "source": "default/valid-mutations-t-v3-readlogged.json",
+          "status": 204
+        },
+        {
+          "source": "default/valid-mutations-u-v2-readlogged.json",
+          "status": 204
+        },
+        {
+          "source": "default/valid-mutations-u-v2-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/resource/{resource-id}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-d-orgreads.json",
+          "status": 204
+        },
+        {
+          "source": "default/valid-mutations-d-v2-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/scope/{scope-id}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-d-orgreads.json",
+          "status": 204
+        },
+        {
+          "source": "default/valid-mutations-d-v2-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/clients/{client-uuid}/client-secret/rotated",
+      "observed": true,
+      "observations": [
+        {
+          "source": "explicit-features/rotation-with-read.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/clients/{client-uuid}/default-client-scopes/{clientScopeId}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-base-latest.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/clients/{client-uuid}/nodes/{node}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-m-latest.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/clients/{client-uuid}/optional-client-scopes/{clientScopeId}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-f-v4-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/clients/{client-uuid}/protocol-mappers/models/{id}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-c-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/clients/{client-uuid}/roles/{role-name}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-b-readlogged.json",
+          "status": 204
+        },
+        {
+          "source": "default/valid-mutations-f-v4-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/clients/{client-uuid}/roles/{role-name}/composites",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-g-v3-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/clients/{client-uuid}/scope-mappings/clients/{client}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-f-v4-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/clients/{client-uuid}/scope-mappings/realm",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-f-v4-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/components/{id}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-n-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/default-default-client-scopes/{clientScopeId}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-e-v3-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/default-groups/{groupId}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-c-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/default-optional-client-scopes/{clientScopeId}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-e-v3-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/events",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-e-v3-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/groups/{group-id}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-base-latest.json",
+          "status": 204
+        },
+        {
+          "source": "default/valid-mutations-b-readlogged.json",
+          "status": 204
+        },
+        {
+          "source": "default/valid-mutations-b-readlogged.json",
+          "status": 204
+        },
+        {
+          "source": "default/valid-mutations-c-readlogged.json",
+          "status": 204
+        },
+        {
+          "source": "default/valid-mutations-f-v4-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/groups/{group-id}/role-mappings/clients/{client-id}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-f-v4-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/groups/{group-id}/role-mappings/realm",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-base-latest.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/identity-provider/instances/{alias}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-x-jwks.json",
+          "status": 204
+        },
+        {
+          "source": "default/valid-mutations-d-orgreads.json",
+          "status": 204
+        },
+        {
+          "source": "default/valid-mutations-b-readlogged.json",
+          "status": 204
+        },
+        {
+          "source": "default/valid-mutations-d-v2-readlogged.json",
+          "status": 204
+        },
+        {
+          "source": "default/valid-mutations-i-readlogged.json",
+          "status": 204
+        },
+        {
+          "source": "default/valid-mutations-p-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/identity-provider/instances/{alias}/mappers/{id}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-i-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/localization/{locale}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-b-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/localization/{locale}/{key}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-b-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/organizations/{org-id}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-z.json",
+          "status": 204
+        },
+        {
+          "source": "default/valid-mutations-d-orgreads.json",
+          "status": 204
+        },
+        {
+          "source": "default/valid-mutations-b-readlogged.json",
+          "status": 204
+        },
+        {
+          "source": "default/valid-mutations-d-v2-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/organizations/{org-id}/groups/{group-id}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/latest-group-current.json",
+          "status": 204
+        },
+        {
+          "source": "default/latest-group-current.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/organizations/{org-id}/groups/{group-id}/members/{userId}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/latest-read-current.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/organizations/{org-id}/groups/{group-id}/role-mappings/clients/{client-id}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/latest-group-current.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/organizations/{org-id}/groups/{group-id}/role-mappings/realm",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/latest-group-current.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/organizations/{org-id}/identity-providers/{alias}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-d-orgreads.json",
+          "status": 204
+        },
+        {
+          "source": "default/valid-mutations-d-v2-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/organizations/{org-id}/invitations/{id}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/invitation-probe.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/organizations/{org-id}/members/{member-id}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-d-orgreads.json",
+          "status": 204
+        },
+        {
+          "source": "default/valid-mutations-d-v2-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/roles-by-id/{role-id}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-g-v3-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/roles-by-id/{role-id}/composites",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-g-v3-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/roles/{role-name}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-base-latest.json",
+          "status": 204
+        },
+        {
+          "source": "default/valid-mutations-c-readlogged.json",
+          "status": 204
+        },
+        {
+          "source": "default/valid-mutations-c-readlogged.json",
+          "status": 204
+        },
+        {
+          "source": "default/valid-mutations-f-v4-readlogged.json",
+          "status": 204
+        },
+        {
+          "source": "default/valid-mutations-g-v3-readlogged.json",
+          "status": 204
+        },
+        {
+          "source": "default/valid-mutations-k-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/roles/{role-name}/composites",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-c-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/sessions/{session}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-y-v3.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/users/{user-id}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-v-email.json",
+          "status": 204
+        },
+        {
+          "source": "default/valid-mutations-y-v3.json",
+          "status": 204
+        },
+        {
+          "source": "default/valid-mutations-z.json",
+          "status": 204
+        },
+        {
+          "source": "default/valid-mutations-base-latest.json",
+          "status": 204
+        },
+        {
+          "source": "default/valid-mutations-d-orgreads.json",
+          "status": 204
+        },
+        {
+          "source": "default/valid-mutations-d-v2-readlogged.json",
+          "status": 204
+        },
+        {
+          "source": "default/valid-mutations-f-v4-readlogged.json",
+          "status": 204
+        },
+        {
+          "source": "default/valid-mutations-g-v3-readlogged.json",
+          "status": 204
+        },
+        {
+          "source": "default/valid-mutations-i-readlogged.json",
+          "status": 204
+        },
+        {
+          "source": "default/valid-mutations-n-readlogged.json",
+          "status": 204
+        },
+        {
+          "source": "default/valid-mutations-p-readlogged.json",
+          "status": 204
+        },
+        {
+          "source": "default/valid-mutations-s-readlogged.json",
+          "status": 204
+        },
+        {
+          "source": "default/valid-mutations-t-v3-readlogged.json",
+          "status": 204
+        },
+        {
+          "source": "default/valid-mutations-u-v2-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/users/{user-id}/consents/{client}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/final-consent.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/users/{user-id}/credentials/{credentialId}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-i-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/users/{user-id}/federated-identity/{provider}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-p-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/users/{user-id}/groups/{groupId}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-base-latest.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/users/{user-id}/role-mappings/clients/{client-id}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-f-v4-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/users/{user-id}/role-mappings/realm",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-base-latest.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/workflows/{id}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/workflow-current.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/global-service-cycle.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-base-latest.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-d-orgreads.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-b-readlogged.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-c-readlogged.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-d-v2-readlogged.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-e-v3-readlogged.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-e-v3-readlogged.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-f-v4-readlogged.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-g-v3-readlogged.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-j-readlogged.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-n-readlogged.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/admin-events",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-e-v3-readlogged.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/attack-detection/brute-force/users/{userId}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-n-readlogged.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/authentication/authenticator-providers",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/authentication/client-authenticator-providers",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/authentication/config-description/{providerId}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/remaining-reads-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/authentication/config/{id}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-l-readlogged.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-l-readlogged.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-l-readlogged.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/authentication/executions/{executionId}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/path-fixtures-current.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-q-v3-readlogged.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/authentication/executions/{executionId}/config/{id}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/remaining-reads-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/authentication/flows",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-h-readlogged.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/authentication/flows/{flowAlias}/executions",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-h-readlogged.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-h-readlogged.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-h-readlogged.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-h-readlogged.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-l-readlogged.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-q-v3-readlogged.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-q-v3-readlogged.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/authentication/flows/{id}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/path-fixtures-current.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-b-readlogged.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-b-readlogged.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/authentication/form-action-providers",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/authentication/form-providers",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/authentication/per-client-config-description",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/authentication/required-actions",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/authentication/required-actions/{alias}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/path-fixtures-current.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-j-readlogged.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-j-readlogged.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-j-readlogged.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-o-readlogged.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-o-readlogged.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-o-readlogged.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/authentication/required-actions/{alias}/config",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/path-fixtures-current.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-o-readlogged.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-o-readlogged.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-o-readlogged.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/authentication/required-actions/{alias}/config-description",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/path-fixtures-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/authentication/unregistered-required-actions",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-o-readlogged.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/client-policies/policies",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-e-v3-readlogged.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-e-v3-readlogged.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/client-policies/profiles",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-e-v3-readlogged.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-e-v3-readlogged.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/client-registration-policy/providers",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/client-scopes",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/client-scopes/{client-scope-id}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-base-latest.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-base-latest.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/client-scopes/{client-scope-id}/protocol-mappers/models",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-c-readlogged.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-c-readlogged.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-g-v3-readlogged.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/client-scopes/{client-scope-id}/protocol-mappers/models/{id}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-c-readlogged.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/client-scopes/{client-scope-id}/protocol-mappers/protocol/{protocol}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/client-scopes/{client-scope-id}/scope-mappings",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/client-scopes/{client-scope-id}/scope-mappings/clients/{client}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-f-v4-readlogged.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-f-v4-readlogged.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/client-scopes/{client-scope-id}/scope-mappings/clients/{client}/available",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/client-scopes/{client-scope-id}/scope-mappings/clients/{client}/composite",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/client-scopes/{client-scope-id}/scope-mappings/realm",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-c-readlogged.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-c-readlogged.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/client-scopes/{client-scope-id}/scope-mappings/realm/available",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/client-scopes/{client-scope-id}/scope-mappings/realm/composite",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/client-session-stats",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/client-templates",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/client-templates/{client-scope-id}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-k-readlogged.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-k-readlogged.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/client-templates/{client-scope-id}/protocol-mappers/models",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-k-readlogged.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-k-readlogged.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-k-readlogged.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/client-templates/{client-scope-id}/protocol-mappers/models/{id}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-k-readlogged.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/client-templates/{client-scope-id}/protocol-mappers/protocol/{protocol}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/client-templates/{client-scope-id}/scope-mappings",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/client-templates/{client-scope-id}/scope-mappings/clients/{client}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-k-readlogged.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-k-readlogged.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/client-templates/{client-scope-id}/scope-mappings/clients/{client}/available",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/client-templates/{client-scope-id}/scope-mappings/clients/{client}/composite",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/client-templates/{client-scope-id}/scope-mappings/realm",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-k-readlogged.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-k-readlogged.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/client-templates/{client-scope-id}/scope-mappings/realm/available",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/client-templates/{client-scope-id}/scope-mappings/realm/composite",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/client-types",
+      "observed": true,
+      "observations": [
+        {
+          "source": "explicit-features/preview-suite-with-read.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        },
+        {
+          "source": "default/latest-read-current.json",
+          "status": 200
+        },
+        {
+          "source": "default/latest-group-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients-initial-access",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-f-v4-readlogged.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-f-v4-readlogged.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-f-v4-readlogged.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-base-latest.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-base-latest.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-m-latest.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-m-latest.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-j-readlogged.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-j-readlogged.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/permission",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/remaining-reads-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/permission/providers",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/remaining-reads-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/permission/search",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/query-reads-current.json",
+          "status": 204
+        },
+        {
+          "source": "default/valid-mutations-s-readlogged.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-t-v3-readlogged.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-u-v2-readlogged.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/remaining-reads-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/providers",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/remaining-reads-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/search",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/query-reads-current.json",
+          "status": 204
+        },
+        {
+          "source": "default/valid-mutations-s-readlogged.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-t-v3-readlogged.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-u-v2-readlogged.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/resource",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-d-orgreads.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-d-v2-readlogged.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-s-readlogged.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-t-v3-readlogged.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-u-v2-readlogged.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/resource/search",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/query-reads-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/resource/{resource-id}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/path-fixtures-current.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-d-orgreads.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-d-v2-readlogged.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/resource/{resource-id}/attributes",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/path-fixtures-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/resource/{resource-id}/permissions",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/path-fixtures-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/resource/{resource-id}/scopes",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/path-fixtures-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/scope",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-d-orgreads.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-d-v2-readlogged.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/scope/search",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/query-reads-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/scope/{scope-id}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/path-fixtures-current.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-d-orgreads.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-d-v2-readlogged.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/scope/{scope-id}/permissions",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/path-fixtures-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/scope/{scope-id}/resources",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/path-fixtures-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/settings",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-u-v2-readlogged.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-u-v2-readlogged.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/certificates/{attr}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/path-fixtures-current.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-m-latest.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/client-secret",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-i-readlogged.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-i-readlogged.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/client-secret/rotated",
+      "observed": true,
+      "observations": [
+        {
+          "source": "explicit-features/rotation-with-read.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/default-client-scopes",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-base-latest.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-base-latest.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/evaluate-scopes/generate-example-access-token",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/query-reads-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/evaluate-scopes/generate-example-id-token",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/query-reads-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/evaluate-scopes/generate-example-saml-response",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/saml-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/evaluate-scopes/generate-example-userinfo",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/query-reads-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/evaluate-scopes/protocol-mappers",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/evaluate-scopes/scope-mappings/{roleContainerId}/granted",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/evaluate-scopes/scope-mappings/{roleContainerId}/not-granted",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/installation/providers/{providerId}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/path-fixtures-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/management/permissions",
+      "observed": true,
+      "observations": [
+        {
+          "source": "explicit-features/fgap-v1-resources-with-reads.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/offline-session-count",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/offline-sessions",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/optional-client-scopes",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-f-v4-readlogged.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-f-v4-readlogged.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/protocol-mappers/models",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-c-readlogged.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-c-readlogged.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-g-v3-readlogged.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/protocol-mappers/models/{id}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-c-readlogged.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/protocol-mappers/protocol/{protocol}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/roles",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/roles/{role-name}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/latest-group-current.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-b-readlogged.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-b-readlogged.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-f-v4-readlogged.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-g-v3-readlogged.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-g-v3-readlogged.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-k-readlogged.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/roles/{role-name}/composites",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-g-v3-readlogged.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-g-v3-readlogged.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/roles/{role-name}/composites/clients/{targetClientUuid}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/latest-group-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/roles/{role-name}/composites/realm",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/remaining-reads-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/roles/{role-name}/groups",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/remaining-reads-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/roles/{role-name}/management/permissions",
+      "observed": true,
+      "observations": [
+        {
+          "source": "explicit-features/fgap-v1-resources-with-reads.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/roles/{role-name}/users",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/remaining-reads-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/scope-mappings",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/scope-mappings/clients/{client}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-f-v4-readlogged.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-f-v4-readlogged.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/scope-mappings/clients/{client}/available",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/scope-mappings/clients/{client}/composite",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/scope-mappings/realm",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-f-v4-readlogged.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-f-v4-readlogged.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/scope-mappings/realm/available",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/scope-mappings/realm/composite",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/service-account-user",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/session-count",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/test-nodes-available",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/user-sessions",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/components",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/components/{id}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-n-readlogged.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-n-readlogged.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/components/{id}/sub-component-types",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/component-subtypes.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/credential-registrators",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/default-default-client-scopes",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-e-v3-readlogged.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-e-v3-readlogged.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/default-groups",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-c-readlogged.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-c-readlogged.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/default-optional-client-scopes",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-e-v3-readlogged.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-e-v3-readlogged.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/events",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-e-v3-readlogged.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/events/config",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-e-v3-readlogged.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/group-by-path/{path}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/groups",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/groups/count",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/groups/{group-id}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-base-latest.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-base-latest.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/groups/{group-id}/children",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-b-readlogged.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-b-readlogged.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/groups/{group-id}/management/permissions",
+      "observed": true,
+      "observations": [
+        {
+          "source": "explicit-features/fgap-v1-resources-with-reads.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/groups/{group-id}/members",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/groups/{group-id}/role-mappings",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/groups/{group-id}/role-mappings/clients/{client-id}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-f-v4-readlogged.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-f-v4-readlogged.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/groups/{group-id}/role-mappings/clients/{client-id}/available",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/groups/{group-id}/role-mappings/clients/{client-id}/composite",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/groups/{group-id}/role-mappings/realm",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-base-latest.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-base-latest.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/groups/{group-id}/role-mappings/realm/available",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/groups/{group-id}/role-mappings/realm/composite",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/identity-provider/instances",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/identity-provider/instances/{alias}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/path-fixtures-current.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-b-readlogged.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-b-readlogged.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/identity-provider/instances/{alias}/export",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/path-fixtures-current.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/identity-provider/instances/{alias}/management/permissions",
+      "observed": true,
+      "observations": [
+        {
+          "source": "explicit-features/fgap-v1-resources-with-reads.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/identity-provider/instances/{alias}/mapper-types",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/path-fixtures-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/identity-provider/instances/{alias}/mappers",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/path-fixtures-current.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-i-readlogged.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-i-readlogged.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/identity-provider/instances/{alias}/mappers/{id}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-i-readlogged.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/identity-provider/instances/{alias}/reload-keys",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-x-jwks.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/identity-provider/providers/{provider_id}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/path-fixtures-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/keys",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/localization",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/localization/{locale}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/path-fixtures-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/localization/{locale}/{key}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-b-readlogged.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-b-readlogged.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/organizations",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-d-orgreads.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-b-readlogged.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-d-v2-readlogged.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/organizations/count",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/organizations/members/{member-id}/organizations",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-d-orgreads.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/organizations/{org-id}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-d-orgreads.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-b-readlogged.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-b-readlogged.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/organizations/{org-id}/groups",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/latest-read-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/organizations/{org-id}/groups/group-by-path/{path}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/latest-read-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/organizations/{org-id}/groups/{group-id}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/latest-read-current.json",
+          "status": 200
+        },
+        {
+          "source": "default/latest-group-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/organizations/{org-id}/groups/{group-id}/children",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/latest-read-current.json",
+          "status": 200
+        },
+        {
+          "source": "default/latest-group-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/organizations/{org-id}/groups/{group-id}/members",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/latest-read-current.json",
+          "status": 200
+        },
+        {
+          "source": "default/latest-read-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/organizations/{org-id}/groups/{group-id}/role-mappings",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/latest-read-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/organizations/{org-id}/groups/{group-id}/role-mappings/clients/{client-id}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/latest-read-current.json",
+          "status": 200
+        },
+        {
+          "source": "default/latest-group-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/organizations/{org-id}/groups/{group-id}/role-mappings/clients/{client-id}/available",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/latest-read-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/organizations/{org-id}/groups/{group-id}/role-mappings/clients/{client-id}/composite",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/latest-read-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/organizations/{org-id}/groups/{group-id}/role-mappings/realm",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/latest-read-current.json",
+          "status": 200
+        },
+        {
+          "source": "default/latest-group-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/organizations/{org-id}/groups/{group-id}/role-mappings/realm/available",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/latest-read-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/organizations/{org-id}/groups/{group-id}/role-mappings/realm/composite",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/latest-read-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/organizations/{org-id}/identity-providers",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-d-orgreads.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-d-orgreads.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-d-v2-readlogged.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-d-v2-readlogged.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/organizations/{org-id}/identity-providers/{alias}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-d-orgreads.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/organizations/{org-id}/identity-providers/{alias}/groups",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/latest-read-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/organizations/{org-id}/invitations",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/latest-read-current.json",
+          "status": 200
+        },
+        {
+          "source": "default/invitation-probe.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/organizations/{org-id}/invitations/{id}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/invitation-probe.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/organizations/{org-id}/members",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-d-orgreads.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-d-orgreads.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-d-v2-readlogged.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-d-v2-readlogged.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/organizations/{org-id}/members/count",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-d-orgreads.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/organizations/{org-id}/members/{member-id}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-d-orgreads.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/organizations/{org-id}/members/{member-id}/groups",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/latest-read-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/organizations/{org-id}/members/{member-id}/organizations",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-d-orgreads.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/roles",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/roles-by-id/{role-id}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-g-v3-readlogged.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/roles-by-id/{role-id}/composites",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-g-v3-readlogged.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-g-v3-readlogged.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/roles-by-id/{role-id}/composites/clients/{clientUuid}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/roles-by-id/{role-id}/composites/realm",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/roles-by-id/{role-id}/management/permissions",
+      "observed": true,
+      "observations": [
+        {
+          "source": "explicit-features/fgap-v1-resources-with-reads.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/roles/{role-name}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        },
+        {
+          "source": "default/latest-group-current.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-base-latest.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-base-latest.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-c-readlogged.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-c-readlogged.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-f-v4-readlogged.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-g-v3-readlogged.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-g-v3-readlogged.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-k-readlogged.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/roles/{role-name}/composites",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-c-readlogged.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-c-readlogged.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/roles/{role-name}/composites/clients/{targetClientUuid}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/latest-group-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/roles/{role-name}/composites/realm",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/roles/{role-name}/groups",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/roles/{role-name}/management/permissions",
+      "observed": true,
+      "observations": [
+        {
+          "source": "explicit-features/fgap-v1-resources-with-reads.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/roles/{role-name}/users",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/users",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/users-management-permissions",
+      "observed": true,
+      "observations": [
+        {
+          "source": "explicit-features/fgap-v1-with-read.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/users/count",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/users/profile",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-h-readlogged.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-h-readlogged.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/users/profile/metadata",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/users/{user-id}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-base-latest.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-base-latest.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/users/{user-id}/configured-user-storage-credential-types",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/users/{user-id}/consents",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/users/{user-id}/credentials",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-i-readlogged.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-i-readlogged.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-i-readlogged.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/users/{user-id}/federated-identity",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-p-readlogged.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-p-readlogged.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/users/{user-id}/groups",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-base-latest.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-base-latest.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/users/{user-id}/groups/count",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/users/{user-id}/offline-sessions/{clientUuid}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/users/{user-id}/role-mappings",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/users/{user-id}/role-mappings/clients/{client-id}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-f-v4-readlogged.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-f-v4-readlogged.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/users/{user-id}/role-mappings/clients/{client-id}/available",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/users/{user-id}/role-mappings/clients/{client-id}/composite",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/users/{user-id}/role-mappings/realm",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-base-latest.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-base-latest.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/users/{user-id}/role-mappings/realm/available",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/users/{user-id}/role-mappings/realm/composite",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/users/{user-id}/sessions",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/users/{user-id}/unmanagedAttributes",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/workflows",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/read-matrix-current.json",
+          "status": 200
+        },
+        {
+          "source": "default/latest-read-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/workflows/scheduled/{resource-id}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/path-fixtures-current.json",
+          "status": 200
+        },
+        {
+          "source": "default/latest-read-current.json",
+          "status": 200
+        },
+        {
+          "source": "default/workflow-actions-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/workflows/{id}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/workflow-current.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/global-service-cycle.json",
+          "status": 201
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/authentication/config",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-l-readlogged.json",
+          "status": 201
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/authentication/executions",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-q-v3-readlogged.json",
+          "status": 201
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/authentication/executions/{executionId}/config",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-l-readlogged.json",
+          "status": 201
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/authentication/executions/{executionId}/lower-priority",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-h-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/authentication/executions/{executionId}/raise-priority",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-h-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/authentication/flows",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-b-readlogged.json",
+          "status": 201
+        },
+        {
+          "source": "default/valid-mutations-h-readlogged.json",
+          "status": 201
+        },
+        {
+          "source": "default/valid-mutations-l-readlogged.json",
+          "status": 201
+        },
+        {
+          "source": "default/valid-mutations-q-v3-readlogged.json",
+          "status": 201
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/authentication/flows/{flowAlias}/copy",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-h-readlogged.json",
+          "status": 201
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/authentication/flows/{flowAlias}/executions/execution",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-h-readlogged.json",
+          "status": 201
+        },
+        {
+          "source": "default/valid-mutations-l-readlogged.json",
+          "status": 201
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/authentication/flows/{flowAlias}/executions/flow",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-h-readlogged.json",
+          "status": 201
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/authentication/register-required-action",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-o-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/authentication/required-actions/{alias}/lower-priority",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-j-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/authentication/required-actions/{alias}/raise-priority",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-j-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/client-description-converter",
+      "observed": true,
+      "observations": [
+        {
+          "source": "explicit-features/valid-mutations-r.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/client-scopes",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-base-latest.json",
+          "status": 201
+        },
+        {
+          "source": "default/valid-mutations-c-readlogged.json",
+          "status": 201
+        },
+        {
+          "source": "default/valid-mutations-e-v3-readlogged.json",
+          "status": 201
+        },
+        {
+          "source": "default/valid-mutations-f-v4-readlogged.json",
+          "status": 201
+        },
+        {
+          "source": "default/valid-mutations-g-v3-readlogged.json",
+          "status": 201
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/client-scopes/{client-scope-id}/protocol-mappers/add-models",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-g-v3-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/client-scopes/{client-scope-id}/protocol-mappers/models",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-c-readlogged.json",
+          "status": 201
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/client-scopes/{client-scope-id}/scope-mappings/clients/{client}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-f-v4-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/client-scopes/{client-scope-id}/scope-mappings/realm",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-c-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/client-templates",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-k-readlogged.json",
+          "status": 201
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/client-templates/{client-scope-id}/protocol-mappers/add-models",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-k-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/client-templates/{client-scope-id}/protocol-mappers/models",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-k-readlogged.json",
+          "status": 201
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/client-templates/{client-scope-id}/scope-mappings/clients/{client}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-k-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/client-templates/{client-scope-id}/scope-mappings/realm",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-k-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-aa-fixed.json",
+          "status": 201
+        },
+        {
+          "source": "default/valid-mutations-w-v3.json",
+          "status": 201
+        },
+        {
+          "source": "default/valid-mutations-y-v3.json",
+          "status": 201
+        },
+        {
+          "source": "default/valid-mutations-base-latest.json",
+          "status": 201
+        },
+        {
+          "source": "default/valid-mutations-m-latest.json",
+          "status": 201
+        },
+        {
+          "source": "default/valid-mutations-d-orgreads.json",
+          "status": 201
+        },
+        {
+          "source": "default/valid-mutations-b-readlogged.json",
+          "status": 201
+        },
+        {
+          "source": "default/valid-mutations-c-readlogged.json",
+          "status": 201
+        },
+        {
+          "source": "default/valid-mutations-d-v2-readlogged.json",
+          "status": 201
+        },
+        {
+          "source": "default/valid-mutations-f-v4-readlogged.json",
+          "status": 201
+        },
+        {
+          "source": "default/valid-mutations-g-v3-readlogged.json",
+          "status": 201
+        },
+        {
+          "source": "default/valid-mutations-i-readlogged.json",
+          "status": 201
+        },
+        {
+          "source": "default/valid-mutations-j-readlogged.json",
+          "status": 201
+        },
+        {
+          "source": "default/valid-mutations-k-readlogged.json",
+          "status": 201
+        },
+        {
+          "source": "default/valid-mutations-s-readlogged.json",
+          "status": 201
+        },
+        {
+          "source": "default/valid-mutations-t-v3-readlogged.json",
+          "status": 201
+        },
+        {
+          "source": "default/valid-mutations-u-v2-readlogged.json",
+          "status": 201
+        },
+        {
+          "source": "default/valid-mutations-u-v2-readlogged.json",
+          "status": 201
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients-initial-access",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-f-v4-readlogged.json",
+          "status": 201
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/import",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-u-v2-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/permission",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-s-readlogged.json",
+          "status": 201
+        },
+        {
+          "source": "default/valid-mutations-t-v3-readlogged.json",
+          "status": 201
+        },
+        {
+          "source": "default/valid-mutations-u-v2-readlogged.json",
+          "status": 201
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/permission/evaluate",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-t-v3-readlogged.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-u-v2-readlogged.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-s-readlogged.json",
+          "status": 201
+        },
+        {
+          "source": "default/valid-mutations-t-v3-readlogged.json",
+          "status": 201
+        },
+        {
+          "source": "default/valid-mutations-u-v2-readlogged.json",
+          "status": 201
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/evaluate",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-t-v3-readlogged.json",
+          "status": 200
+        },
+        {
+          "source": "default/valid-mutations-u-v2-readlogged.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/resource",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-d-orgreads.json",
+          "status": 201
+        },
+        {
+          "source": "default/valid-mutations-d-v2-readlogged.json",
+          "status": 201
+        },
+        {
+          "source": "default/valid-mutations-s-readlogged.json",
+          "status": 201
+        },
+        {
+          "source": "default/valid-mutations-t-v3-readlogged.json",
+          "status": 201
+        },
+        {
+          "source": "default/valid-mutations-u-v2-readlogged.json",
+          "status": 201
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/scope",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-d-orgreads.json",
+          "status": 201
+        },
+        {
+          "source": "default/valid-mutations-d-v2-readlogged.json",
+          "status": 201
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/certificates/{attr}/download",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-m-latest.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/certificates/{attr}/generate",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-m-latest.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/certificates/{attr}/generate-and-download",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-m-latest.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/certificates/{attr}/upload",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-aa-fixed.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/certificates/{attr}/upload-certificate",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-aa-fixed.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/client-secret",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-i-readlogged.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/nodes",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-m-latest.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/protocol-mappers/add-models",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-g-v3-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/protocol-mappers/models",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-c-readlogged.json",
+          "status": 201
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/push-revocation",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-m-latest.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/registration-access-token",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-m-latest.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/roles",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-b-readlogged.json",
+          "status": 201
+        },
+        {
+          "source": "default/valid-mutations-f-v4-readlogged.json",
+          "status": 201
+        },
+        {
+          "source": "default/valid-mutations-g-v3-readlogged.json",
+          "status": 201
+        },
+        {
+          "source": "default/valid-mutations-g-v3-readlogged.json",
+          "status": 201
+        },
+        {
+          "source": "default/valid-mutations-k-readlogged.json",
+          "status": 201
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/roles/{role-name}/composites",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-g-v3-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/scope-mappings/clients/{client}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-f-v4-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/scope-mappings/realm",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-f-v4-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/components",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-n-readlogged.json",
+          "status": 201
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/groups",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-base-latest.json",
+          "status": 201
+        },
+        {
+          "source": "default/valid-mutations-b-readlogged.json",
+          "status": 201
+        },
+        {
+          "source": "default/valid-mutations-c-readlogged.json",
+          "status": 201
+        },
+        {
+          "source": "default/valid-mutations-f-v4-readlogged.json",
+          "status": 201
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/groups/{group-id}/children",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-b-readlogged.json",
+          "status": 201
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/groups/{group-id}/role-mappings/clients/{client-id}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-f-v4-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/groups/{group-id}/role-mappings/realm",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-base-latest.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/identity-provider/import-config",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-w-v3.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/identity-provider/instances",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/latest-read-current.json",
+          "status": 201
+        },
+        {
+          "source": "default/valid-mutations-x-jwks.json",
+          "status": 201
+        },
+        {
+          "source": "default/valid-mutations-d-orgreads.json",
+          "status": 201
+        },
+        {
+          "source": "default/valid-mutations-b-readlogged.json",
+          "status": 201
+        },
+        {
+          "source": "default/valid-mutations-d-v2-readlogged.json",
+          "status": 201
+        },
+        {
+          "source": "default/valid-mutations-i-readlogged.json",
+          "status": 201
+        },
+        {
+          "source": "default/valid-mutations-p-readlogged.json",
+          "status": 201
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/identity-provider/instances/{alias}/mappers",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-i-readlogged.json",
+          "status": 201
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/identity-provider/upload-certificate",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/idp-certificate-probe.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/localization/{locale}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-b-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/logout-all",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-e-v3-readlogged.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/organizations",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/latest-read-current.json",
+          "status": 201
+        },
+        {
+          "source": "default/latest-group-current.json",
+          "status": 201
+        },
+        {
+          "source": "default/valid-mutations-z.json",
+          "status": 201
+        },
+        {
+          "source": "default/valid-mutations-d-orgreads.json",
+          "status": 201
+        },
+        {
+          "source": "default/valid-mutations-b-readlogged.json",
+          "status": 201
+        },
+        {
+          "source": "default/valid-mutations-d-v2-readlogged.json",
+          "status": 201
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/organizations/{org-id}/groups",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/latest-read-current.json",
+          "status": 201
+        },
+        {
+          "source": "default/latest-group-current.json",
+          "status": 201
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/organizations/{org-id}/groups/{group-id}/children",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/latest-group-current.json",
+          "status": 201
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/organizations/{org-id}/groups/{group-id}/role-mappings/clients/{client-id}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/latest-group-current.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/organizations/{org-id}/groups/{group-id}/role-mappings/realm",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/latest-group-current.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/organizations/{org-id}/identity-providers",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/latest-read-current.json",
+          "status": 204
+        },
+        {
+          "source": "default/valid-mutations-d-orgreads.json",
+          "status": 204
+        },
+        {
+          "source": "default/valid-mutations-d-v2-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/organizations/{org-id}/invitations/{id}/resend",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/invitation-probe.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/organizations/{org-id}/members",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/latest-read-current.json",
+          "status": 201
+        },
+        {
+          "source": "default/valid-mutations-d-orgreads.json",
+          "status": 201
+        },
+        {
+          "source": "default/valid-mutations-d-v2-readlogged.json",
+          "status": 201
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/organizations/{org-id}/members/invite-existing-user",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-z.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/organizations/{org-id}/members/invite-user",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-z.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/partial-export",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-e-v3-readlogged.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/partialImport",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-j-readlogged.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/push-revocation",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-w-v3.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/roles",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-base-latest.json",
+          "status": 201
+        },
+        {
+          "source": "default/valid-mutations-c-readlogged.json",
+          "status": 201
+        },
+        {
+          "source": "default/valid-mutations-c-readlogged.json",
+          "status": 201
+        },
+        {
+          "source": "default/valid-mutations-f-v4-readlogged.json",
+          "status": 201
+        },
+        {
+          "source": "default/valid-mutations-g-v3-readlogged.json",
+          "status": 201
+        },
+        {
+          "source": "default/valid-mutations-g-v3-readlogged.json",
+          "status": 201
+        },
+        {
+          "source": "default/valid-mutations-k-readlogged.json",
+          "status": 201
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/roles-by-id/{role-id}/composites",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-g-v3-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/roles/{role-name}/composites",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-c-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/testSMTPConnection",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-v-email.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/users",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/latest-read-current.json",
+          "status": 201
+        },
+        {
+          "source": "default/valid-mutations-v-email.json",
+          "status": 201
+        },
+        {
+          "source": "default/valid-mutations-y-v3.json",
+          "status": 201
+        },
+        {
+          "source": "default/valid-mutations-z.json",
+          "status": 201
+        },
+        {
+          "source": "default/valid-mutations-base-latest.json",
+          "status": 201
+        },
+        {
+          "source": "default/valid-mutations-d-orgreads.json",
+          "status": 201
+        },
+        {
+          "source": "default/valid-mutations-d-v2-readlogged.json",
+          "status": 201
+        },
+        {
+          "source": "default/valid-mutations-f-v4-readlogged.json",
+          "status": 201
+        },
+        {
+          "source": "default/valid-mutations-g-v3-readlogged.json",
+          "status": 201
+        },
+        {
+          "source": "default/valid-mutations-i-readlogged.json",
+          "status": 201
+        },
+        {
+          "source": "default/valid-mutations-n-readlogged.json",
+          "status": 201
+        },
+        {
+          "source": "default/valid-mutations-p-readlogged.json",
+          "status": 201
+        },
+        {
+          "source": "default/valid-mutations-s-readlogged.json",
+          "status": 201
+        },
+        {
+          "source": "default/valid-mutations-t-v3-readlogged.json",
+          "status": 201
+        },
+        {
+          "source": "default/valid-mutations-u-v2-readlogged.json",
+          "status": 201
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/users/{user-id}/credentials/{credentialId}/moveAfter/{newPreviousCredentialId}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/final-credentials.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/users/{user-id}/credentials/{credentialId}/moveToFirst",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/final-credentials.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/users/{user-id}/federated-identity/{provider}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-p-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/users/{user-id}/impersonation",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/impersonation2.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/users/{user-id}/logout",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-g-v3-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/users/{user-id}/role-mappings/clients/{client-id}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-f-v4-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/users/{user-id}/role-mappings/realm",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-base-latest.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/workflows",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/workflow-current.json",
+          "status": 201
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/workflows/migrate",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/workflow-actions-current.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/workflows/{id}/activate/{type}/{resourceId}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/workflow-actions-current.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/workflows/{id}/deactivate/{type}/{resourceId}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/workflow-actions-current.json",
+          "status": 204
+        },
+        {
+          "source": "default/workflow-actions-current.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-v-email.json",
+          "status": 204
+        },
+        {
+          "source": "default/valid-mutations-e-v3-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/authentication/config/{id}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-l-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/authentication/flows/{flowAlias}/executions",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-h-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/authentication/flows/{id}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-b-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/authentication/required-actions/{alias}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-j-readlogged.json",
+          "status": 204
+        },
+        {
+          "source": "default/valid-mutations-j-readlogged.json",
+          "status": 204
+        },
+        {
+          "source": "default/valid-mutations-o-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/authentication/required-actions/{alias}/config",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-o-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/client-policies/policies",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-e-v3-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/client-policies/profiles",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-e-v3-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/client-scopes/{client-scope-id}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-base-latest.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/client-scopes/{client-scope-id}/protocol-mappers/models/{id}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-c-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/client-templates/{client-scope-id}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-k-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/client-templates/{client-scope-id}/protocol-mappers/models/{id}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-k-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/client-types",
+      "observed": true,
+      "observations": [
+        {
+          "source": "explicit-features/preview-suite-with-read.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/clients/{client-uuid}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-base-latest.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-j-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/resource/{resource-id}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-d-orgreads.json",
+          "status": 204
+        },
+        {
+          "source": "default/valid-mutations-d-v2-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/scope/{scope-id}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-d-orgreads.json",
+          "status": 204
+        },
+        {
+          "source": "default/valid-mutations-d-v2-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/clients/{client-uuid}/default-client-scopes/{clientScopeId}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-base-latest.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/clients/{client-uuid}/management/permissions",
+      "observed": true,
+      "observations": [
+        {
+          "source": "explicit-features/fgap-v1-resources-with-reads.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/clients/{client-uuid}/optional-client-scopes/{clientScopeId}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-f-v4-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/clients/{client-uuid}/protocol-mappers/models/{id}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-c-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/clients/{client-uuid}/roles/{role-name}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-b-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/clients/{client-uuid}/roles/{role-name}/management/permissions",
+      "observed": true,
+      "observations": [
+        {
+          "source": "explicit-features/fgap-v1-resources-with-reads.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/components/{id}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-n-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/default-default-client-scopes/{clientScopeId}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-e-v3-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/default-groups/{groupId}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-c-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/default-optional-client-scopes/{clientScopeId}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-e-v3-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/events/config",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-e-v3-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/groups/{group-id}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-base-latest.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/groups/{group-id}/management/permissions",
+      "observed": true,
+      "observations": [
+        {
+          "source": "explicit-features/fgap-v1-resources-with-reads.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/identity-provider/instances/{alias}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-b-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/identity-provider/instances/{alias}/management/permissions",
+      "observed": true,
+      "observations": [
+        {
+          "source": "explicit-features/fgap-v1-resources-with-reads.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/identity-provider/instances/{alias}/mappers/{id}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-i-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/localization/{locale}/{key}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-b-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/organizations/{org-id}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-b-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/organizations/{org-id}/groups/{group-id}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/latest-group-current.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/organizations/{org-id}/groups/{group-id}/members/{userId}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/latest-read-current.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/roles-by-id/{role-id}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-g-v3-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/roles-by-id/{role-id}/management/permissions",
+      "observed": true,
+      "observations": [
+        {
+          "source": "explicit-features/fgap-v1-resources-with-reads.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/roles/{role-name}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-base-latest.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/roles/{role-name}/management/permissions",
+      "observed": true,
+      "observations": [
+        {
+          "source": "explicit-features/fgap-v1-resources-with-reads.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/users-management-permissions",
+      "observed": true,
+      "observations": [
+        {
+          "source": "explicit-features/fgap-v1-with-read.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/users/profile",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-h-readlogged.json",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/users/{user-id}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-base-latest.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/users/{user-id}/credentials/{credentialId}/userLabel",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-i-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/users/{user-id}/disable-credential-types",
+      "observed": true,
+      "observations": [
+        {
+          "source": "storage-backed/storage-disable.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/users/{user-id}/execute-actions-email",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-v-email.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/users/{user-id}/groups/{groupId}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-base-latest.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/users/{user-id}/reset-password",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-y-v3.json",
+          "status": 204
+        },
+        {
+          "source": "default/valid-mutations-g-v3-readlogged.json",
+          "status": 204
+        },
+        {
+          "source": "default/valid-mutations-i-readlogged.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/users/{user-id}/reset-password-email",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-v-email.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/users/{user-id}/send-verify-email",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/valid-mutations-v-email.json",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/workflows/{id}",
+      "observed": true,
+      "observations": [
+        {
+          "source": "default/workflow-current.json",
+          "status": 204
+        }
+      ]
+    }
+  ]
+}

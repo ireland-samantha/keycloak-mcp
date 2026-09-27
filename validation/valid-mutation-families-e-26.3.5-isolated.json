@@ -1,0 +1,95 @@
+{
+  "at": "2026-09-26T22:11:19.594Z",
+  "realm": "keycloak-mcp-isolated",
+  "catalogVersion": "26.3.5",
+  "catalogSha256": "c13a159f13ddaf20f11d4c7f93511589461f4779893941e8446809253e2300d5",
+  "distinctMutationOperations": 17,
+  "rows": [
+    {
+      "operation": "PUT /admin/realms/{realm}",
+      "state": "OBSERVED_PASS",
+      "status": 204
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/client-scopes",
+      "state": "OBSERVED_PASS",
+      "status": 201
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/default-default-client-scopes/{clientScopeId}",
+      "state": "OBSERVED_PASS",
+      "status": 204
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/default-default-client-scopes/{clientScopeId}",
+      "state": "OBSERVED_PASS",
+      "status": 204
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/default-optional-client-scopes/{clientScopeId}",
+      "state": "OBSERVED_PASS",
+      "status": 204
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/default-optional-client-scopes/{clientScopeId}",
+      "state": "OBSERVED_PASS",
+      "status": 204
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/client-scopes/{client-scope-id}",
+      "state": "OBSERVED_PASS",
+      "status": 204
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/events/config",
+      "state": "OBSERVED_PASS",
+      "status": 204
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/events",
+      "state": "OBSERVED_PASS",
+      "status": 204
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/admin-events",
+      "state": "OBSERVED_PASS",
+      "status": 204
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/client-policies/policies",
+      "state": "OBSERVED_PASS",
+      "status": 204
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/client-policies/profiles",
+      "state": "OBSERVED_PASS",
+      "status": 204
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/partial-export",
+      "state": "OBSERVED_PASS",
+      "status": 200
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/logout-all",
+      "state": "OBSERVED_PASS",
+      "status": 200
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/attack-detection/brute-force/users",
+      "state": "OBSERVED_PASS",
+      "status": 204
+    },
+    {
+      "operation": "POST /admin/realms",
+      "state": "OBSERVED_PASS",
+      "status": 201
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}",
+      "state": "OBSERVED_PASS",
+      "status": 204
+    }
+  ],
+  "failure": null
+}

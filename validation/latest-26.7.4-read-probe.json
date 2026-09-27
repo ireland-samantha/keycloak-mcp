@@ -1,0 +1,135 @@
+{
+  "catalogVersion": "latest",
+  "catalogSha256": "ba68e1c3842c11701ec64c5f3ba23387cf53963f8d16dd7c3d45da103b9421db",
+  "imageDigest": "sha256:82a77884f3af238beab1e7afd63b5f530e1b5c0590bd7aa60b40a40463e29b2c",
+  "rows": [
+    {
+      "operation": "POST /admin/realms/{realm}/organizations",
+      "status": 201
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/organizations/{org-id}/groups",
+      "status": 201
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/organizations/{org-id}/groups",
+      "status": 200,
+      "valueType": "array"
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/organizations/{org-id}/groups/group-by-path/{path}",
+      "status": 200,
+      "valueType": "object"
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/organizations/{org-id}/groups/{group-id}",
+      "status": 200,
+      "valueType": "object"
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/organizations/{org-id}/groups/{group-id}/children",
+      "status": 200,
+      "valueType": "array"
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/organizations/{org-id}/groups/{group-id}/members",
+      "status": 200,
+      "valueType": "array"
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/organizations/{org-id}/groups/{group-id}/role-mappings",
+      "status": 200,
+      "valueType": "object"
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/organizations/{org-id}/groups/{group-id}/role-mappings/realm",
+      "status": 200,
+      "valueType": "array"
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/organizations/{org-id}/groups/{group-id}/role-mappings/realm/available",
+      "status": 200,
+      "valueType": "array"
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/organizations/{org-id}/groups/{group-id}/role-mappings/realm/composite",
+      "status": 200,
+      "valueType": "array"
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients",
+      "status": 200,
+      "valueType": "array"
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/organizations/{org-id}/groups/{group-id}/role-mappings/clients/{client-id}",
+      "status": 200,
+      "valueType": "array"
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/organizations/{org-id}/groups/{group-id}/role-mappings/clients/{client-id}/available",
+      "status": 200,
+      "valueType": "array"
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/organizations/{org-id}/groups/{group-id}/role-mappings/clients/{client-id}/composite",
+      "status": 200,
+      "valueType": "array"
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/organizations/{org-id}/invitations",
+      "status": 200,
+      "valueType": "array"
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/users",
+      "status": 201
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/organizations/{org-id}/members",
+      "status": 201
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/organizations/{org-id}/groups/{group-id}/members/{userId}",
+      "status": 204
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/organizations/{org-id}/members/{member-id}/groups",
+      "status": 200,
+      "valueType": "array"
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/organizations/{org-id}/groups/{group-id}/members",
+      "status": 200,
+      "valueType": "array"
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/organizations/{org-id}/groups/{group-id}/members/{userId}",
+      "status": 204
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/identity-provider/instances",
+      "status": 201
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/organizations/{org-id}/identity-providers",
+      "status": 204
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/organizations/{org-id}/identity-providers/{alias}/groups",
+      "status": 200,
+      "valueType": "array"
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/workflows",
+      "status": 200,
+      "valueType": "array"
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/workflows/scheduled/{resource-id}",
+      "status": 200,
+      "valueType": "array"
+    }
+  ],
+  "fixturesRemoved": true
+}

@@ -1,0 +1,44 @@
+{
+  "catalogVersion": "26.3.5",
+  "catalogSha256": "c13a159f13ddaf20f11d4c7f93511589461f4779893941e8446809253e2300d5",
+  "configuration": "disposable Keycloak 26.3.5 with admin-fine-grained-authz:v1 preview",
+  "rows": [
+    {
+      "operation": "PUT /admin/realms/{realm}/clients/{client-uuid}/management/permissions",
+      "status": 200,
+      "readback": true,
+      "restored": true
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/clients/{client-uuid}/roles/{role-name}/management/permissions",
+      "status": 200,
+      "readback": true,
+      "restored": true
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/groups/{group-id}/management/permissions",
+      "status": 200,
+      "readback": true,
+      "restored": true
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/identity-provider/instances/{alias}/management/permissions",
+      "status": 200,
+      "readback": true,
+      "restored": true
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/roles-by-id/{role-id}/management/permissions",
+      "status": 200,
+      "readback": true,
+      "restored": true
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/roles/{role-name}/management/permissions",
+      "status": 200,
+      "readback": true,
+      "restored": true
+    }
+  ],
+  "fixturesRemoved": true
+}

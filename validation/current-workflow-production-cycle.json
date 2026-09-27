@@ -1,0 +1,15 @@
+{
+  "keycloakSourceSha256": "f15f36b52f5cca06c47440e29e53a979cf7373b1023cc8ac3c9ae4aecf244044",
+  "workflowSourceSha256": "790f4aec003659ccaf6d6a8e10529a089455ea60b8e70aee4655df57fb210bbc",
+  "catalogVersion": "26.3.5",
+  "account": "dedicated Codex service account",
+  "preflight": "PREFLIGHT_OK",
+  "createStatus": 201,
+  "forcedReadFailure": 404,
+  "rollbackStatus": 204,
+  "result": "IN_DOUBT",
+  "failedReadMayHaveCommitted": false,
+  "priorStepsCompensated": true,
+  "exactNameCountBefore": 0,
+  "exactNameCountAfter": 0
+}

@@ -1,0 +1,100 @@
+{
+  "at": "2026-09-26T21:49:19.932Z",
+  "realm": "keycloak-mcp-isolated",
+  "catalogVersion": "26.3.5",
+  "catalogSha256": "c13a159f13ddaf20f11d4c7f93511589461f4779893941e8446809253e2300d5",
+  "distinctMutationOperations": 18,
+  "rows": [
+    {
+      "operation": "POST /admin/realms/{realm}/identity-provider/instances",
+      "state": "OBSERVED_PASS",
+      "status": 201
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/users",
+      "state": "OBSERVED_PASS",
+      "status": 201
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/organizations",
+      "state": "OBSERVED_PASS",
+      "status": 201
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/organizations/{org-id}/members",
+      "state": "OBSERVED_PASS",
+      "status": 201
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/organizations/{org-id}/members/{member-id}",
+      "state": "OBSERVED_PASS",
+      "status": 204
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/organizations/{org-id}/identity-providers",
+      "state": "OBSERVED_PASS",
+      "status": 204
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/organizations/{org-id}/identity-providers/{alias}",
+      "state": "OBSERVED_PASS",
+      "status": 204
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/organizations/{org-id}",
+      "state": "OBSERVED_PASS",
+      "status": 204
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/users/{user-id}",
+      "state": "OBSERVED_PASS",
+      "status": 204
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/identity-provider/instances/{alias}",
+      "state": "OBSERVED_PASS",
+      "status": 204
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients",
+      "state": "OBSERVED_PASS",
+      "status": 201
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/resource",
+      "state": "OBSERVED_PASS",
+      "status": 201
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/resource/{resource-id}",
+      "state": "OBSERVED_PASS",
+      "status": 204
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/scope",
+      "state": "OBSERVED_PASS",
+      "status": 201
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/scope/{scope-id}",
+      "state": "OBSERVED_PASS",
+      "status": 204
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/resource/{resource-id}",
+      "state": "OBSERVED_PASS",
+      "status": 204
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/scope/{scope-id}",
+      "state": "OBSERVED_PASS",
+      "status": 204
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/clients/{client-uuid}",
+      "state": "OBSERVED_PASS",
+      "status": 204
+    }
+  ],
+  "failure": null
+}

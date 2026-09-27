@@ -1,0 +1,3085 @@
+{
+  "at": "2026-09-26",
+  "catalogVersion": "26.3.5",
+  "sourceSha256": "c13a159f13ddaf20f11d4c7f93511589461f4779893941e8446809253e2300d5",
+  "totalActionRoutes": 185,
+  "stateChangingMutations": 184,
+  "validFixture2xx": 171,
+  "notRunValidFixture": 14,
+  "method": "Twenty-five isolated same-image service-account suites sent valid fixture requests through the Keycloak client. This historical action-route set contains 184 state-changing mutations and one read-only POST client-description converter; it also includes the side-effecting GET reload-keys route. Many stateful fixtures had related readbacks; some action/export routes had only response-status checks. The earlier bodyless route matrix remains separate. HTTP success does not imply every possible payload or rollback behavior. The public workflow API was tested separately. The latest suites used local SMTP and HTTP sinks to check email delivery, organization invitations, revocation callbacks, identity-provider metadata fetch and key reload; they also verified session deletion and certificate upload readbacks. Both bundled OpenAPI versions omit the multipart certificate upload body, so the client adds an exact-route correction.",
+  "evidenceReports": [
+    {
+      "file": "valid-mutation-families-a-26.3.5-isolated.json",
+      "sha256": "3e9ab240067e780ed11c3fe39429162f456181273a1ddf8bfbbb3ab1d388c599",
+      "successfulCalls": 23
+    },
+    {
+      "file": "valid-mutation-families-b-26.3.5-isolated.json",
+      "sha256": "9498da618aa40a0ae45b497549628a0275b3b8917d06005cc399e856c602cd3b",
+      "successfulCalls": 22
+    },
+    {
+      "file": "valid-mutation-families-c-26.3.5-isolated.json",
+      "sha256": "fc4c0941fbfc9a00650dd1758ded423d704265e84e5622626a8eeb2c5f7dcd0c",
+      "successfulCalls": 22
+    },
+    {
+      "file": "valid-mutation-families-d-26.3.5-isolated.json",
+      "sha256": "35af32f0c0510306748e1573a6772c040eaabae06f2327eb0c47b9bcb8ee8486",
+      "successfulCalls": 18
+    },
+    {
+      "file": "valid-mutation-families-e-26.3.5-isolated.json",
+      "sha256": "a3dbd79aae52e7cee3be45d98f56372f00b92bf3e789036690c5051f54771657",
+      "successfulCalls": 17
+    },
+    {
+      "file": "valid-mutation-families-f-26.3.5-isolated.json",
+      "sha256": "96ddafa0fe69038a8e521a4f5a6e0514a9ed5107b32ba71a655694a1b87be7e7",
+      "successfulCalls": 26
+    },
+    {
+      "file": "valid-mutation-families-g-26.3.5-isolated.json",
+      "sha256": "8bf2573d6dd058ce09799235236218650069b66f653fbd061c0e7d3a9a388c5a",
+      "successfulCalls": 21
+    },
+    {
+      "file": "valid-mutation-families-h-26.3.5-isolated.json",
+      "sha256": "46a77cb21bd92daebcfba91a14a7835714300543d91154e801984613144d8a62",
+      "successfulCalls": 11
+    },
+    {
+      "file": "valid-mutation-families-i-26.3.5-isolated.json",
+      "sha256": "cab994ef5febe44fe992be8f7605acbed403e2208a72260cb6cea45049987f69",
+      "successfulCalls": 13
+    },
+    {
+      "file": "valid-mutation-families-j-26.3.5-isolated.json",
+      "sha256": "d061be705922f653c92cef9dcc29060388d55b5f6f1d838c130741464e267096",
+      "successfulCalls": 8
+    },
+    {
+      "file": "valid-mutation-families-k-26.3.5-isolated.json",
+      "sha256": "3a025f126fe836528f937b8fdfa71b452c3f514cc1e00a264cb0305149922cc9",
+      "successfulCalls": 16
+    },
+    {
+      "file": "valid-mutation-families-l-26.3.5-isolated.json",
+      "sha256": "6413f4f23755d75521fc49d2683b8fe092feb6847e110e68dc352a1750e8b1c7",
+      "successfulCalls": 8
+    },
+    {
+      "file": "valid-mutation-families-m-26.3.5-isolated.json",
+      "sha256": "3d78705b05d126a56bd5c003b4887cdeb71f5f6d818eee94d91c332976551af6",
+      "successfulCalls": 9
+    },
+    {
+      "file": "valid-mutation-families-n-26.3.5-isolated.json",
+      "sha256": "2dea148419e453a3e615149bdd5614ba93fe2661f248b029dad1d3aa46bd654a",
+      "successfulCalls": 6
+    },
+    {
+      "file": "valid-mutation-families-o-26.3.5-isolated.json",
+      "sha256": "00f617619b54642b6be2bd30d2da15ae2aa171c74e73c22df7ac008bb328a6ea",
+      "successfulCalls": 5
+    },
+    {
+      "file": "valid-mutation-families-p-26.3.5-isolated.json",
+      "sha256": "08c772a74952d2983ed5f88330faf94c95754fb9fd517c9de43e46d95cbe2a2e",
+      "successfulCalls": 6
+    },
+    {
+      "file": "valid-mutation-families-q-26.3.5-isolated.json",
+      "sha256": "b7ebdd1ed9472045f4cc5e0cd0faabe96fb9a55f6247abaafe48cb69c6e4df4c",
+      "successfulCalls": 4
+    },
+    {
+      "file": "valid-mutation-families-r-26.3.5-isolated.json",
+      "sha256": "06619cff1c651fefeebfcf334f4bb4951d90542609468d50d3cf25372f155d30",
+      "successfulCalls": 1
+    },
+    {
+      "file": "valid-mutation-families-s-26.3.5-isolated.json",
+      "sha256": "5c699c5638f6f98f7b09642653116450cf8e7fa6da853f61dac7f55716c76702",
+      "successfulCalls": 12
+    },
+    {
+      "file": "valid-mutation-families-t-26.3.5-isolated.json",
+      "sha256": "c669860d5c61ebd81ab2df1968f42870286233053874804395dffc4daf67c15e",
+      "successfulCalls": 7
+    },
+    {
+      "file": "valid-mutation-families-u-26.3.5-isolated.json",
+      "sha256": "04cf0959e70e1986b3caff505aa3fbfb5a8b2d04fc9b6af14ee08725d7004528",
+      "successfulCalls": 4
+    },
+    {
+      "file": "valid-mutation-families-v-26.3.5-isolated.json",
+      "sha256": "e503d1ee31b3b57d60e1054f7c06117f9dfeb85a93b122704d250db2ae2594ff",
+      "successfulCalls": 3
+    },
+    {
+      "file": "valid-mutation-families-w-26.3.5-isolated.json",
+      "sha256": "b42374ef1a2eb7899542408764fd770c7879ea3bbc1ce7cef44652f819bb7f82",
+      "successfulCalls": 6
+    },
+    {
+      "file": "valid-mutation-families-x-26.3.5-isolated.json",
+      "sha256": "4e94355ff383ecf8ebc456faf61dab2c531013a5e26f1bb4b894fd8d0f5a5a1f",
+      "successfulCalls": 6
+    },
+    {
+      "file": "valid-mutation-families-y-26.3.5-isolated.json",
+      "sha256": "6f0b824f456151d0e9908461ac168c4c447623b878c3f12a26434e060f1afbe8",
+      "successfulCalls": 4
+    }
+  ],
+  "rows": [
+    {
+      "operation": "DELETE /admin/realms/{realm}",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-e-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "NOT_RUN_REALM_LIFECYCLE"
+      }
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/admin-events",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-e-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_SUCCESS",
+        "httpStatus": 204
+      }
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/attack-detection/brute-force/users",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-e-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_SUCCESS",
+        "httpStatus": 204
+      }
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/attack-detection/brute-force/users/{userId}",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-n-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_SUCCESS",
+        "httpStatus": 204
+      }
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/authentication/config/{id}",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-l-26.3.5-isolated.json",
+          "httpStatus": 204
+        },
+        {
+          "file": "valid-mutation-families-l-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/authentication/executions/{executionId}",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-h-26.3.5-isolated.json",
+          "httpStatus": 204
+        },
+        {
+          "file": "valid-mutation-families-q-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/authentication/flows/{id}",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-b-26.3.5-isolated.json",
+          "httpStatus": 204
+        },
+        {
+          "file": "valid-mutation-families-h-26.3.5-isolated.json",
+          "httpStatus": 204
+        },
+        {
+          "file": "valid-mutation-families-h-26.3.5-isolated.json",
+          "httpStatus": 204
+        },
+        {
+          "file": "valid-mutation-families-l-26.3.5-isolated.json",
+          "httpStatus": 204
+        },
+        {
+          "file": "valid-mutation-families-q-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/authentication/required-actions/{alias}",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-o-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/authentication/required-actions/{alias}/config",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-o-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 400
+      }
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/client-scopes/{client-scope-id}",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-a-26.3.5-isolated.json",
+          "httpStatus": 204
+        },
+        {
+          "file": "valid-mutation-families-c-26.3.5-isolated.json",
+          "httpStatus": 204
+        },
+        {
+          "file": "valid-mutation-families-e-26.3.5-isolated.json",
+          "httpStatus": 204
+        },
+        {
+          "file": "valid-mutation-families-f-26.3.5-isolated.json",
+          "httpStatus": 204
+        },
+        {
+          "file": "valid-mutation-families-g-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/client-scopes/{client-scope-id}/protocol-mappers/models/{id}",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-c-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/client-scopes/{client-scope-id}/scope-mappings/clients/{client}",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-f-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/client-scopes/{client-scope-id}/scope-mappings/realm",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-c-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/client-templates/{client-scope-id}",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-k-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/client-templates/{client-scope-id}/protocol-mappers/models/{id}",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-k-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/client-templates/{client-scope-id}/scope-mappings/clients/{client}",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-k-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/client-templates/{client-scope-id}/scope-mappings/realm",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-k-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/clients-initial-access/{id}",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-f-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_SUCCESS",
+        "httpStatus": 204
+      }
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/clients/{client-uuid}",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-a-26.3.5-isolated.json",
+          "httpStatus": 204
+        },
+        {
+          "file": "valid-mutation-families-b-26.3.5-isolated.json",
+          "httpStatus": 204
+        },
+        {
+          "file": "valid-mutation-families-c-26.3.5-isolated.json",
+          "httpStatus": 204
+        },
+        {
+          "file": "valid-mutation-families-d-26.3.5-isolated.json",
+          "httpStatus": 204
+        },
+        {
+          "file": "valid-mutation-families-f-26.3.5-isolated.json",
+          "httpStatus": 204
+        },
+        {
+          "file": "valid-mutation-families-g-26.3.5-isolated.json",
+          "httpStatus": 204
+        },
+        {
+          "file": "valid-mutation-families-i-26.3.5-isolated.json",
+          "httpStatus": 204
+        },
+        {
+          "file": "valid-mutation-families-j-26.3.5-isolated.json",
+          "httpStatus": 204
+        },
+        {
+          "file": "valid-mutation-families-k-26.3.5-isolated.json",
+          "httpStatus": 204
+        },
+        {
+          "file": "valid-mutation-families-m-26.3.5-isolated.json",
+          "httpStatus": 204
+        },
+        {
+          "file": "valid-mutation-families-s-26.3.5-isolated.json",
+          "httpStatus": 204
+        },
+        {
+          "file": "valid-mutation-families-s-26.3.5-isolated.json",
+          "httpStatus": 204
+        },
+        {
+          "file": "valid-mutation-families-u-26.3.5-isolated.json",
+          "httpStatus": 204
+        },
+        {
+          "file": "valid-mutation-families-w-26.3.5-isolated.json",
+          "httpStatus": 204
+        },
+        {
+          "file": "valid-mutation-families-y-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/resource/{resource-id}",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-d-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/scope/{scope-id}",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-d-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/clients/{client-uuid}/client-secret/rotated",
+      "validFixtureState": "NOT_RUN_VALID_FIXTURE",
+      "validFixtureObservations": [],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/clients/{client-uuid}/default-client-scopes/{clientScopeId}",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-a-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/clients/{client-uuid}/nodes/{node}",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-m-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/clients/{client-uuid}/optional-client-scopes/{clientScopeId}",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-f-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/clients/{client-uuid}/protocol-mappers/models/{id}",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-c-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/clients/{client-uuid}/roles/{role-name}",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-b-26.3.5-isolated.json",
+          "httpStatus": 204
+        },
+        {
+          "file": "valid-mutation-families-f-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/clients/{client-uuid}/roles/{role-name}/composites",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-g-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/clients/{client-uuid}/scope-mappings/clients/{client}",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-f-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/clients/{client-uuid}/scope-mappings/realm",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-f-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/components/{id}",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-n-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/default-default-client-scopes/{clientScopeId}",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-e-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/default-groups/{groupId}",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-c-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/default-optional-client-scopes/{clientScopeId}",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-e-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/events",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-e-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_SUCCESS",
+        "httpStatus": 204
+      }
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/groups/{group-id}",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-a-26.3.5-isolated.json",
+          "httpStatus": 204
+        },
+        {
+          "file": "valid-mutation-families-b-26.3.5-isolated.json",
+          "httpStatus": 204
+        },
+        {
+          "file": "valid-mutation-families-b-26.3.5-isolated.json",
+          "httpStatus": 204
+        },
+        {
+          "file": "valid-mutation-families-c-26.3.5-isolated.json",
+          "httpStatus": 204
+        },
+        {
+          "file": "valid-mutation-families-f-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/groups/{group-id}/role-mappings/clients/{client-id}",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-f-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/groups/{group-id}/role-mappings/realm",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-a-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/identity-provider/instances/{alias}",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-b-26.3.5-isolated.json",
+          "httpStatus": 204
+        },
+        {
+          "file": "valid-mutation-families-d-26.3.5-isolated.json",
+          "httpStatus": 204
+        },
+        {
+          "file": "valid-mutation-families-i-26.3.5-isolated.json",
+          "httpStatus": 204
+        },
+        {
+          "file": "valid-mutation-families-p-26.3.5-isolated.json",
+          "httpStatus": 204
+        },
+        {
+          "file": "valid-mutation-families-v-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/identity-provider/instances/{alias}/mappers/{id}",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-i-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/localization/{locale}",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-b-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/localization/{locale}/{key}",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-b-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/organizations/{org-id}",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-b-26.3.5-isolated.json",
+          "httpStatus": 204
+        },
+        {
+          "file": "valid-mutation-families-d-26.3.5-isolated.json",
+          "httpStatus": 204
+        },
+        {
+          "file": "valid-mutation-families-x-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/organizations/{org-id}/identity-providers/{alias}",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-d-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/organizations/{org-id}/members/{member-id}",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-d-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/roles-by-id/{role-id}",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-g-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/roles-by-id/{role-id}/composites",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-g-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/roles/{role-name}",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-a-26.3.5-isolated.json",
+          "httpStatus": 204
+        },
+        {
+          "file": "valid-mutation-families-c-26.3.5-isolated.json",
+          "httpStatus": 204
+        },
+        {
+          "file": "valid-mutation-families-c-26.3.5-isolated.json",
+          "httpStatus": 204
+        },
+        {
+          "file": "valid-mutation-families-f-26.3.5-isolated.json",
+          "httpStatus": 204
+        },
+        {
+          "file": "valid-mutation-families-g-26.3.5-isolated.json",
+          "httpStatus": 204
+        },
+        {
+          "file": "valid-mutation-families-k-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/roles/{role-name}/composites",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-c-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/sessions/{session}",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-w-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/users/{user-id}",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-a-26.3.5-isolated.json",
+          "httpStatus": 204
+        },
+        {
+          "file": "valid-mutation-families-d-26.3.5-isolated.json",
+          "httpStatus": 204
+        },
+        {
+          "file": "valid-mutation-families-f-26.3.5-isolated.json",
+          "httpStatus": 204
+        },
+        {
+          "file": "valid-mutation-families-g-26.3.5-isolated.json",
+          "httpStatus": 204
+        },
+        {
+          "file": "valid-mutation-families-i-26.3.5-isolated.json",
+          "httpStatus": 204
+        },
+        {
+          "file": "valid-mutation-families-n-26.3.5-isolated.json",
+          "httpStatus": 204
+        },
+        {
+          "file": "valid-mutation-families-p-26.3.5-isolated.json",
+          "httpStatus": 204
+        },
+        {
+          "file": "valid-mutation-families-s-26.3.5-isolated.json",
+          "httpStatus": 204
+        },
+        {
+          "file": "valid-mutation-families-t-26.3.5-isolated.json",
+          "httpStatus": 204
+        },
+        {
+          "file": "valid-mutation-families-w-26.3.5-isolated.json",
+          "httpStatus": 204
+        },
+        {
+          "file": "valid-mutation-families-x-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/users/{user-id}/consents/{client}",
+      "validFixtureState": "NOT_RUN_VALID_FIXTURE",
+      "validFixtureObservations": [],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/users/{user-id}/credentials/{credentialId}",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-i-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/users/{user-id}/federated-identity/{provider}",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-p-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/users/{user-id}/groups/{groupId}",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-a-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/users/{user-id}/role-mappings/clients/{client-id}",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-f-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/users/{user-id}/role-mappings/realm",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-a-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/identity-provider/instances/{alias}/reload-keys",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-v-26.3.5-isolated.json",
+          "httpStatus": 200
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "POST /admin/realms",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-e-26.3.5-isolated.json",
+          "httpStatus": 201
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "NOT_RUN_REALM_LIFECYCLE"
+      }
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/authentication/config",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-l-26.3.5-isolated.json",
+          "httpStatus": 201
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 500
+      }
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/authentication/executions",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-q-26.3.5-isolated.json",
+          "httpStatus": 201
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 500
+      }
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/authentication/executions/{executionId}/config",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-l-26.3.5-isolated.json",
+          "httpStatus": 201
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 500
+      }
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/authentication/executions/{executionId}/lower-priority",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-h-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/authentication/executions/{executionId}/raise-priority",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-h-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/authentication/flows",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-b-26.3.5-isolated.json",
+          "httpStatus": 201
+        },
+        {
+          "file": "valid-mutation-families-h-26.3.5-isolated.json",
+          "httpStatus": 201
+        },
+        {
+          "file": "valid-mutation-families-l-26.3.5-isolated.json",
+          "httpStatus": 201
+        },
+        {
+          "file": "valid-mutation-families-q-26.3.5-isolated.json",
+          "httpStatus": 201
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 500
+      }
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/authentication/flows/{flowAlias}/copy",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-h-26.3.5-isolated.json",
+          "httpStatus": 201
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 500
+      }
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/authentication/flows/{flowAlias}/executions/execution",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-h-26.3.5-isolated.json",
+          "httpStatus": 201
+        },
+        {
+          "file": "valid-mutation-families-l-26.3.5-isolated.json",
+          "httpStatus": 201
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 400
+      }
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/authentication/flows/{flowAlias}/executions/flow",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-h-26.3.5-isolated.json",
+          "httpStatus": 201
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 400
+      }
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/authentication/register-required-action",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-o-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 500
+      }
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/authentication/required-actions/{alias}/lower-priority",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-j-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/authentication/required-actions/{alias}/raise-priority",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-j-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/client-description-converter",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-r-26.3.5-isolated.json",
+          "httpStatus": 200
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 400
+      }
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/client-scopes",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-a-26.3.5-isolated.json",
+          "httpStatus": 201
+        },
+        {
+          "file": "valid-mutation-families-c-26.3.5-isolated.json",
+          "httpStatus": 201
+        },
+        {
+          "file": "valid-mutation-families-e-26.3.5-isolated.json",
+          "httpStatus": 201
+        },
+        {
+          "file": "valid-mutation-families-f-26.3.5-isolated.json",
+          "httpStatus": 201
+        },
+        {
+          "file": "valid-mutation-families-g-26.3.5-isolated.json",
+          "httpStatus": 201
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 500
+      }
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/client-scopes/{client-scope-id}/protocol-mappers/add-models",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-g-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/client-scopes/{client-scope-id}/protocol-mappers/models",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-c-26.3.5-isolated.json",
+          "httpStatus": 201
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/client-scopes/{client-scope-id}/scope-mappings/clients/{client}",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-f-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/client-scopes/{client-scope-id}/scope-mappings/realm",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-c-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/client-templates",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-k-26.3.5-isolated.json",
+          "httpStatus": 201
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 500
+      }
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/client-templates/{client-scope-id}/protocol-mappers/add-models",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-k-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/client-templates/{client-scope-id}/protocol-mappers/models",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-k-26.3.5-isolated.json",
+          "httpStatus": 201
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/client-templates/{client-scope-id}/scope-mappings/clients/{client}",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-k-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/client-templates/{client-scope-id}/scope-mappings/realm",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-k-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-a-26.3.5-isolated.json",
+          "httpStatus": 201
+        },
+        {
+          "file": "valid-mutation-families-b-26.3.5-isolated.json",
+          "httpStatus": 201
+        },
+        {
+          "file": "valid-mutation-families-c-26.3.5-isolated.json",
+          "httpStatus": 201
+        },
+        {
+          "file": "valid-mutation-families-d-26.3.5-isolated.json",
+          "httpStatus": 201
+        },
+        {
+          "file": "valid-mutation-families-f-26.3.5-isolated.json",
+          "httpStatus": 201
+        },
+        {
+          "file": "valid-mutation-families-g-26.3.5-isolated.json",
+          "httpStatus": 201
+        },
+        {
+          "file": "valid-mutation-families-i-26.3.5-isolated.json",
+          "httpStatus": 201
+        },
+        {
+          "file": "valid-mutation-families-j-26.3.5-isolated.json",
+          "httpStatus": 201
+        },
+        {
+          "file": "valid-mutation-families-k-26.3.5-isolated.json",
+          "httpStatus": 201
+        },
+        {
+          "file": "valid-mutation-families-m-26.3.5-isolated.json",
+          "httpStatus": 201
+        },
+        {
+          "file": "valid-mutation-families-s-26.3.5-isolated.json",
+          "httpStatus": 201
+        },
+        {
+          "file": "valid-mutation-families-s-26.3.5-isolated.json",
+          "httpStatus": 201
+        },
+        {
+          "file": "valid-mutation-families-u-26.3.5-isolated.json",
+          "httpStatus": 201
+        },
+        {
+          "file": "valid-mutation-families-w-26.3.5-isolated.json",
+          "httpStatus": 201
+        },
+        {
+          "file": "valid-mutation-families-y-26.3.5-isolated.json",
+          "httpStatus": 201
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 500
+      }
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients-initial-access",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-f-26.3.5-isolated.json",
+          "httpStatus": 200
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 500
+      }
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/import",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-s-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/permission",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-s-26.3.5-isolated.json",
+          "httpStatus": 201
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/permission/evaluate",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-s-26.3.5-isolated.json",
+          "httpStatus": 200
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-s-26.3.5-isolated.json",
+          "httpStatus": 201
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/evaluate",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-s-26.3.5-isolated.json",
+          "httpStatus": 200
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/resource",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-d-26.3.5-isolated.json",
+          "httpStatus": 201
+        },
+        {
+          "file": "valid-mutation-families-s-26.3.5-isolated.json",
+          "httpStatus": 201
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/scope",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-d-26.3.5-isolated.json",
+          "httpStatus": 201
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/certificates/{attr}/download",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-m-26.3.5-isolated.json",
+          "httpStatus": 200
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/certificates/{attr}/generate",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-m-26.3.5-isolated.json",
+          "httpStatus": 200
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/certificates/{attr}/generate-and-download",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-m-26.3.5-isolated.json",
+          "httpStatus": 200
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/certificates/{attr}/upload",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-y-26.3.5-isolated.json",
+          "httpStatus": 200
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/certificates/{attr}/upload-certificate",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-y-26.3.5-isolated.json",
+          "httpStatus": 200
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/client-secret",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-i-26.3.5-isolated.json",
+          "httpStatus": 200
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/nodes",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-m-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/protocol-mappers/add-models",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-g-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/protocol-mappers/models",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-c-26.3.5-isolated.json",
+          "httpStatus": 201
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/push-revocation",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-m-26.3.5-isolated.json",
+          "httpStatus": 200
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/registration-access-token",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-m-26.3.5-isolated.json",
+          "httpStatus": 200
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/roles",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-b-26.3.5-isolated.json",
+          "httpStatus": 201
+        },
+        {
+          "file": "valid-mutation-families-f-26.3.5-isolated.json",
+          "httpStatus": 201
+        },
+        {
+          "file": "valid-mutation-families-g-26.3.5-isolated.json",
+          "httpStatus": 201
+        },
+        {
+          "file": "valid-mutation-families-g-26.3.5-isolated.json",
+          "httpStatus": 201
+        },
+        {
+          "file": "valid-mutation-families-k-26.3.5-isolated.json",
+          "httpStatus": 201
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/roles/{role-name}/composites",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-g-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/scope-mappings/clients/{client}",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-f-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/scope-mappings/realm",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-f-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/components",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-n-26.3.5-isolated.json",
+          "httpStatus": 201
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 500
+      }
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/groups",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-a-26.3.5-isolated.json",
+          "httpStatus": 201
+        },
+        {
+          "file": "valid-mutation-families-b-26.3.5-isolated.json",
+          "httpStatus": 201
+        },
+        {
+          "file": "valid-mutation-families-c-26.3.5-isolated.json",
+          "httpStatus": 201
+        },
+        {
+          "file": "valid-mutation-families-f-26.3.5-isolated.json",
+          "httpStatus": 201
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 500
+      }
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/groups/{group-id}/children",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-b-26.3.5-isolated.json",
+          "httpStatus": 201
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/groups/{group-id}/role-mappings/clients/{client-id}",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-f-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/groups/{group-id}/role-mappings/realm",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-a-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/identity-provider/import-config",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-u-26.3.5-isolated.json",
+          "httpStatus": 200
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 400
+      }
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/identity-provider/instances",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-b-26.3.5-isolated.json",
+          "httpStatus": 201
+        },
+        {
+          "file": "valid-mutation-families-d-26.3.5-isolated.json",
+          "httpStatus": 201
+        },
+        {
+          "file": "valid-mutation-families-i-26.3.5-isolated.json",
+          "httpStatus": 201
+        },
+        {
+          "file": "valid-mutation-families-p-26.3.5-isolated.json",
+          "httpStatus": 201
+        },
+        {
+          "file": "valid-mutation-families-v-26.3.5-isolated.json",
+          "httpStatus": 201
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 500
+      }
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/identity-provider/instances/{alias}/mappers",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-i-26.3.5-isolated.json",
+          "httpStatus": 201
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/localization/{locale}",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-b-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_SUCCESS",
+        "httpStatus": 204
+      }
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/logout-all",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-e-26.3.5-isolated.json",
+          "httpStatus": 200
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_SUCCESS",
+        "httpStatus": 200
+      }
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/organizations",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-b-26.3.5-isolated.json",
+          "httpStatus": 201
+        },
+        {
+          "file": "valid-mutation-families-d-26.3.5-isolated.json",
+          "httpStatus": 201
+        },
+        {
+          "file": "valid-mutation-families-x-26.3.5-isolated.json",
+          "httpStatus": 201
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 400
+      }
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/organizations/{org-id}/identity-providers",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-d-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/organizations/{org-id}/members",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-d-26.3.5-isolated.json",
+          "httpStatus": 201
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/organizations/{org-id}/members/invite-existing-user",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-x-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/organizations/{org-id}/members/invite-user",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-x-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/partial-export",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-e-26.3.5-isolated.json",
+          "httpStatus": 200
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_SUCCESS",
+        "httpStatus": 200
+      }
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/partialImport",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-j-26.3.5-isolated.json",
+          "httpStatus": 200
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 500
+      }
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/push-revocation",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-u-26.3.5-isolated.json",
+          "httpStatus": 200
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_SUCCESS",
+        "httpStatus": 200
+      }
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/roles",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-a-26.3.5-isolated.json",
+          "httpStatus": 201
+        },
+        {
+          "file": "valid-mutation-families-c-26.3.5-isolated.json",
+          "httpStatus": 201
+        },
+        {
+          "file": "valid-mutation-families-c-26.3.5-isolated.json",
+          "httpStatus": 201
+        },
+        {
+          "file": "valid-mutation-families-f-26.3.5-isolated.json",
+          "httpStatus": 201
+        },
+        {
+          "file": "valid-mutation-families-g-26.3.5-isolated.json",
+          "httpStatus": 201
+        },
+        {
+          "file": "valid-mutation-families-g-26.3.5-isolated.json",
+          "httpStatus": 201
+        },
+        {
+          "file": "valid-mutation-families-k-26.3.5-isolated.json",
+          "httpStatus": 201
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 500
+      }
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/roles-by-id/{role-id}/composites",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-g-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/roles/{role-name}/composites",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-c-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/testSMTPConnection",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-t-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 500
+      }
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/users",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-a-26.3.5-isolated.json",
+          "httpStatus": 201
+        },
+        {
+          "file": "valid-mutation-families-d-26.3.5-isolated.json",
+          "httpStatus": 201
+        },
+        {
+          "file": "valid-mutation-families-f-26.3.5-isolated.json",
+          "httpStatus": 201
+        },
+        {
+          "file": "valid-mutation-families-g-26.3.5-isolated.json",
+          "httpStatus": 201
+        },
+        {
+          "file": "valid-mutation-families-i-26.3.5-isolated.json",
+          "httpStatus": 201
+        },
+        {
+          "file": "valid-mutation-families-n-26.3.5-isolated.json",
+          "httpStatus": 201
+        },
+        {
+          "file": "valid-mutation-families-p-26.3.5-isolated.json",
+          "httpStatus": 201
+        },
+        {
+          "file": "valid-mutation-families-s-26.3.5-isolated.json",
+          "httpStatus": 201
+        },
+        {
+          "file": "valid-mutation-families-t-26.3.5-isolated.json",
+          "httpStatus": 201
+        },
+        {
+          "file": "valid-mutation-families-w-26.3.5-isolated.json",
+          "httpStatus": 201
+        },
+        {
+          "file": "valid-mutation-families-x-26.3.5-isolated.json",
+          "httpStatus": 201
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 500
+      }
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/users/{user-id}/credentials/{credentialId}/moveAfter/{newPreviousCredentialId}",
+      "validFixtureState": "NOT_RUN_VALID_FIXTURE",
+      "validFixtureObservations": [],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/users/{user-id}/credentials/{credentialId}/moveToFirst",
+      "validFixtureState": "NOT_RUN_VALID_FIXTURE",
+      "validFixtureObservations": [],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/users/{user-id}/federated-identity/{provider}",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-p-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/users/{user-id}/impersonation",
+      "validFixtureState": "NOT_RUN_VALID_FIXTURE",
+      "validFixtureObservations": [],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/users/{user-id}/logout",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-g-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/users/{user-id}/role-mappings/clients/{client-id}",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-f-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/users/{user-id}/role-mappings/realm",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-a-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-e-26.3.5-isolated.json",
+          "httpStatus": 204
+        },
+        {
+          "file": "valid-mutation-families-t-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 500
+      }
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/authentication/config/{id}",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-l-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 500
+      }
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/authentication/flows/{flowAlias}/executions",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-h-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/authentication/flows/{id}",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-b-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/authentication/required-actions/{alias}",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-j-26.3.5-isolated.json",
+          "httpStatus": 204
+        },
+        {
+          "file": "valid-mutation-families-j-26.3.5-isolated.json",
+          "httpStatus": 204
+        },
+        {
+          "file": "valid-mutation-families-o-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/authentication/required-actions/{alias}/config",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-o-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 400
+      }
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/client-policies/policies",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-e-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 400
+      }
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/client-policies/profiles",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-e-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 400
+      }
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/client-scopes/{client-scope-id}",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-a-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/client-scopes/{client-scope-id}/protocol-mappers/models/{id}",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-c-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/client-templates/{client-scope-id}",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-k-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/client-templates/{client-scope-id}/protocol-mappers/models/{id}",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-k-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/client-types",
+      "validFixtureState": "NOT_RUN_VALID_FIXTURE",
+      "validFixtureObservations": [],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 501
+      }
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/clients/{client-uuid}",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-a-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-j-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/resource/{resource-id}",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-d-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/scope/{scope-id}",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-d-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/clients/{client-uuid}/default-client-scopes/{clientScopeId}",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-a-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/clients/{client-uuid}/management/permissions",
+      "validFixtureState": "NOT_RUN_VALID_FIXTURE",
+      "validFixtureObservations": [],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/clients/{client-uuid}/optional-client-scopes/{clientScopeId}",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-f-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/clients/{client-uuid}/protocol-mappers/models/{id}",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-c-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/clients/{client-uuid}/roles/{role-name}",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-b-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/clients/{client-uuid}/roles/{role-name}/management/permissions",
+      "validFixtureState": "NOT_RUN_VALID_FIXTURE",
+      "validFixtureObservations": [],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/components/{id}",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-n-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/default-default-client-scopes/{clientScopeId}",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-e-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/default-groups/{groupId}",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-c-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/default-optional-client-scopes/{clientScopeId}",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-e-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/events/config",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-e-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 500
+      }
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/groups/{group-id}",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-a-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/groups/{group-id}/management/permissions",
+      "validFixtureState": "NOT_RUN_VALID_FIXTURE",
+      "validFixtureObservations": [],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/identity-provider/instances/{alias}",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-b-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/identity-provider/instances/{alias}/management/permissions",
+      "validFixtureState": "NOT_RUN_VALID_FIXTURE",
+      "validFixtureObservations": [],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 501
+      }
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/identity-provider/instances/{alias}/mappers/{id}",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-i-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/localization/{locale}/{key}",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-b-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 500
+      }
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/organizations/{org-id}",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-b-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/roles-by-id/{role-id}",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-g-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/roles-by-id/{role-id}/management/permissions",
+      "validFixtureState": "NOT_RUN_VALID_FIXTURE",
+      "validFixtureObservations": [],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 501
+      }
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/roles/{role-name}",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-a-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/roles/{role-name}/management/permissions",
+      "validFixtureState": "NOT_RUN_VALID_FIXTURE",
+      "validFixtureObservations": [],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 501
+      }
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/users-management-permissions",
+      "validFixtureState": "NOT_RUN_VALID_FIXTURE",
+      "validFixtureObservations": [],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 501
+      }
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/users/{user-id}",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-a-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/users/{user-id}/credentials/{credentialId}/userLabel",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-i-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/users/{user-id}/disable-credential-types",
+      "validFixtureState": "NOT_RUN_VALID_FIXTURE",
+      "validFixtureObservations": [],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/users/{user-id}/execute-actions-email",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-t-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/users/{user-id}/groups/{groupId}",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-a-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/users/{user-id}/reset-password",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-g-26.3.5-isolated.json",
+          "httpStatus": 204
+        },
+        {
+          "file": "valid-mutation-families-i-26.3.5-isolated.json",
+          "httpStatus": 204
+        },
+        {
+          "file": "valid-mutation-families-w-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/users/{user-id}/reset-password-email",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-t-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/users/{user-id}/send-verify-email",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-t-26.3.5-isolated.json",
+          "httpStatus": 204
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_NON_SUCCESS",
+        "httpStatus": 404
+      }
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/users/profile",
+      "validFixtureState": "HTTP_2XX_WITH_SUITE_ASSERTIONS",
+      "validFixtureObservations": [
+        {
+          "file": "valid-mutation-families-h-26.3.5-isolated.json",
+          "httpStatus": 200
+        }
+      ],
+      "earlierBodylessRouteProbe": {
+        "state": "HTTP_SUCCESS",
+        "httpStatus": 200
+      }
+    }
+  ]
+}

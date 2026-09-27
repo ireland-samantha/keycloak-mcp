@@ -1,0 +1,13 @@
+{
+  "catalogVersion": "latest",
+  "catalogSha256": "ba68e1c3842c11701ec64c5f3ba23387cf53963f8d16dd7c3d45da103b9421db",
+  "imageDigest": "sha256:82a77884f3af238beab1e7afd63b5f530e1b5c0590bd7aa60b40a40463e29b2c",
+  "rows": [
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/evaluate-scopes/generate-example-saml-response",
+      "status": 200,
+      "redacted": true
+    }
+  ],
+  "fixtureRemoved": true
+}

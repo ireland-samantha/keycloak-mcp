@@ -1,0 +1,50 @@
+{
+  "at": "2026-09-26T22:49:10.928Z",
+  "realm": "keycloak-mcp-isolated",
+  "catalogVersion": "26.3.5",
+  "catalogSha256": "c13a159f13ddaf20f11d4c7f93511589461f4779893941e8446809253e2300d5",
+  "distinctMutationOperations": 7,
+  "rows": [
+    {
+      "operation": "POST /admin/realms/{realm}/authentication/flows",
+      "state": "OBSERVED_PASS",
+      "status": 201
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/authentication/flows/{flowAlias}/executions/execution",
+      "state": "OBSERVED_PASS",
+      "status": 201
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/authentication/executions/{executionId}/config",
+      "state": "OBSERVED_PASS",
+      "status": 201
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/authentication/config/{id}",
+      "state": "OBSERVED_PASS",
+      "status": 204
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/authentication/config/{id}",
+      "state": "OBSERVED_PASS",
+      "status": 204
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/authentication/flows/{id}",
+      "state": "OBSERVED_PASS",
+      "status": 204
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/authentication/config",
+      "state": "OBSERVED_PASS",
+      "status": 201
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/authentication/config/{id}",
+      "state": "OBSERVED_PASS",
+      "status": 204
+    }
+  ],
+  "failure": null
+}

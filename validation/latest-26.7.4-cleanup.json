@@ -1,0 +1,13 @@
+{
+  "serviceToken": 200,
+  "serviceRealmRead": 200,
+  "organizationsCountRead": 200,
+  "organizationsCount": 0,
+  "workflowListRead": 200,
+  "workflowListEmpty": true,
+  "realmDelete": 204,
+  "realmAbsentRead": 404,
+  "containersAbsent": true,
+  "remoteProofTempAbsent": true,
+  "testPortClosed": true
+}

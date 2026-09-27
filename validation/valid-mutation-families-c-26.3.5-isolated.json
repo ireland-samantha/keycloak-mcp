@@ -1,0 +1,120 @@
+{
+  "at": "2026-09-26T21:47:19.150Z",
+  "realm": "keycloak-mcp-isolated",
+  "catalogVersion": "26.3.5",
+  "catalogSha256": "c13a159f13ddaf20f11d4c7f93511589461f4779893941e8446809253e2300d5",
+  "distinctMutationOperations": 20,
+  "rows": [
+    {
+      "operation": "POST /admin/realms/{realm}/roles",
+      "state": "OBSERVED_PASS",
+      "status": 201
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/roles",
+      "state": "OBSERVED_PASS",
+      "status": 201
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/roles/{role-name}/composites",
+      "state": "OBSERVED_PASS",
+      "status": 204
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/roles/{role-name}/composites",
+      "state": "OBSERVED_PASS",
+      "status": 204
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/client-scopes",
+      "state": "OBSERVED_PASS",
+      "status": 201
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/client-scopes/{client-scope-id}/scope-mappings/realm",
+      "state": "OBSERVED_PASS",
+      "status": 204
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/client-scopes/{client-scope-id}/scope-mappings/realm",
+      "state": "OBSERVED_PASS",
+      "status": 204
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/client-scopes/{client-scope-id}/protocol-mappers/models",
+      "state": "OBSERVED_PASS",
+      "status": 201
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/client-scopes/{client-scope-id}/protocol-mappers/models/{id}",
+      "state": "OBSERVED_PASS",
+      "status": 204
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/client-scopes/{client-scope-id}/protocol-mappers/models/{id}",
+      "state": "OBSERVED_PASS",
+      "status": 204
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients",
+      "state": "OBSERVED_PASS",
+      "status": 201
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/protocol-mappers/models",
+      "state": "OBSERVED_PASS",
+      "status": 201
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/clients/{client-uuid}/protocol-mappers/models/{id}",
+      "state": "OBSERVED_PASS",
+      "status": 204
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/clients/{client-uuid}/protocol-mappers/models/{id}",
+      "state": "OBSERVED_PASS",
+      "status": 204
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/groups",
+      "state": "OBSERVED_PASS",
+      "status": 201
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/default-groups/{groupId}",
+      "state": "OBSERVED_PASS",
+      "status": 204
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/default-groups/{groupId}",
+      "state": "OBSERVED_PASS",
+      "status": 204
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/groups/{group-id}",
+      "state": "OBSERVED_PASS",
+      "status": 204
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/clients/{client-uuid}",
+      "state": "OBSERVED_PASS",
+      "status": 204
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/client-scopes/{client-scope-id}",
+      "state": "OBSERVED_PASS",
+      "status": 204
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/roles/{role-name}",
+      "state": "OBSERVED_PASS",
+      "status": 204
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/roles/{role-name}",
+      "state": "OBSERVED_PASS",
+      "status": 204
+    }
+  ],
+  "failure": null
+}

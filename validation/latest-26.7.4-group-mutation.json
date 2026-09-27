@@ -1,0 +1,93 @@
+{
+  "catalogVersion": "latest",
+  "catalogSha256": "ba68e1c3842c11701ec64c5f3ba23387cf53963f8d16dd7c3d45da103b9421db",
+  "imageDigest": "sha256:82a77884f3af238beab1e7afd63b5f530e1b5c0590bd7aa60b40a40463e29b2c",
+  "rows": [
+    {
+      "operation": "POST /admin/realms/{realm}/organizations",
+      "status": 201
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/organizations/{org-id}/groups",
+      "status": 201
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/organizations/{org-id}/groups/{group-id}/children",
+      "status": 201
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/organizations/{org-id}/groups/{group-id}/children",
+      "status": 200,
+      "readback": true
+    },
+    {
+      "operation": "PUT /admin/realms/{realm}/organizations/{org-id}/groups/{group-id}",
+      "status": 204
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/organizations/{org-id}/groups/{group-id}",
+      "status": 200,
+      "readback": true
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/roles/{role-name}",
+      "status": 200,
+      "readback": true
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients",
+      "status": 200,
+      "readback": true
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/roles/{role-name}",
+      "status": 200,
+      "readback": true
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/organizations/{org-id}/groups/{group-id}/role-mappings/realm",
+      "status": 204
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/organizations/{org-id}/groups/{group-id}/role-mappings/realm",
+      "status": 200,
+      "readback": true
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/organizations/{org-id}/groups/{group-id}/role-mappings/realm",
+      "status": 204
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/organizations/{org-id}/groups/{group-id}/role-mappings/clients/{client-id}",
+      "status": 204
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/organizations/{org-id}/groups/{group-id}/role-mappings/clients/{client-id}",
+      "status": 200,
+      "readback": true
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/organizations/{org-id}/groups/{group-id}/role-mappings/clients/{client-id}",
+      "status": 204
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/roles/{role-name}/composites/clients/{targetClientUuid}",
+      "status": 200,
+      "readback": true
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/roles/{role-name}/composites/clients/{targetClientUuid}",
+      "status": 200,
+      "readback": true
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/organizations/{org-id}/groups/{group-id}",
+      "status": 204
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/organizations/{org-id}/groups/{group-id}",
+      "status": 204
+    }
+  ],
+  "fixtureRemoved": true
+}

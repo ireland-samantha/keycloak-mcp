@@ -1,0 +1,55 @@
+{
+  "at": "2026-09-26T22:53:21.735Z",
+  "realm": "keycloak-mcp-isolated",
+  "catalogVersion": "26.3.5",
+  "catalogSha256": "c13a159f13ddaf20f11d4c7f93511589461f4779893941e8446809253e2300d5",
+  "distinctMutationOperations": 9,
+  "rows": [
+    {
+      "operation": "POST /admin/realms/{realm}/clients",
+      "state": "OBSERVED_PASS",
+      "status": 201
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/certificates/{attr}/generate",
+      "state": "OBSERVED_PASS",
+      "status": 200
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/certificates/{attr}/generate-and-download",
+      "state": "OBSERVED_PASS",
+      "status": 200
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/certificates/{attr}/download",
+      "state": "OBSERVED_PASS",
+      "status": 200
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/registration-access-token",
+      "state": "OBSERVED_PASS",
+      "status": 200
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/push-revocation",
+      "state": "OBSERVED_PASS",
+      "status": 200
+    },
+    {
+      "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/nodes",
+      "state": "OBSERVED_PASS",
+      "status": 204
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/clients/{client-uuid}/nodes/{node}",
+      "state": "OBSERVED_PASS",
+      "status": 204
+    },
+    {
+      "operation": "DELETE /admin/realms/{realm}/clients/{client-uuid}",
+      "state": "OBSERVED_PASS",
+      "status": 204
+    }
+  ],
+  "failure": null
+}

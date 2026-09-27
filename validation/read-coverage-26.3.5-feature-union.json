@@ -1,0 +1,77 @@
+{
+  "catalogVersion": "26.3.5",
+  "catalogSha256": "c13a159f13ddaf20f11d4c7f93511589461f4779893941e8446809253e2300d5",
+  "scope": "Read-only GET routes in the deployed-version Admin REST catalog, across default and explicit feature configurations",
+  "defaultFeatureReport": "coverage-26.3.5-consolidated.json",
+  "defaultFeatureReportSha256": "5a67b3983e6aff68247550bd2a2344ff1fb1c958850a2957c1d317801fd0bd8b",
+  "defaultFeatureSuccessful": 180,
+  "featureGatedSuccessful": 9,
+  "totalReadOnlyRoutes": 189,
+  "excludedGetAction": "GET /admin/realms/{realm}/identity-provider/instances/{alias}/reload-keys",
+  "evidenceLimit": "The feature reports record successful readbacks rather than separate GET rows. The hash-named archived scripts show the corresponding GET calls and assertions. This is a cross-configuration route-success union, not proof of default production availability or of every response schema.",
+  "featureGatedReads": [
+    {
+      "operation": "GET /admin/realms/{realm}/client-types",
+      "configuration": "client-types:v1 experimental",
+      "report": "feature-gated-client-types-26.3.5-isolated.json",
+      "reportSha256": "eb172bc4975a3f1ad212a848b7c6826ef3533ddc9ee038d80738e14d32d707d2",
+      "scriptSha256": "f2c9706173bd17884fbf62b60e85b498fa891499e1a7022f29c5f79021d0f880"
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/client-secret/rotated",
+      "configuration": "client-secret-rotation:v1 preview",
+      "report": "feature-gated-rotated-secret-26.3.5-isolated.json",
+      "reportSha256": "47c2107be9497f6e916083504c0ab26d3332885a4cf5cdb1b03ec829016b94c1",
+      "scriptSha256": "d949eaecaf04a94b01801b0a38d6007a510826fb89fa908cde7a7b14b1425864"
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/management/permissions",
+      "configuration": "admin-fine-grained-authz:v1 preview",
+      "report": "feature-gated-fgap-v1-resources-26.3.5-isolated.json",
+      "reportSha256": "461d27a2c44b65198255adf056a9847abffd7ce7ca1dd1fe90f9862bba1b5cbe",
+      "scriptSha256": "1ab85940348c5375224ff7002be3f388939d30be17a9de75c75c9b920817b488"
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/roles/{role-name}/management/permissions",
+      "configuration": "admin-fine-grained-authz:v1 preview",
+      "report": "feature-gated-fgap-v1-resources-26.3.5-isolated.json",
+      "reportSha256": "461d27a2c44b65198255adf056a9847abffd7ce7ca1dd1fe90f9862bba1b5cbe",
+      "scriptSha256": "1ab85940348c5375224ff7002be3f388939d30be17a9de75c75c9b920817b488"
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/groups/{group-id}/management/permissions",
+      "configuration": "admin-fine-grained-authz:v1 preview",
+      "report": "feature-gated-fgap-v1-resources-26.3.5-isolated.json",
+      "reportSha256": "461d27a2c44b65198255adf056a9847abffd7ce7ca1dd1fe90f9862bba1b5cbe",
+      "scriptSha256": "1ab85940348c5375224ff7002be3f388939d30be17a9de75c75c9b920817b488"
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/identity-provider/instances/{alias}/management/permissions",
+      "configuration": "admin-fine-grained-authz:v1 preview",
+      "report": "feature-gated-fgap-v1-resources-26.3.5-isolated.json",
+      "reportSha256": "461d27a2c44b65198255adf056a9847abffd7ce7ca1dd1fe90f9862bba1b5cbe",
+      "scriptSha256": "1ab85940348c5375224ff7002be3f388939d30be17a9de75c75c9b920817b488"
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/roles-by-id/{role-id}/management/permissions",
+      "configuration": "admin-fine-grained-authz:v1 preview",
+      "report": "feature-gated-fgap-v1-resources-26.3.5-isolated.json",
+      "reportSha256": "461d27a2c44b65198255adf056a9847abffd7ce7ca1dd1fe90f9862bba1b5cbe",
+      "scriptSha256": "1ab85940348c5375224ff7002be3f388939d30be17a9de75c75c9b920817b488"
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/roles/{role-name}/management/permissions",
+      "configuration": "admin-fine-grained-authz:v1 preview",
+      "report": "feature-gated-fgap-v1-resources-26.3.5-isolated.json",
+      "reportSha256": "461d27a2c44b65198255adf056a9847abffd7ce7ca1dd1fe90f9862bba1b5cbe",
+      "scriptSha256": "1ab85940348c5375224ff7002be3f388939d30be17a9de75c75c9b920817b488"
+    },
+    {
+      "operation": "GET /admin/realms/{realm}/users-management-permissions",
+      "configuration": "admin-fine-grained-authz:v1 preview",
+      "report": "feature-gated-fgap-v1-users-26.3.5-isolated.json",
+      "reportSha256": "2868a7a3c05a0046c9fc3452afc50fa7b5b5bb60c1a07d290ce87c333be2ae15",
+      "scriptSha256": "33301e286c318735dae4fd8b3e50a3c1606ffd2170c601dceff31442746bd56d"
+    }
+  ]
+}
