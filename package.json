@@ -20,7 +20,7 @@
     "live:soak": "node scripts/live-soak.mjs",
     "live:coverage": "node scripts/live-coverage.mjs",
     "live:openclaw": "node scripts/live-openclaw.mjs",
-    "check": "node --check src/index.js && node --check src/api.js && node --check src/server.js && node --check src/keycloak.js && node --check src/workflow.js && node --check openclaw/index.js && node --check scripts/live-soak.mjs && node --check scripts/live-coverage.mjs && node --check scripts/live-openclaw.mjs && npm test",
+    "check": "node --check src/index.js && node --check src/api.js && node --check src/server.js && node --check src/keycloak.js && node --check src/workflow.js && node --check openclaw/index.js && node --check scripts/live-soak.mjs && node --check scripts/live-coverage.mjs && node --check scripts/live-openclaw.mjs && node --check scripts/openclaw-requirements.mjs && npm test",
     "catalog:update": "node scripts/update-catalog.mjs"
   },
   "engines": {

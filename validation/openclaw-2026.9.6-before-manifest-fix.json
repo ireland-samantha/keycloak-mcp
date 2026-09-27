@@ -1,5 +1,5 @@
 {
-  "observedAt": "2026-09-27T21:21:05.175Z",
+  "observedAt": "2026-09-27T22:05:53.433Z",
   "node": "v24.21.0",
   "platform": "linux-x64",
   "openclaw": {
@@ -12,8 +12,13 @@
   "sourceSha256": {
     "openclaw/index.js": "ab05cb905479f6c7905caeb76a49fb527f02af156d404c0e5f622b82d27b024b",
     "openclaw.plugin.json": "1f0ff55e377f63ff3484f0b16e081358d370628d2518f5539b528843df90edbc",
+    "package.json": "79bc9bedb0500d233cbeecc435f56a39dad6578bf2990bec1afb251e18d88565",
     "src/keycloak.js": "fed2ad51064ef7e0b10fed6791de46ab215bdbaa75b150cb56822f3bc9598794",
-    "src/workflow.js": "790f4aec003659ccaf6d6a8e10529a089455ea60b8e70aee4655df57fb210bbc"
+    "src/workflow.js": "790f4aec003659ccaf6d6a8e10529a089455ea60b8e70aee4655df57fb210bbc",
+    "data/operations.json": "1fb2ea304b78ee71ef128b35f5d8c6edfb513042ff6b0d43b41d1562ac63b47b",
+    "data/openapi.json": "c5476a8f029e7cead4587d9aa30d18f2ba08d06447b4f152b15cc332d350a5cf",
+    "data/operations-26.3.5.json": "5e57f042793f60dc3386cad12f54bd6996aa1150ce76bc07ef5d67d7f02657ee",
+    "data/openapi-26.3.5.json": "920329f609deeddb8c8aebedce8c755c027a97e73f2cfa165ebe174d1b2d991a"
   },
   "catalog": {
     "version": "latest",
@@ -21,16 +26,16 @@
   },
   "packed": {
     "filename": "keycloak-mcp-0.1.1.tgz",
-    "entryCount": 71,
-    "integrity": "sha512-8sytEvbHl3uOzaioWGKbwwRS8pyaue2l8Q3x8dyqQnK+53ngJjZJ2QMFpABMJvdCkd/1LqeJXVPzmWJC4JMm3g==",
-    "sha256": "a20159204dfe120fd95420f528e5a69a6d6587d550ff4fc60101220e8e875d54"
+    "entryCount": 74,
+    "integrity": "sha512-zVmJJTsdjF418uRQOutmIJO6Wqv7xE1Rdb28GeKMupN1XqX0YFkKLXpQIFGZJrpoDuO05kGgbKvANKd7py9+VQ==",
+    "sha256": "42fe646eede875d3d5576616e7a37e5ea216c01c5a5a76d608d023efde6a9da3"
   },
   "harness": {
-    "script": "scripts/live-openclaw.mjs",
-    "sha256": "320c931cd187f4be2c67993e5b27fef9fb79d974a8cab1bafbb360ce358f0a43"
+    "scripts/live-openclaw.mjs": "8082eff5ab0ea067216ae6fd80b182fa2085d2d294520faef137bf1806c8f588",
+    "scripts/openclaw-requirements.mjs": "6d5c284c7076009465ef418b37905f5466154f3071889089c7672569161184fe"
   },
-  "scope": "One run of the packed tarball through upstream OpenClaw in a throwaway home: install, metadata and runtime inspection, doctor, and Gateway /tools/invoke calls against a realm created for the run on a loopback Keycloak. Tool outcomes are graded by OpenClaw's public isToolResultError.",
-  "limit": "No model-driven agent turn ran; the Gateway direct-invoke endpoint called the tools. The service account held realm-admin in a disposable realm on a development server. This does not cover other OpenClaw releases, production networking or containers, the PostgreSQL lock, or other operations. Report-level admission against the signed review pack was not run.",
+  "scope": "One run of the packed tarball through upstream OpenClaw with its home, state, config, and log in a throwaway directory: install, metadata and runtime inspection, doctor, and Gateway /tools/invoke calls against a realm created for the run on a loopback Keycloak. The harness grades each Gateway result with OpenClaw's public isToolResultError.",
+  "limit": "No model-driven agent turn ran; the Gateway direct-invoke endpoint called the tools. The service account held realm-admin in a disposable realm on a development server. OpenClaw lock files under the system temporary directory are not removed. This does not cover other OpenClaw releases, production networking or containers, the PostgreSQL lock, or other operations. No external report schema reviewed this receipt (admission NOT_RUN).",
   "evidence": [
     {
       "id": "E1",
@@ -44,6 +49,7 @@
       "step": "metadata",
       "command": "openclaw plugins inspect keycloak-mcp --json",
       "imported": false,
+      "installedUnderThrowawayHome": true,
       "contractTools": [],
       "consentedTools": [],
       "diagnostics": 0
@@ -90,6 +96,7 @@
       "ok": false,
       "gradedError": null,
       "detailsStatus": null,
+      "error": "Tool not available: keycloak_search_operations",
       "total": null
     },
     {
@@ -100,6 +107,7 @@
       "ok": false,
       "gradedError": null,
       "detailsStatus": null,
+      "error": "Tool not available: keycloak_describe_operation",
       "key": null
     },
     {
@@ -110,6 +118,7 @@
       "ok": false,
       "gradedError": null,
       "detailsStatus": null,
+      "error": "Tool not available: keycloak_describe_schema",
       "hasProperties": false
     },
     {
@@ -121,6 +130,7 @@
       "ok": false,
       "gradedError": null,
       "detailsStatus": null,
+      "error": "Tool not available: keycloak_read",
       "realmMatches": false
     },
     {
@@ -131,7 +141,8 @@
       "httpStatus": 404,
       "ok": false,
       "gradedError": null,
-      "detailsStatus": null
+      "detailsStatus": null,
+      "error": "Tool not available: keycloak_read"
     },
     {
       "id": "E11",
@@ -142,7 +153,8 @@
       "httpStatus": 404,
       "ok": false,
       "gradedError": null,
-      "detailsStatus": null
+      "detailsStatus": null,
+      "error": "Tool not available: keycloak_workflow"
     },
     {
       "id": "E12",
@@ -153,7 +165,8 @@
       "httpStatus": 404,
       "ok": false,
       "gradedError": null,
-      "detailsStatus": null
+      "detailsStatus": null,
+      "error": "Tool not available: keycloak_workflow"
     },
     {
       "id": "E13",
@@ -164,6 +177,8 @@
       "ok": false,
       "gradedError": null,
       "detailsStatus": null,
+      "error": "Tool not available: keycloak_read",
+      "controlExactNameCount": null,
       "exactNameCountBefore": null,
       "exactNameCountAfter": null
     },
@@ -176,7 +191,8 @@
       "httpStatus": 404,
       "ok": false,
       "gradedError": null,
-      "detailsStatus": null
+      "detailsStatus": null,
+      "error": "Tool not available: keycloak_workflow"
     },
     {
       "id": "E15",
@@ -188,6 +204,7 @@
       "ok": false,
       "gradedError": null,
       "detailsStatus": null,
+      "error": "Tool not available: keycloak_workflow",
       "createStatus": null,
       "forcedReadFailure": null,
       "rollbackStatus": null,
@@ -197,12 +214,12 @@
       "exactNameCountAfter": null,
       "groupCountBefore": null,
       "groupCountAfter": null,
-      "journalDirMode": "0700",
+      "journalDirMode": null,
       "receiptModes": []
     }
   ],
   "cleanup": {
-    "gatewaysStopped": true,
+    "gatewaysExited": true,
     "realmDelete": 204,
     "realmAbsentRead": 404,
     "workDirRemoved": true
@@ -210,9 +227,10 @@
   "requirements": [
     {
       "id": "REQ-1",
-      "predicate": "OpenClaw installs the packed tarball after source confirmation and capability consent",
+      "predicate": "OpenClaw installs the packed tarball into the throwaway home after source confirmation and capability consent",
       "evidence": [
-        "E1"
+        "E1",
+        "E2"
       ],
       "status": "PROVEN"
     },
@@ -226,7 +244,7 @@
     },
     {
       "id": "REQ-3",
-      "predicate": "Without a config file, registration fails with a diagnostic and registers no tools",
+      "predicate": "Without a config file, registration fails because KEYCLOAK_BASE_URL is missing and registers no tools",
       "evidence": [
         "E3"
       ],
@@ -234,7 +252,7 @@
     },
     {
       "id": "REQ-4",
-      "predicate": "With a 0600 configPath and no KEYCLOAK_* variables, the runtime loads the five tools and doctor passes",
+      "predicate": "Given a 0600 configPath and no KEYCLOAK_* variables, the runtime loads the five tools and doctor passes",
       "evidence": [
         "E4",
         "E5"
@@ -243,7 +261,7 @@
     },
     {
       "id": "REQ-5",
-      "predicate": "The Gateway serves every tool, and a live read returns the configured realm, each graded successful",
+      "predicate": "The Gateway serves the read-side tools, and a live read returns the configured realm, each graded successful",
       "evidence": [
         "E6",
         "E7",
@@ -254,7 +272,7 @@
     },
     {
       "id": "REQ-6",
-      "predicate": "Refused calls reach OpenClaw as failed results and write nothing",
+      "predicate": "Refused calls are graded failed and write nothing; the exact-name query finds a control group",
       "evidence": [
         "E10",
         "E11",
@@ -265,7 +283,7 @@
     },
     {
       "id": "REQ-7",
-      "predicate": "With writes enabled, a compensated create through the Gateway is rolled back, graded failed, and leaves no group",
+      "predicate": "With writes enabled, a compensated create through the Gateway is rolled back, graded failed, and leaves only the control group",
       "evidence": [
         "E14",
         "E15"
@@ -274,7 +292,7 @@
     },
     {
       "id": "REQ-8",
-      "predicate": "The disposable realm, Gateways, and throwaway OpenClaw home are gone afterward",
+      "predicate": "Both Gateways exited, the realm this run created is deleted, and the throwaway directory is removed",
       "evidence": [
         "cleanup"
       ],
