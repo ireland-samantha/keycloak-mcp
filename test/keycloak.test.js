@@ -585,5 +585,8 @@ test('OpenClaw plugin config selects a private service-account file', () => {
     chmodSync(file, 0o644);
     assert.throws(() => openclaw.register({ pluginConfig: { configPath: file }, registerTool() {} }), /private file/);
     assert.throws(() => openclaw.register({ pluginConfig: { configPath: 'relative.json' }, registerTool() {} }), /absolute/);
-  } finally { for (const [key, value] of Object.entries(old)) if (value === undefined) delete process.env[key]; else process.env[key] = value; }
+  } finally {
+    for (const [key, value] of Object.entries(old)) if (value === undefined) delete process.env[key]; else process.env[key] = value;
+    rmSync(dir, { recursive: true, force: true });
+  }
 });

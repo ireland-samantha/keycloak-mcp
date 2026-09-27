@@ -12,19 +12,22 @@ const definitions = [
   ['REQ-1', 'OpenClaw installs the packed tarball into the throwaway home after source confirmation and capability consent', ['install', 'metadata'],
     e => e.install.exitCode === 0 && e.install.installed === true && e.metadata.installedUnderThrowawayHome === true],
   ['REQ-2', 'Before importing plugin code, OpenClaw reads the five tools from the manifest and the consent record covers them', ['metadata'],
-    e => e.metadata.imported === false && same(e.metadata.contractTools, tools) && sameSet(e.metadata.consentedTools, tools)],
+    e => e.metadata.imported === false && e.metadata.diagnostics === 0 && same(e.metadata.contractTools, tools) &&
+      sameSet(e.metadata.consentedTools, tools)],
   ['REQ-3', 'Without a config file, registration fails because KEYCLOAK_BASE_URL is missing and registers no tools', ['unconfigured'],
     e => e.unconfigured.status === 'error' && e.unconfigured.tools.length === 0 &&
       e.unconfigured.diagnostics.some(message => message.includes('KEYCLOAK_BASE_URL is required'))],
   ['REQ-4', 'Given a 0600 configPath and no KEYCLOAK_* variables, the runtime loads the five tools and doctor passes', ['runtime', 'doctor'],
     e => e.runtime.configMode === '0600' && e.runtime.keycloakVariablesPassed === 0 && e.runtime.status === 'loaded' &&
-      e.runtime.imported === true && same(e.runtime.tools, tools) && e.runtime.diagnostics === 0 && e.doctor.ok === true && e.doctor.pluginErrors === 0],
+      e.runtime.imported === true && same(e.runtime.tools, tools) && e.runtime.diagnostics === 0 && e.doctor.exitCode === 0 &&
+      e.doctor.ok === true && e.doctor.pluginErrors === 0 && e.doctor.diagnostics === 0],
   ['REQ-5', 'The Gateway serves the read-side tools, and a live read returns the configured realm, each graded successful', reads,
     e => reads.every(key => served(e[key]) && e[key].gradedError === false) && e['gateway-search'].total > 0 &&
       e['gateway-describe'].key === 'GET /admin/realms/{realm}/groups' && e['gateway-schema'].hasProperties === true &&
       e['gateway-read'].detailsStatus === 200 && e['gateway-read'].realmMatches === true],
   ['REQ-6', 'Refused calls are graded failed and write nothing; the exact-name query finds a control group', [...refusals, 'gateway-read-only-count'],
-    e => refusals.every(key => served(e[key]) && e[key].gradedError === true) && e['gateway-read-only-count'].controlExactNameCount === 1 &&
+    e => refusals.every(key => served(e[key]) && e[key].gradedError === true) && served(e['gateway-read-only-count']) &&
+      e['gateway-read-only-count'].gradedError === false && e['gateway-read-only-count'].controlExactNameCount === 1 &&
       e['gateway-read-only-count'].exactNameCountBefore === 0 && e['gateway-read-only-count'].exactNameCountAfter === 0],
   ['REQ-7', 'With writes enabled, a compensated create through the Gateway is rolled back, graded failed, and leaves only the control group', ['gateway-preflight-write', 'gateway-compensated-write'],
     e => {

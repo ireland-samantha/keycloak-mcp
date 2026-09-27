@@ -28,7 +28,7 @@ function receipt(name, digest) {
     status: Object.fromEntries(value.requirements.map(item => [item.id, item.status])) };
 }
 
-const after = receipt('openclaw-2026.9.6-integration.json', '62e8d3b13fbf8315e5ca3695ade78452a5a6e1e35283b5ac39330a1337b864cb');
+const after = receipt('openclaw-2026.9.6-integration.json', '9720d42de7bf3900542f9604ea16e89b0c383f8f2d21cea83ed45919897a7eff');
 
 test('OpenClaw 2026.9.6 installs the packed extension and serves its tools through the Gateway', () => {
   const { value, step, status } = after;
@@ -52,7 +52,7 @@ test('OpenClaw 2026.9.6 installs the packed extension and serves its tools throu
 
 test('with the shipped manifest, OpenClaw 2026.9.6 rejected every tool', () => {
   const { value, step, status } = receipt('openclaw-2026.9.6-before-manifest-fix.json',
-    'ef93da8bb8da428db053f52fd4e7ed73591cfa19c8dced369cedd826156ca341');
+    '247d4cc1ac32e0fd92f7c29a638360c1afe4a12d2adb335546b0777ceed582b0');
   assert.deepEqual(value.harness, after.value.harness);
   assert.deepEqual(value.sourceSha256, { ...after.value.sourceSha256,
     'openclaw/index.js': ungradedExtensionSha256, 'openclaw.plugin.json': shippedManifestSha256 });
@@ -70,7 +70,7 @@ test('with the shipped manifest, OpenClaw 2026.9.6 rejected every tool', () => {
 
 test('before failed results carried details, OpenClaw graded refusals as successful', () => {
   const { value, step, status } = receipt('openclaw-2026.9.6-before-grading-fix.json',
-    '8947daa26f41c47782862126d42954639c61147e775943591e16a6e6a28e3521');
+    '05ee25a54394b4765c5fdc4c52dcfa5e75488a7d48e9c80c92ed0aaba7fbb5c9');
   assert.deepEqual(value.harness, after.value.harness);
   assert.deepEqual(value.sourceSha256, { ...after.value.sourceSha256, 'openclaw/index.js': ungradedExtensionSha256 });
   for (const key of refusals) assert.deepEqual([step[key].httpStatus, step[key].ok, step[key].gradedError], [200, true, false], key);

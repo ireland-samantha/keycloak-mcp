@@ -1,5 +1,5 @@
 {
-  "observedAt": "2026-09-27T22:10:57.450Z",
+  "observedAt": "2026-09-27T23:05:39.671Z",
   "node": "v24.21.0",
   "platform": "linux-x64",
   "openclaw": {
@@ -27,12 +27,12 @@
   "packed": {
     "filename": "keycloak-mcp-0.1.1.tgz",
     "entryCount": 74,
-    "integrity": "sha512-4jvSrmJjd3aLckSN4CPAG62pw7jDTKAOGBXaCUlGXc01u0qyJDc+2xRqdZPuCwqjgtfsom+aPe3DNdini0m8tw==",
-    "sha256": "5423fcec32992300ae3a07bd8b6d66f756e532b55b2159af1374e2093ca7f4b3"
+    "integrity": "sha512-58yqSBPZx0vm7kbgpBI1ucW98xXd5U8TLKS/DTP4FwVo02m4/lvCT5txHyn1x5u/E8jVEW+L8/MXycQQmI/1Tg==",
+    "sha256": "bc6200b2d65e6c098f174a84088f9133b68e3a1c068842d7bf5370ac883bf166"
   },
   "harness": {
-    "scripts/live-openclaw.mjs": "8082eff5ab0ea067216ae6fd80b182fa2085d2d294520faef137bf1806c8f588",
-    "scripts/openclaw-requirements.mjs": "6d5c284c7076009465ef418b37905f5466154f3071889089c7672569161184fe"
+    "scripts/live-openclaw.mjs": "34f2d3799a78f4cab3642c9a29362de21db541c5b42428b73a9174da709d63e4",
+    "scripts/openclaw-requirements.mjs": "f8d7a9e42ef3c309a081d932f7ffb5abedb57c24c8923badfdfa9961a15e67e2"
   },
   "scope": "One run of the packed tarball through upstream OpenClaw with its home, state, config, and log in a throwaway directory: install, metadata and runtime inspection, doctor, and Gateway /tools/invoke calls against a realm created for the run on a loopback Keycloak. The harness grades each Gateway result with OpenClaw's public isToolResultError.",
   "limit": "No model-driven agent turn ran; the Gateway direct-invoke endpoint called the tools. The service account held realm-admin in a disposable realm on a development server. OpenClaw lock files under the system temporary directory are not removed. This does not cover other OpenClaw releases, production networking or containers, the PostgreSQL lock, or other operations. No external report schema reviewed this receipt (admission NOT_RUN).",

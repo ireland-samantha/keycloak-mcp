@@ -4,7 +4,7 @@ import { createHash, randomBytes, randomUUID } from 'node:crypto';
 import { chmodSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, realpathSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { createServer } from 'node:net';
 import { tmpdir } from 'node:os';
-import { delimiter, dirname, join } from 'node:path';
+import { delimiter, dirname, join, sep } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { evaluate, tools } from './openclaw-requirements.mjs';
 
@@ -18,6 +18,9 @@ for (const name of ['KEYCLOAK_MCP_OPENCLAW_BOOTSTRAP', 'KEYCLOAK_MCP_OPENCLAW_OU
 const bootstrapFile = process.env.KEYCLOAK_MCP_OPENCLAW_BOOTSTRAP;
 if ((statSync(bootstrapFile).mode & 0o077) !== 0) throw new Error('KEYCLOAK_MCP_OPENCLAW_BOOTSTRAP must be a private file (mode 0600)');
 const bootstrap = JSON.parse(readFileSync(bootstrapFile, 'utf8'));
+// A short password can occur in ordinary receipt text, which would withhold the receipt after a full run.
+if (typeof bootstrap.password !== 'string' || bootstrap.password.length < 16)
+  throw new Error('use a bootstrap administrator password of at least 16 random characters');
 const base = new URL(bootstrap.baseUrl);
 if (base.protocol !== 'http:' || !['127.0.0.1', 'localhost', '[::1]'].includes(base.hostname))
   throw new Error('refusing a non-loopback Keycloak: this run creates and deletes a realm');
@@ -52,14 +55,21 @@ writeFileSync(join(state, 'openclaw.json'), `${JSON.stringify({ logging: { file:
 const env = Object.fromEntries(Object.entries(process.env).filter(([key]) => !key.startsWith('KEYCLOAK_') && !key.startsWith('OPENCLAW_')));
 Object.assign(env, { OPENCLAW_HOME: home, OPENCLAW_STATE_DIR: state, OPENCLAW_CONFIG_PATH: join(state, 'openclaw.json'),
   OPENCLAW_NO_AUTO_UPDATE: '1', OPENCLAW_DISABLE_BONJOUR: '1', OPENCLAW_SKIP_CHANNELS: '1', OPENCLAW_NO_PROMPT: '1', OPENCLAW_NO_ONBOARD: '1' });
-const cli = (...args) => spawnSync(openclawBin, args, { env, encoding: 'utf8', timeout: 600_000 });
+// A signal only marks the run interrupted and aborts in-flight Gateway calls. The run stops before its next
+// command, request, or Gateway, cleans up once, and writes no receipt.
+let interrupted = null;
+const aborter = new AbortController();
+for (const signal of ['SIGINT', 'SIGTERM']) process.once(signal, () => { interrupted ??= signal; aborter.abort(); });
+const halt = () => { if (interrupted) throw new Error(`interrupted by ${interrupted}`); };
+const cli = (...args) => { halt(); return spawnSync(openclawBin, args, { env, encoding: 'utf8', timeout: 600_000 }); };
 const cliJson = (...args) => {
   const run = cli(...args, '--json');
   assert.equal(run.status, 0, `openclaw ${args.join(' ')}: ${run.stderr}`);
   return JSON.parse(run.stdout);
 };
 
-async function kc(method, path, body) {
+async function kc(method, path, body, { cleanup = false } = {}) {
+  if (!cleanup) halt();
   const token = await fetch(`${baseUrl}/realms/master/protocol/openid-connect/token`, { method: 'POST', redirect: 'error',
     body: new URLSearchParams({ grant_type: 'password', client_id: 'admin-cli', username: bootstrap.username, password: bootstrap.password }) });
   assert.equal(token.status, 200, 'bootstrap administrator token');
@@ -86,10 +96,11 @@ const controlName = `${realm}-control`;
 const gatewayToken = randomBytes(24).toString('base64url');
 const clientSecret = randomBytes(24).toString('base64url');
 const gateways = [];
-let created = false;
+let realmCreation = null;
 
 async function startGateway() {
   const port = await freePort();
+  halt();
   const child = spawn(openclawBin, ['gateway', 'run', '--bind', 'loopback', '--port', String(port), '--auth', 'token'],
     { env: { ...env, OPENCLAW_GATEWAY_TOKEN: gatewayToken }, stdio: ['ignore', 'pipe', 'pipe'] });
   let log = '';
@@ -105,7 +116,7 @@ async function startGateway() {
     return { ...exit, forced };
   };
   const invoke = async (tool, args = {}) => {
-    const response = await fetch(`http://127.0.0.1:${port}/tools/invoke`, { method: 'POST', redirect: 'error',
+    const response = await fetch(`http://127.0.0.1:${port}/tools/invoke`, { method: 'POST', redirect: 'error', signal: aborter.signal,
       headers: { authorization: `Bearer ${gatewayToken}`, 'content-type': 'application/json' }, body: JSON.stringify({ tool, args }) });
     const body = await response.json().catch(() => null);
     return { httpStatus: response.status, ok: body?.ok ?? null, details: body?.result?.details ?? null,
@@ -118,6 +129,7 @@ async function startGateway() {
   const deadline = Date.now() + 180_000;
   let answeredAt = null;
   for (;;) {
+    halt();
     if (child.exitCode !== null) throw new Error(`gateway exited ${child.exitCode}: ${log.slice(-4000)}`);
     const probe = await invoke(tools[0], { search: 'serverinfo', limit: 1 }).catch(() => null);
     if (probe && probe.httpStatus !== 503) answeredAt ??= Date.now();
@@ -127,21 +139,18 @@ async function startGateway() {
   }
 }
 
-let cleaning = null;
-const cleanUp = () => (cleaning ??= (async () => {
+async function cleanUp() {
   const exits = [];
   for (const gateway of gateways) exits.push(await gateway.stop());
-  // Only the realm this run created is deleted.
-  const removed = created ? await kc('DELETE', `/admin/realms/${realm}`).catch(() => ({ status: null })) : { status: null };
-  const absent = await kc('GET', `/admin/realms/${realm}`).catch(() => ({ status: null }));
+  // Only a realm this run created is deleted, once its creation request has settled.
+  const creation = realmCreation ? await realmCreation.catch(() => null) : null;
+  const removed = creation?.status === 201
+    ? await kc('DELETE', `/admin/realms/${realm}`, undefined, { cleanup: true }).catch(() => ({ status: null })) : { status: null };
+  const absent = await kc('GET', `/admin/realms/${realm}`, undefined, { cleanup: true }).catch(() => ({ status: null }));
   rmSync(work, { recursive: true, force: true });
   return { gatewaysExited: exits.every(exit => !exit.forced), realmDelete: removed.status, realmAbsentRead: absent.status,
     workDirRemoved: !existsSync(work) };
-})());
-for (const signal of ['SIGINT', 'SIGTERM']) process.once(signal, () => {
-  cleanUp().then(result => console.error(`interrupted by ${signal}; no receipt written; cleanup ${JSON.stringify(result)}`))
-    .finally(() => process.exit(signal === 'SIGINT' ? 130 : 143));
-});
+}
 
 const evidence = [];
 const record = (step, observed) => { evidence.push({ id: `E${evidence.length + 1}`, step, ...observed }); };
@@ -156,8 +165,8 @@ try {
   const catalog = JSON.parse(readFileSync(join(root, 'data/operations.json'), 'utf8'));
   report.catalog = { version: 'latest', sourceSha256: catalog.sourceSha256 };
 
-  assert.equal((await kc('POST', '/admin/realms', { realm, enabled: true })).status, 201);
-  created = true;
+  realmCreation = kc('POST', '/admin/realms', { realm, enabled: true });
+  assert.equal((await realmCreation).status, 201);
   const client = await kc('POST', `/admin/realms/${realm}/clients`, { clientId: 'keycloak-mcp-openclaw', enabled: true,
     protocol: 'openid-connect', publicClient: false, serviceAccountsEnabled: true, standardFlowEnabled: false,
     directAccessGrantsEnabled: false, clientAuthenticatorType: 'client-secret', secret: clientSecret });
@@ -179,6 +188,7 @@ try {
 
   const packDir = join(work, 'pack');
   mkdirSync(packDir);
+  halt();
   const pack = spawnSync('npm', ['pack', '--pack-destination', packDir, '--json'], { cwd: root, encoding: 'utf8' });
   assert.equal(pack.status, 0, pack.stderr);
   const [packed] = JSON.parse(pack.stdout);
@@ -191,7 +201,8 @@ try {
   assert.equal(install.status, 0, install.stderr);
   const metadata = cliJson('plugins', 'inspect', 'keycloak-mcp');
   record('metadata', { command: 'openclaw plugins inspect keycloak-mcp --json', imported: metadata.plugin.imported,
-    installedUnderThrowawayHome: (metadata.install?.installPath ?? '').startsWith(`${home}/`),
+    installedUnderThrowawayHome: existsSync(metadata.install?.installPath ?? '') &&
+      realpathSync(metadata.install.installPath).startsWith(`${realpathSync(home)}${sep}`),
     contractTools: metadata.plugin.contracts?.tools ?? [], consentedTools: metadata.install?.acceptedSurface?.tools ?? [],
     diagnostics: metadata.diagnostics.length });
   const names = inspected => inspected.tools.flatMap(tool => tool.names ?? [tool.name ?? tool]);
@@ -269,6 +280,10 @@ try {
   failure = error instanceof Error ? error.message.slice(0, 2000) : String(error);
 }
 const cleanup = await cleanUp();
+if (interrupted) {
+  console.error(`interrupted by ${interrupted}; no receipt written; cleanup ${JSON.stringify(cleanup)}`);
+  process.exit(interrupted === 'SIGINT' ? 130 : 143);
+}
 
 const requirements = evaluate(evidence, cleanup);
 const harness = Object.fromEntries(['scripts/live-openclaw.mjs', 'scripts/openclaw-requirements.mjs']
@@ -285,8 +300,9 @@ let receipt = JSON.stringify({ ...report, harness, scope, limit, evidence, clean
   ...(failure ? { failure } : {}) }, null, 2);
 for (const [path, marker] of [[work, '<work>'], [root.replace(/\/$/, ''), '<repo>'], [openclawDir, '<openclaw>']])
   receipt = receipt.replaceAll(path, marker);
-if ([gatewayToken, clientSecret, bootstrap.password].some(secret => secret && receipt.includes(secret)))
-  throw new Error('a secret occurs in the receipt text, so no receipt was written; use a bootstrap password that cannot appear in one');
+// Check the raw and JSON-escaped forms, since the receipt text is JSON.
+if ([gatewayToken, clientSecret, bootstrap.password].some(secret => receipt.includes(secret) || receipt.includes(JSON.stringify(secret).slice(1, -1))))
+  throw new Error(`a secret occurs in the receipt text, so no receipt was written${failure ? '; the run had also failed' : ''}`);
 writeFileSync(out, `${receipt}\n`);
 if (failure) throw new Error(failure);
 const open = requirements.filter(item => item.status !== 'PROVEN');
