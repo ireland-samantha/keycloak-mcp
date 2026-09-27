@@ -182,6 +182,27 @@ test('existing-resource deletes and external actions require an irreversible ove
   assert.equal(explicitlyAllowed[0].irreversible, true);
 });
 
+test('bodyless association PUTs cannot claim a repeated PUT as rollback', () => {
+  const base = { ...env, KEYCLOAK_MCP_ALLOW_WRITE: 'true', KEYCLOAK_MCP_SINGLE_WRITER: 'true' };
+  for (const version of ['latest', '26.3.5']) {
+    const catalog = createCatalog('', version);
+    const associations = catalog.operations.filter(operation => operation.method === 'PUT' &&
+      operation.requestTypes.length === 0 && catalog.byKey.has(`DELETE ${operation.path}`));
+    assert.ok(associations.length >= 6, `${version} association routes`);
+    for (const operation of associations) {
+      assert.equal(isIrreversible(operation.key, catalog), true, operation.key);
+      const path = Object.fromEntries(operation.parameters.filter(parameter => parameter.in === 'path' &&
+        parameter.name !== 'realm').map(parameter => [parameter.name, 'test-id']));
+      const step = { operation: operation.key, args: { path },
+        compensate: { operation: operation.key, args: { path } } };
+      assert.throws(() => preflight(configFromEnv(base), [step], catalog), /irreversible/, operation.key);
+      const allowed = preflight(configFromEnv({ ...base, KEYCLOAK_MCP_ALLOW_IRREVERSIBLE: 'true' }),
+        [{ operation: operation.key, args: { path }, irreversible: true }], catalog);
+      assert.equal(allowed[0].irreversible, true);
+    }
+  }
+});
+
 test('latest invitation resend and workflow execution actions cannot claim a compensating undo', () => {
   const catalog = createCatalog('', 'latest');
   const base = { ...env, KEYCLOAK_MCP_ALLOW_WRITE: 'true', KEYCLOAK_MCP_SINGLE_WRITER: 'true' };

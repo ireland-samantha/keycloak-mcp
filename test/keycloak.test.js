@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { test } from 'node:test';
-import { chmodSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { chmodSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { buildRequest, configFromEnv, createCatalog, describeOperation, describeSchema, isMutation, KeycloakAdmin, listOperations } from '../src/keycloak.js';
@@ -366,6 +366,24 @@ test('generic secret value endpoint is redacted unless explicitly enabled', asyn
   assert.equal(enabled.value.value, 'hidden-secret');
 });
 
+test('client initial-access tokens and detailed admin-event representations are redacted by default', async () => {
+  const initialAccess = 'GET /admin/realms/{realm}/clients-initial-access';
+  const adminEvents = 'GET /admin/realms/{realm}/admin-events';
+  const fetch = async url => {
+    if (url.endsWith('/token')) return response(200, { access_token: 'service-token', expires_in: 900 });
+    if (url.endsWith('/clients-initial-access')) return response(200, [{ id: 'entry', token: 'registration-token' }]);
+    return response(200, [{ operationType: 'CREATE', representation: '{"secret":"client-secret"}' }]);
+  };
+  const ordinary = new KeycloakAdmin(configFromEnv(env), fetch);
+  assert.equal((await ordinary.invoke(initialAccess)).value, '[REDACTED: sensitive endpoint]');
+  const events = (await ordinary.invoke(adminEvents)).value;
+  assert.equal(events[0].operationType, 'CREATE');
+  assert.equal(events[0].representation, '[REDACTED]');
+  const enabled = new KeycloakAdmin(configFromEnv({ ...env, KEYCLOAK_MCP_ALLOW_SENSITIVE_READS: 'true' }), fetch);
+  assert.equal((await enabled.invoke(initialAccess)).value[0].token, 'registration-token');
+  assert.equal((await enabled.invoke(adminEvents)).value[0].representation, '{"secret":"client-secret"}');
+});
+
 test('text installation material and example tokens are redacted by default', async () => {
   const admin = new KeycloakAdmin(configFromEnv(env), async url => {
     if (url.endsWith('/token')) return response(200, { access_token: 'token', expires_in: 900 });
@@ -501,6 +519,35 @@ test('Hearth extension registers the five shared tools', () => {
   try { hearth.register({ registerTool(definition) { assert.equal(typeof definition, 'object'); names.push(definition.name); } }); }
   finally { for (const [key, value] of Object.entries(old)) if (value === undefined) delete process.env[key]; else process.env[key] = value; }
   assert.deepEqual(names, ['keycloak_search_operations', 'keycloak_describe_operation', 'keycloak_describe_schema', 'keycloak_read', 'keycloak_workflow']);
+});
+
+test('Hearth read tool accepts classified converter POSTs and refuses mutations', async () => {
+  const dir = mkdtempSync(join(tmpdir(), 'keycloak-mcp-hearth-read-'));
+  const file = join(dir, 'service-account.json');
+  writeFileSync(file, JSON.stringify(env), { mode: 0o600 });
+  const tools = new Map();
+  const originalFetch = globalThis.fetch;
+  let calls = 0;
+  globalThis.fetch = async (url, options) => {
+    if (url.endsWith('/token')) return response(200, { access_token: 'token', expires_in: 900 });
+    calls += 1;
+    assert.equal(options.method, 'POST');
+    return response(200, { clientId: 'converted-client' });
+  };
+  try {
+    hearth.register({ pluginConfig: { configPath: file }, registerTool(definition) { tools.set(definition.name, definition); } });
+    const read = tools.get('keycloak_read');
+    const converted = await read.execute('read-call', { operation: 'POST /admin/realms/{realm}/client-description-converter',
+      args: { contentType: 'text/plain', body: '{"client_id":"converted-client"}' } });
+    assert.equal(converted.details.value.clientId, 'converted-client');
+    const blocked = await read.execute('write-call', { operation: 'POST /admin/realms/{realm}/users',
+      args: { body: { username: 'blocked' } } });
+    assert.match(blocked.content[0].text, /compensating workflow/);
+    assert.equal(calls, 1);
+  } finally {
+    globalThis.fetch = originalFetch;
+    rmSync(dir, { recursive: true, force: true });
+  }
 });
 
 test('Hearth plugin config selects a private service-account file', () => {

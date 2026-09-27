@@ -6,7 +6,7 @@ const openapi = JSON.parse(readFileSync(new URL('../data/openapi.json', import.m
 const catalog2635 = JSON.parse(readFileSync(new URL('../data/operations-26.3.5.json', import.meta.url), 'utf8'));
 const openapi2635 = JSON.parse(readFileSync(new URL('../data/openapi-26.3.5.json', import.meta.url), 'utf8'));
 const baseCatalogs = { latest: [catalog, openapi], '26.3.5': [catalog2635, openapi2635] };
-const sensitive = /secret|password|credential|private.?key|access.?token|refresh.?token|authorization/i;
+const sensitive = /secret|password|credential|private.?key|access.?token|refresh.?token|authorization|^token$/i;
 const realmPattern = /^[A-Za-z0-9._~-]{1,255}$/;
 const sideEffectingGets = new Set(['GET /admin/realms/{realm}/identity-provider/instances/{alias}/reload-keys']);
 const readOnlyPosts = new Set([
@@ -19,7 +19,7 @@ const certificateUploads = new Set([
   'POST /admin/realms/{realm}/clients/{client-uuid}/certificates/{attr}/upload-certificate',
   'POST /admin/realms/{realm}/identity-provider/upload-certificate',
 ]);
-const sensitivePaths = /\/client-secret(?:\/|$)|\/credentials(?:\/|$)|\/certificates\/\{attr\}(?:\/|$)|\/installation\/providers\/|\/evaluate-scopes\/generate-example-/;
+const sensitivePaths = /\/client-secret(?:\/|$)|\/clients-initial-access(?:\/|$)|\/credentials(?:\/|$)|\/certificates\/\{attr\}(?:\/|$)|\/installation\/providers\/|\/evaluate-scopes\/generate-example-/;
 const irreversiblePath = /(?:\/logout|\/reset-password|\/send-|\/execute-actions-email|\/client-secret|\/sessions(?:\/|$)|\/brute-force\/users|\/credentials\/|\/disable-credential-types|\/push-revocation|\/testSMTPConnection|\/impersonation|\/clear-|\/members\/invite-|\/identity-provider\/import-config)/;
 const irreversibleInvitationResend = /\/invitations\/\{id\}\/resend$/;
 const irreversibleWorkflowActions = /\/workflows\/(?:migrate$|\{id\}\/(?:activate|deactivate)\/)/;
@@ -114,6 +114,9 @@ export function isIrreversible(key, operationCatalog = createCatalog()) {
   if (!isMutation(key, operationCatalog)) return false;
   if (op.method === 'DELETE' || sideEffectingGets.has(key)) return true;
   if (op.extension) return op.irreversible;
+  // Bodyless PUT/DELETE pairs create and remove associations. Repeating PUT
+  // cannot undo an assignment, and DELETE may remove a pre-existing one.
+  if (op.method === 'PUT' && op.requestTypes.length === 0 && operationCatalog.byKey.has(`DELETE ${op.path}`)) return true;
   if (irreversiblePath.test(op.path) || irreversibleInvitationResend.test(op.path) ||
     irreversibleWorkflowActions.test(op.path)) return true;
   return false;
@@ -203,6 +206,14 @@ export function describeSchema(name, operationCatalog = createCatalog()) {
   return { name, schema };
 }
 
+function decodeBase64Bounded(value, limit, label) {
+  if (typeof value !== 'string') throw new Error(`invalid ${label}`);
+  const padding = value.endsWith('==') ? 2 : value.endsWith('=') ? 1 : 0;
+  if (Math.floor(value.length / 4) * 3 - padding > limit) throw new Error('request body exceeds configured limit');
+  if (!/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(value)) throw new Error(`invalid ${label}`);
+  return Buffer.from(value, 'base64');
+}
+
 function encodeMultipart(fields, limit) {
   if (!fields || typeof fields !== 'object' || Array.isArray(fields) || Object.keys(fields).length > 32)
     throw new Error('multipart body must be an object with at most 32 fields');
@@ -211,17 +222,20 @@ function encodeMultipart(fields, limit) {
   for (const [name, value] of Object.entries(fields)) {
     if (!/^[A-Za-z][A-Za-z0-9_-]{0,63}$/.test(name)) throw new Error('invalid multipart field name');
     bytes += 1024 + Buffer.byteLength(name);
+    if (bytes > limit) throw new Error('request body exceeds configured limit');
     if (typeof value === 'string') {
       bytes += Buffer.byteLength(value);
+      if (bytes > limit) throw new Error('request body exceeds configured limit');
       form.append(name, value);
     } else if (value && typeof value === 'object' && !Array.isArray(value)) {
       const { filename, contentType, base64 } = value;
       if (Object.keys(value).some(key => !['filename', 'contentType', 'base64'].includes(key)) ||
         typeof filename !== 'string' || !/^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/.test(filename)) throw new Error('invalid multipart filename');
       if (typeof contentType !== 'string' || !/^[\w.+-]+\/[\w.+-]+$/.test(contentType)) throw new Error('invalid multipart content type');
-      if (typeof base64 !== 'string' || !/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(base64)) throw new Error('invalid multipart base64');
-      const file = Buffer.from(base64, 'base64');
-      bytes += file.length + Buffer.byteLength(filename) + Buffer.byteLength(contentType);
+      bytes += Buffer.byteLength(filename) + Buffer.byteLength(contentType);
+      if (bytes > limit) throw new Error('request body exceeds configured limit');
+      const file = decodeBase64Bounded(base64, limit - bytes, 'multipart base64');
+      bytes += file.length;
       form.append(name, new Blob([file], { type: contentType }), filename);
     } else throw new Error('multipart fields must be text or a base64 file');
     if (bytes > limit) throw new Error('request body exceeds configured limit');
@@ -229,9 +243,9 @@ function encodeMultipart(fields, limit) {
   return form;
 }
 
-function scrub(value) {
-  if (Array.isArray(value)) return value.map(scrub);
-  if (value && typeof value === 'object') return Object.fromEntries(Object.entries(value).map(([key, child]) => [key, sensitive.test(key) ? '[REDACTED]' : scrub(child)]));
+function scrub(value, redactRepresentation = false) {
+  if (Array.isArray(value)) return value.map(item => scrub(item, redactRepresentation));
+  if (value && typeof value === 'object') return Object.fromEntries(Object.entries(value).map(([key, child]) => [key, sensitive.test(key) || (redactRepresentation && key === 'representation') ? '[REDACTED]' : scrub(child, redactRepresentation)]));
   return value;
 }
 
@@ -272,8 +286,7 @@ export function buildRequest(config, key, args = {}, operationCatalog = createCa
       if (args.bodyBase64 !== undefined) throw new Error('multipart requires structured fields');
       body = encodeMultipart(args.body, config.maxBodyBytes ?? defaultBodyLimit);
     } else if (args.bodyBase64 !== undefined) {
-      if (typeof args.bodyBase64 !== 'string' || !/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(args.bodyBase64)) throw new Error('invalid base64 body');
-      body = Buffer.from(args.bodyBase64, 'base64');
+      body = decodeBase64Bounded(args.bodyBase64, config.maxBodyBytes ?? defaultBodyLimit, 'base64 body');
     } else if (contentType === 'application/json') body = JSON.stringify(args.body);
     else if (contentType === 'application/x-www-form-urlencoded') {
       if (!args.body || typeof args.body !== 'object' || Array.isArray(args.body)) throw new Error('form body must be an object');
@@ -375,7 +388,7 @@ export class KeycloakAdmin {
     if (bytes.length && sensitivePaths.test(req.op.path) && !this.config.allowSensitiveReads) value = '[REDACTED: sensitive endpoint]';
     else if (bytes.length && contentType.includes('json')) {
       try { value = JSON.parse(bytes.toString('utf8')); } catch { throw new Error('Keycloak returned invalid JSON'); }
-      if (!this.config.allowSensitiveReads) value = scrub(value);
+      if (!this.config.allowSensitiveReads) value = scrub(value, req.op.path === '/admin/realms/{realm}/admin-events');
     } else if (bytes.length && (contentType.startsWith('text/') || contentType.includes('xml') || contentType.includes('yaml'))) value = bytes.toString('utf8');
     else if (bytes.length) value = { base64: bytes.toString('base64'), contentType };
     const location = response.headers.get('location');

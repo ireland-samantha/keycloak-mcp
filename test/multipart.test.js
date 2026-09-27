@@ -40,6 +40,27 @@ test('multipart validation rejects malformed files and oversized bodies before n
     { path, contentType: 'multipart/form-data', body: { keystoreFormat: 'Certificate PEM' } }, catalog), /limit/);
 });
 
+test('oversized base64 input is rejected before decoding into a request body', () => {
+  const config = configFromEnv({ ...env, KEYCLOAK_MCP_MAX_BODY_BYTES: '4096' });
+  const oversized = Buffer.alloc(8192).toString('base64');
+  const originalFrom = Buffer.from;
+  let decoded = false;
+  Buffer.from = function (value, encoding, ...rest) {
+    if (value === oversized && encoding === 'base64') decoded = true;
+    return originalFrom.call(this, value, encoding, ...rest);
+  };
+  try {
+    assert.throws(() => buildRequest(config, upload, { path: {
+      'client-uuid': 'client-id', attr: 'jwt.credential',
+    }, contentType: 'multipart/form-data', body: {
+      file: { filename: 'test.pem', contentType: 'application/x-pem-file', base64: oversized },
+    } }), /request body exceeds configured limit/);
+    assert.throws(() => buildRequest(config, 'POST /admin/realms/{realm}/client-description-converter',
+      { bodyBase64: oversized, contentType: 'application/json' }), /request body exceeds configured limit/);
+    assert.equal(decoded, false);
+  } finally { Buffer.from = originalFrom; }
+});
+
 test('latest identity-provider certificate upload is a bounded read-only multipart conversion', async () => {
   const operation = 'POST /admin/realms/{realm}/identity-provider/upload-certificate';
   const catalog = createCatalog('', 'latest');

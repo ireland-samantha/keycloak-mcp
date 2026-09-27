@@ -1,6 +1,6 @@
 {
   "name": "keycloak-mcp",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Keycloak Admin REST MCP server and Hearth extension with compensating workflows",
   "type": "module",
   "license": "MIT",

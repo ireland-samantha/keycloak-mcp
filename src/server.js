@@ -27,7 +27,7 @@ function guarded(fn) {
 }
 
 export function createServer(admin) {
-  const server = new McpServer({ name: 'keycloak-mcp', version: '0.1.0' });
+  const server = new McpServer({ name: 'keycloak-mcp', version: '0.1.1' });
   server.registerTool('keycloak_search_operations', {
     description: 'Search the pinned Keycloak Admin REST and configured SPI operation catalog by path, summary, tag, or HTTP method.',
     inputSchema: z.object({ search: z.string().optional(), tag: z.string().optional(), method: z.string().optional(), offset: z.number().int().min(0).default(0), limit: z.number().int().min(1).max(100).default(25) }),

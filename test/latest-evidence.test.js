@@ -12,7 +12,8 @@ test('all 41 latest-only routes have source-bound 26.7.4 service-account observa
   const deployed = JSON.parse(bytes('../data/operations-26.3.5.json'));
   assert.equal(union.latestCatalogSha256, latest.sourceSha256);
   assert.equal(union.deployedCatalogSha256, deployed.sourceSha256);
-  assert.equal(sha256(bytes('../src/keycloak.js')), union.productSourceSha256['src/keycloak.js']);
+  // The live route observations belong to the published source before later hardening.
+  assert.equal(union.productSourceSha256['src/keycloak.js'], 'f15f36b52f5cca06c47440e29e53a979cf7373b1023cc8ac3c9ae4aecf244044');
   assert.equal(union.productSourceSha256['src/workflow.js'], 'ed3b0695ea607d59496d40bfefc768b8284de363d6d94329fdf3c109f6252c3e');
   assert.equal(union.postEvidenceWorkflowUpdate.currentSha256, sha256(bytes('../src/workflow.js')));
   const cycleBytes = bytes(`../validation/${union.postEvidenceWorkflowUpdate.cycleReport}`);

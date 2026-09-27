@@ -35,12 +35,9 @@ export default {
       tool('keycloak_describe_schema', 'Expand a referenced Keycloak representation.', {
         type: 'object', properties: { name: { type: 'string' } }, required: ['name'],
       }, p => describeSchema(p.name, admin.catalog)),
-      tool('keycloak_read', 'Call a GET operation in the configured realm.', {
+      tool('keycloak_read', 'Call a read-only catalog operation in the configured realm.', {
         type: 'object', properties: { operation: { type: 'string' }, args: { type: 'object' } }, required: ['operation'],
-      }, p => {
-        if (!p.operation?.startsWith('GET ')) throw new Error('keycloak_read accepts GET only');
-        return admin.invoke(p.operation, p.args);
-      }),
+      }, p => admin.invoke(p.operation, p.args)),
       tool('keycloak_workflow', 'Preflight by default; execute compensated steps only when execute=true.', {
         type: 'object', properties: { steps: { type: 'array', items: { type: 'object' }, minItems: 1, maxItems: 20 }, execute: { type: 'boolean' } }, required: ['steps'],
       }, p => runWorkflow(admin, p.steps, { dryRun: p.execute !== true })),
