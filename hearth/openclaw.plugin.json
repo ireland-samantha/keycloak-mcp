@@ -1,7 +1,0 @@
-{
-  "id": "keycloak-mcp",
-  "name": "Keycloak Admin",
-  "description": "Service-account Keycloak Admin REST catalog and compensating workflows.",
-  "version": "0.1.1",
-  "configSchema": { "type": "object", "properties": { "configPath": { "type": "string", "minLength": 1 } }, "additionalProperties": false }
-}

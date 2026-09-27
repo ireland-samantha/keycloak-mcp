@@ -1,0 +1,306 @@
+{
+  "observedAt": "2026-09-27T21:23:41.160Z",
+  "node": "v24.21.0",
+  "platform": "linux-x64",
+  "openclaw": {
+    "name": "openclaw",
+    "version": "2026.9.6",
+    "integrity": "sha512-Ie0kyQSCVfFqixsgVg39vevUDq01Ch5u3+7Yu5Y3qARczmdAe+lzp8bVnO9925rHiW/+CFp70zfORCyPmCH31g==",
+    "cli": "OpenClaw 2026.9.6 (eb377ac)"
+  },
+  "keycloakVersion": "26.7.4",
+  "sourceSha256": {
+    "openclaw/index.js": "ab05cb905479f6c7905caeb76a49fb527f02af156d404c0e5f622b82d27b024b",
+    "openclaw.plugin.json": "d360cff6ad610041e19d61238b0fabb5196bfe7d35552a7f06f9aa32175a28d2",
+    "src/keycloak.js": "fed2ad51064ef7e0b10fed6791de46ab215bdbaa75b150cb56822f3bc9598794",
+    "src/workflow.js": "790f4aec003659ccaf6d6a8e10529a089455ea60b8e70aee4655df57fb210bbc"
+  },
+  "catalog": {
+    "version": "latest",
+    "sourceSha256": "ba68e1c3842c11701ec64c5f3ba23387cf53963f8d16dd7c3d45da103b9421db"
+  },
+  "packed": {
+    "filename": "keycloak-mcp-0.1.1.tgz",
+    "entryCount": 71,
+    "integrity": "sha512-4i9pzu8p43PiOi8hC+x03v87iX/gHU4J0+wZDk84T80v9K4BF+B+Vz3W53biZB+rwy7sNu1MPtEXO2QA6FM93A==",
+    "sha256": "9a6c5da27c3008a1726b7912c54676f80d39ae522a083fe239031762376d9a25"
+  },
+  "harness": {
+    "script": "scripts/live-openclaw.mjs",
+    "sha256": "320c931cd187f4be2c67993e5b27fef9fb79d974a8cab1bafbb360ce358f0a43"
+  },
+  "scope": "One run of the packed tarball through upstream OpenClaw in a throwaway home: install, metadata and runtime inspection, doctor, and Gateway /tools/invoke calls against a realm created for the run on a loopback Keycloak. Tool outcomes are graded by OpenClaw's public isToolResultError.",
+  "limit": "No model-driven agent turn ran; the Gateway direct-invoke endpoint called the tools. The service account held realm-admin in a disposable realm on a development server. This does not cover other OpenClaw releases, production networking or containers, the PostgreSQL lock, or other operations. Report-level admission against the signed review pack was not run.",
+  "evidence": [
+    {
+      "id": "E1",
+      "step": "install",
+      "command": "openclaw plugins install npm-pack:<packed tarball> --force --accept-capabilities",
+      "exitCode": 0,
+      "installed": true
+    },
+    {
+      "id": "E2",
+      "step": "metadata",
+      "command": "openclaw plugins inspect keycloak-mcp --json",
+      "imported": false,
+      "contractTools": [
+        "keycloak_search_operations",
+        "keycloak_describe_operation",
+        "keycloak_describe_schema",
+        "keycloak_read",
+        "keycloak_workflow"
+      ],
+      "consentedTools": [
+        "keycloak_describe_operation",
+        "keycloak_describe_schema",
+        "keycloak_read",
+        "keycloak_search_operations",
+        "keycloak_workflow"
+      ],
+      "diagnostics": 0
+    },
+    {
+      "id": "E3",
+      "step": "unconfigured",
+      "command": "openclaw plugins inspect keycloak-mcp --runtime --json (no configPath)",
+      "status": "error",
+      "tools": [],
+      "diagnostics": [
+        "plugin failed during register: Error: KEYCLOAK_BASE_URL is required"
+      ]
+    },
+    {
+      "id": "E4",
+      "step": "runtime",
+      "command": "openclaw plugins inspect keycloak-mcp --runtime --json (0600 configPath)",
+      "configMode": "0600",
+      "keycloakVariablesPassed": 0,
+      "status": "loaded",
+      "imported": true,
+      "tools": [
+        "keycloak_search_operations",
+        "keycloak_describe_operation",
+        "keycloak_describe_schema",
+        "keycloak_read",
+        "keycloak_workflow"
+      ],
+      "diagnostics": 0,
+      "diagnosticMessages": []
+    },
+    {
+      "id": "E5",
+      "step": "doctor",
+      "command": "openclaw plugins doctor --json",
+      "exitCode": 0,
+      "ok": true,
+      "pluginErrors": 0,
+      "diagnostics": 0,
+      "configurationWarnings": 0
+    },
+    {
+      "id": "E6",
+      "step": "gateway-search",
+      "tool": "keycloak_search_operations",
+      "httpStatus": 200,
+      "ok": true,
+      "gradedError": false,
+      "detailsStatus": null,
+      "total": 32
+    },
+    {
+      "id": "E7",
+      "step": "gateway-describe",
+      "tool": "keycloak_describe_operation",
+      "httpStatus": 200,
+      "ok": true,
+      "gradedError": false,
+      "detailsStatus": null,
+      "key": "GET /admin/realms/{realm}/groups"
+    },
+    {
+      "id": "E8",
+      "step": "gateway-schema",
+      "tool": "keycloak_describe_schema",
+      "httpStatus": 200,
+      "ok": true,
+      "gradedError": false,
+      "detailsStatus": null,
+      "hasProperties": true
+    },
+    {
+      "id": "E9",
+      "step": "gateway-read",
+      "tool": "keycloak_read",
+      "operation": "GET /admin/realms/{realm}",
+      "httpStatus": 200,
+      "ok": true,
+      "gradedError": false,
+      "detailsStatus": 200,
+      "realmMatches": true
+    },
+    {
+      "id": "E10",
+      "step": "gateway-read-refuses-mutation",
+      "tool": "keycloak_read",
+      "operation": "POST /admin/realms/{realm}/groups",
+      "httpStatus": 200,
+      "ok": true,
+      "gradedError": false,
+      "detailsStatus": null,
+      "text": "Error: mutations require a compensating workflow"
+    },
+    {
+      "id": "E11",
+      "step": "gateway-preflight-read-only",
+      "tool": "keycloak_workflow",
+      "execute": false,
+      "config": "KEYCLOAK_MCP_ALLOW_WRITE=false",
+      "httpStatus": 200,
+      "ok": true,
+      "gradedError": false,
+      "detailsStatus": null,
+      "text": "Error: writes are disabled"
+    },
+    {
+      "id": "E12",
+      "step": "gateway-execute-read-only",
+      "tool": "keycloak_workflow",
+      "execute": true,
+      "config": "KEYCLOAK_MCP_ALLOW_WRITE=false",
+      "httpStatus": 200,
+      "ok": true,
+      "gradedError": false,
+      "detailsStatus": null,
+      "text": "Error: writes are disabled"
+    },
+    {
+      "id": "E13",
+      "step": "gateway-read-only-count",
+      "tool": "keycloak_read",
+      "operation": "GET /admin/realms/{realm}/groups",
+      "httpStatus": 200,
+      "ok": true,
+      "gradedError": false,
+      "detailsStatus": 200,
+      "exactNameCountBefore": 0,
+      "exactNameCountAfter": 0
+    },
+    {
+      "id": "E14",
+      "step": "gateway-preflight-write",
+      "tool": "keycloak_workflow",
+      "execute": false,
+      "config": "KEYCLOAK_MCP_ALLOW_WRITE=true, KEYCLOAK_MCP_SINGLE_WRITER=true",
+      "httpStatus": 200,
+      "ok": true,
+      "gradedError": false,
+      "detailsStatus": "PREFLIGHT_OK"
+    },
+    {
+      "id": "E15",
+      "step": "gateway-compensated-write",
+      "tool": "keycloak_workflow",
+      "execute": true,
+      "config": "KEYCLOAK_MCP_ALLOW_WRITE=true, KEYCLOAK_MCP_SINGLE_WRITER=true",
+      "httpStatus": 200,
+      "ok": true,
+      "gradedError": true,
+      "detailsStatus": "IN_DOUBT",
+      "createStatus": 201,
+      "forcedReadFailure": 404,
+      "rollbackStatus": 204,
+      "failedStepMayHaveCommitted": false,
+      "priorStepsCompensated": true,
+      "exactNameCountBefore": 0,
+      "exactNameCountAfter": 0,
+      "groupCountBefore": 0,
+      "groupCountAfter": 0,
+      "journalDirMode": "0700",
+      "receiptModes": [
+        "0600"
+      ]
+    }
+  ],
+  "cleanup": {
+    "gatewaysStopped": true,
+    "realmDelete": 204,
+    "realmAbsentRead": 404,
+    "workDirRemoved": true
+  },
+  "requirements": [
+    {
+      "id": "REQ-1",
+      "predicate": "OpenClaw installs the packed tarball after source confirmation and capability consent",
+      "evidence": [
+        "E1"
+      ],
+      "status": "PROVEN"
+    },
+    {
+      "id": "REQ-2",
+      "predicate": "Before importing plugin code, OpenClaw reads the five tools from the manifest and the consent record covers them",
+      "evidence": [
+        "E2"
+      ],
+      "status": "PROVEN"
+    },
+    {
+      "id": "REQ-3",
+      "predicate": "Without a config file, registration fails with a diagnostic and registers no tools",
+      "evidence": [
+        "E3"
+      ],
+      "status": "PROVEN"
+    },
+    {
+      "id": "REQ-4",
+      "predicate": "With a 0600 configPath and no KEYCLOAK_* variables, the runtime loads the five tools and doctor passes",
+      "evidence": [
+        "E4",
+        "E5"
+      ],
+      "status": "PROVEN"
+    },
+    {
+      "id": "REQ-5",
+      "predicate": "The Gateway serves every tool, and a live read returns the configured realm, each graded successful",
+      "evidence": [
+        "E6",
+        "E7",
+        "E8",
+        "E9"
+      ],
+      "status": "PROVEN"
+    },
+    {
+      "id": "REQ-6",
+      "predicate": "Refused calls reach OpenClaw as failed results and write nothing",
+      "evidence": [
+        "E10",
+        "E11",
+        "E12",
+        "E13"
+      ],
+      "status": "CONTRADICTED"
+    },
+    {
+      "id": "REQ-7",
+      "predicate": "With writes enabled, a compensated create through the Gateway is rolled back, graded failed, and leaves no group",
+      "evidence": [
+        "E14",
+        "E15"
+      ],
+      "status": "PROVEN"
+    },
+    {
+      "id": "REQ-8",
+      "predicate": "The disposable realm, Gateways, and throwaway OpenClaw home are gone afterward",
+      "evidence": [
+        "cleanup"
+      ],
+      "status": "PROVEN"
+    }
+  ],
+  "admission": "NOT_RUN"
+}
