@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { spawn, spawnSync } from 'node:child_process';
+import { spawn } from 'node:child_process';
 import { createHash, randomBytes, randomUUID } from 'node:crypto';
 import { chmodSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, realpathSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { createServer } from 'node:net';
@@ -55,17 +55,36 @@ writeFileSync(join(state, 'openclaw.json'), `${JSON.stringify({ logging: { file:
 const env = Object.fromEntries(Object.entries(process.env).filter(([key]) => !key.startsWith('KEYCLOAK_') && !key.startsWith('OPENCLAW_')));
 Object.assign(env, { OPENCLAW_HOME: home, OPENCLAW_STATE_DIR: state, OPENCLAW_CONFIG_PATH: join(state, 'openclaw.json'),
   OPENCLAW_NO_AUTO_UPDATE: '1', OPENCLAW_DISABLE_BONJOUR: '1', OPENCLAW_SKIP_CHANNELS: '1', OPENCLAW_NO_PROMPT: '1', OPENCLAW_NO_ONBOARD: '1' });
-// A signal only marks the run interrupted and aborts in-flight Gateway calls. The run stops before its next
-// command, request, or Gateway, cleans up once, and writes no receipt.
+// A signal marks the run interrupted, stops the command in progress, and aborts in-flight Gateway calls.
+// The run starts no further step, cleans up once, and writes no receipt.
 let interrupted = null;
+let running = null;
 const aborter = new AbortController();
-for (const signal of ['SIGINT', 'SIGTERM']) process.once(signal, () => { interrupted ??= signal; aborter.abort(); });
+const stopRunning = () => { try { if (running) process.kill(-running.pid, 'SIGTERM'); } catch { running?.kill('SIGTERM'); } };
+for (const signal of ['SIGINT', 'SIGTERM']) process.once(signal, () => { interrupted ??= signal; stopRunning(); aborter.abort(); });
 const halt = () => { if (interrupted) throw new Error(`interrupted by ${interrupted}`); };
-const cli = (...args) => { halt(); return spawnSync(openclawBin, args, { env, encoding: 'utf8', timeout: 600_000 }); };
-const cliJson = (...args) => {
-  const run = cli(...args, '--json');
-  assert.equal(run.status, 0, `openclaw ${args.join(' ')}: ${run.stderr}`);
-  return JSON.parse(run.stdout);
+// Commands run asynchronously, each in its own process group, so that a signal is handled while one is
+// in progress and stops it together with any process it started.
+function run(command, args, options = {}) {
+  halt();
+  return new Promise((resolve, reject) => {
+    const child = spawn(command, args, { ...options, detached: true, stdio: ['ignore', 'pipe', 'pipe'] });
+    running = child;
+    let stdout = '';
+    let stderr = '';
+    child.stdout.setEncoding('utf8').on('data', chunk => { stdout += chunk; });
+    child.stderr.setEncoding('utf8').on('data', chunk => { stderr += chunk; });
+    const timer = setTimeout(() => child.kill('SIGKILL'), 600_000);
+    child.once('error', error => { clearTimeout(timer); running = null; reject(error); });
+    child.once('close', (status, signal) => { clearTimeout(timer); running = null; resolve({ status, signal, stdout, stderr }); });
+  });
+}
+const cli = (...args) => run(openclawBin, args, { env });
+const cliJson = async (...args) => {
+  const result = await cli(...args, '--json');
+  halt();
+  assert.equal(result.status, 0, `openclaw ${args.join(' ')}: ${result.stderr}`);
+  return JSON.parse(result.stdout);
 };
 
 async function kc(method, path, body, { cleanup = false } = {}) {
@@ -157,7 +176,7 @@ const record = (step, observed) => { evidence.push({ id: `E${evidence.length + 1
 const report = { observedAt: new Date().toISOString(), node: process.version, platform: `${process.platform}-${process.arch}` };
 let failure = null;
 try {
-  report.openclaw = { ...openclawPackage(), cli: cli('--version').stdout.trim() };
+  report.openclaw = { ...openclawPackage(), cli: (await cli('--version')).stdout.trim() };
   report.keycloakVersion = (await kc('GET', '/admin/serverinfo')).value.systemInfo.version;
   report.sourceSha256 = Object.fromEntries(['openclaw/index.js', 'openclaw.plugin.json', 'package.json', 'src/keycloak.js', 'src/workflow.js',
     'data/operations.json', 'data/openapi.json', 'data/operations-26.3.5.json', 'data/openapi-26.3.5.json']
@@ -188,40 +207,40 @@ try {
 
   const packDir = join(work, 'pack');
   mkdirSync(packDir);
+  const pack = await run('npm', ['pack', '--pack-destination', packDir, '--json'], { cwd: root });
   halt();
-  const pack = spawnSync('npm', ['pack', '--pack-destination', packDir, '--json'], { cwd: root, encoding: 'utf8' });
   assert.equal(pack.status, 0, pack.stderr);
   const [packed] = JSON.parse(pack.stdout);
   const tarball = join(packDir, packed.filename);
   report.packed = { filename: packed.filename, entryCount: packed.entryCount, integrity: packed.integrity, sha256: sha256(readFileSync(tarball)) };
 
-  const install = cli('plugins', 'install', `npm-pack:${tarball}`, '--force', '--accept-capabilities');
+  const install = await cli('plugins', 'install', `npm-pack:${tarball}`, '--force', '--accept-capabilities');
   record('install', { command: 'openclaw plugins install npm-pack:<packed tarball> --force --accept-capabilities', exitCode: install.status,
     installed: /Installed plugin: keycloak-mcp/.test(install.stdout) });
   assert.equal(install.status, 0, install.stderr);
-  const metadata = cliJson('plugins', 'inspect', 'keycloak-mcp');
+  const metadata = await cliJson('plugins', 'inspect', 'keycloak-mcp');
   record('metadata', { command: 'openclaw plugins inspect keycloak-mcp --json', imported: metadata.plugin.imported,
     installedUnderThrowawayHome: existsSync(metadata.install?.installPath ?? '') &&
       realpathSync(metadata.install.installPath).startsWith(`${realpathSync(home)}${sep}`),
     contractTools: metadata.plugin.contracts?.tools ?? [], consentedTools: metadata.install?.acceptedSurface?.tools ?? [],
     diagnostics: metadata.diagnostics.length });
   const names = inspected => inspected.tools.flatMap(tool => tool.names ?? [tool.name ?? tool]);
-  const unconfigured = cliJson('plugins', 'inspect', 'keycloak-mcp', '--runtime');
+  const unconfigured = await cliJson('plugins', 'inspect', 'keycloak-mcp', '--runtime');
   record('unconfigured', { command: 'openclaw plugins inspect keycloak-mcp --runtime --json (no configPath)', status: unconfigured.plugin.status,
     tools: names(unconfigured), diagnostics: unconfigured.diagnostics.map(item => item.message) });
-  assert.equal(cli('config', 'set', 'plugins.entries.keycloak-mcp.config.configPath', readConfig).status, 0);
-  const runtime = cliJson('plugins', 'inspect', 'keycloak-mcp', '--runtime');
+  assert.equal((await cli('config', 'set', 'plugins.entries.keycloak-mcp.config.configPath', readConfig)).status, 0);
+  const runtime = await cliJson('plugins', 'inspect', 'keycloak-mcp', '--runtime');
   record('runtime', { command: 'openclaw plugins inspect keycloak-mcp --runtime --json (0600 configPath)', configMode: mode(readConfig),
     keycloakVariablesPassed: Object.keys(env).filter(key => key.startsWith('KEYCLOAK_')).length,
     status: runtime.plugin.status, imported: runtime.plugin.imported, tools: names(runtime), diagnostics: runtime.diagnostics.length,
     diagnosticMessages: [...new Set(runtime.diagnostics.map(item => item.message.slice(0, 200)))] });
-  const doctor = cli('plugins', 'doctor', '--json');
+  const doctor = await cli('plugins', 'doctor', '--json');
   const doctorReport = JSON.parse(doctor.stdout || 'null');
   record('doctor', { command: 'openclaw plugins doctor --json', exitCode: doctor.status, ok: doctorReport?.ok ?? null,
     pluginErrors: doctorReport?.pluginErrors?.length ?? null, diagnostics: doctorReport?.diagnostics?.length ?? null,
     configurationWarnings: doctorReport?.configurationWarnings?.length ?? null });
 
-  assert.equal(cli('config', 'set', 'gateway.mode', 'local').status, 0);
+  assert.equal((await cli('config', 'set', 'gateway.mode', 'local')).status, 0);
   const exact = name => ({ operation: 'GET /admin/realms/{realm}/groups', args: { query: { search: name, exact: true } } });
   const total = { operation: 'GET /admin/realms/{realm}/groups/count' };
   const plan = [
@@ -258,7 +277,7 @@ try {
     controlExactNameCount: count(control), exactNameCountBefore: count(before), exactNameCountAfter: count(after) });
   await reader.stop();
 
-  assert.equal(cli('config', 'set', 'plugins.entries.keycloak-mcp.config.configPath', writeConfig).status, 0);
+  assert.equal((await cli('config', 'set', 'plugins.entries.keycloak-mcp.config.configPath', writeConfig)).status, 0);
   const writer = await startGateway();
   const writeConfigName = 'KEYCLOAK_MCP_ALLOW_WRITE=true, KEYCLOAK_MCP_SINGLE_WRITER=true';
   const writePreflight = await writer.invoke('keycloak_workflow', { steps: plan });

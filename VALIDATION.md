@@ -125,6 +125,15 @@ Requirements REQ-1 to REQ-8 are predicates over the numbered evidence records, d
 
 The script refuses a non-loopback base URL and a bootstrap password shorter than 16 characters, and it replaces local paths in the receipt by name. If a generated or bootstrap secret occurs anywhere in the receipt text, raw or JSON-escaped, it writes no receipt.
 
-On SIGINT or SIGTERM, the script lets a running OpenClaw command finish, aborts in-flight Gateway calls, and stops before its next step. It then stops the Gateways, deletes the realm once its creation request has settled (if this run created it), removes the throwaway directory, and exits without writing a receipt. The operator injected SIGINT while the realm was being created, and one second after each Gateway started. Each run exited 130, wrote no receipt, and left no realm, Gateway, work directory, or shared-log entry.
+On SIGINT or SIGTERM, the script stops the OpenClaw command in progress together with any process it started, aborts in-flight Gateway calls, and starts no further step. It then stops the Gateways, deletes the realm once its creation request has settled (if this run created it), removes the throwaway directory, and exits without writing a receipt.
+
+The operator injected four signals:
+
+- SIGINT three seconds into `plugins install`;
+- SIGINT while the realm was being created;
+- SIGINT one second after the writer Gateway started;
+- SIGTERM one second after the reader Gateway started.
+
+Each run exited with 130 or 143 within about a second of the signal and wrote no receipt. None left a realm, Gateway, OpenClaw or npm process, work directory, or shared-log entry.
 
 **Missing.** No model-driven agent turn ran, so model-visible tool selection and approval prompts were not exercised. Other OpenClaw releases, container and production deployments, the PostgreSQL lock, and operations beyond those named here were not tested. OpenClaw leaves lock files in its temporary lock directory (`/tmp/openclaw-state-locks-<uid>` here), and the run does not remove them. No external report schema reviewed these receipts (`admission: NOT_RUN`). Rows above that name the private OpenClaw deployment were observed with the earlier package layout and manifest.
