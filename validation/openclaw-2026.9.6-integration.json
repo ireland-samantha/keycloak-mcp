@@ -1,5 +1,5 @@
 {
-  "observedAt": "2026-09-27T23:31:38.494Z",
+  "observedAt": "2026-09-28T00:10:31.875Z",
   "node": "v24.21.0",
   "platform": "linux-x64",
   "openclaw": {
@@ -27,11 +27,11 @@
   "packed": {
     "filename": "keycloak-mcp-0.1.1.tgz",
     "entryCount": 74,
-    "integrity": "sha512-kD6s0p7oarJz44bEUOPUwMDC4T6k7iWDvY3ZJNjM//AW0jjAAVW+pQ19bAd5hLfFkUzwUezuxaoTNA0kxYT22w==",
-    "sha256": "f4ef57bcc478bb1d81f491f019650c134da39516a09d857b0a78a2b48833ca10"
+    "integrity": "sha512-tR46s83SjZruih58Suz4TtEx0M+hjXdDVLgITCXn237vx2Zgx7MvSSppgqVN5KNOwPIiPuXWQT6U6a2c0b9O5A==",
+    "sha256": "4c93df92783205deb00494acf81e81e943756b16535d9b745936a5eafaab75eb"
   },
   "harness": {
-    "scripts/live-openclaw.mjs": "5ef74d456805512a5c714e979afa03e0498778729d28e5fd399d7cdfb93e5280",
+    "scripts/live-openclaw.mjs": "66fba1cfc4e246fc1a325b45edc1b30910cb78bbb7fdddc50f6052129488af24",
     "scripts/openclaw-requirements.mjs": "f8d7a9e42ef3c309a081d932f7ffb5abedb57c24c8923badfdfa9961a15e67e2"
   },
   "scope": "One run of the packed tarball through upstream OpenClaw with its home, state, config, and log in a throwaway directory: install, metadata and runtime inspection, doctor, and Gateway /tools/invoke calls against a realm created for the run on a loopback Keycloak. The harness grades each Gateway result with OpenClaw's public isToolResultError.",
