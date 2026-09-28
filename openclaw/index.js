@@ -10,7 +10,9 @@ function tool(name, description, parameters, handler) {
         const value = await handler(params ?? {});
         return { content: [{ type: 'text', text: JSON.stringify(value) }], details: value };
       } catch (error) {
-        return { content: [{ type: 'text', text: `Error: ${error instanceof Error ? error.message : 'unknown error'}` }] };
+        const message = error instanceof Error ? error.message : 'unknown error';
+        // OpenClaw grades a tool call from details; ok=false marks a refusal or failure as failed.
+        return { content: [{ type: 'text', text: `Error: ${message}` }], details: { ok: false, error: message } };
       }
     },
   };
@@ -23,7 +25,7 @@ export default {
   register(api) {
     const configPath = api.pluginConfig?.configPath;
     if (configPath !== undefined && (typeof configPath !== 'string' || !isAbsolute(configPath)))
-      throw new Error('Hearth configPath must be an absolute path');
+      throw new Error('OpenClaw configPath must be an absolute path');
     const admin = new KeycloakAdmin(configFromEnv(configPath ? { KEYCLOAK_MCP_CONFIG: configPath } : process.env));
     const definitions = [
       tool('keycloak_search_operations', 'Search the pinned Keycloak Admin REST catalog.', {

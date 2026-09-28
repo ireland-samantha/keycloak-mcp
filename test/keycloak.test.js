@@ -6,7 +6,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { buildRequest, configFromEnv, createCatalog, describeOperation, describeSchema, isMutation, KeycloakAdmin, listOperations } from '../src/keycloak.js';
 import { preflight, runWorkflow } from '../src/workflow.js';
-import hearth from '../hearth/index.js';
+import openclaw from '../openclaw/index.js';
 
 const env = {
   KEYCLOAK_BASE_URL: 'https://id.example.com/auth',
@@ -512,17 +512,37 @@ test('operator can classify an otherwise compensatable mutation as irreversible'
   assert.throws(() => preflight(configFromEnv(base), [{ operation: 'GET /admin/realms/{realm}', irreversible: true }]), /read-only/);
 });
 
-test('Hearth extension registers the five shared tools', () => {
+test('OpenClaw extension registers the five shared tools', () => {
   const names = [];
   const old = Object.fromEntries(Object.keys(env).map(key => [key, process.env[key]]));
   Object.assign(process.env, env);
-  try { hearth.register({ registerTool(definition) { assert.equal(typeof definition, 'object'); names.push(definition.name); } }); }
+  try { openclaw.register({ registerTool(definition) { assert.equal(typeof definition, 'object'); names.push(definition.name); } }); }
   finally { for (const [key, value] of Object.entries(old)) if (value === undefined) delete process.env[key]; else process.env[key] = value; }
   assert.deepEqual(names, ['keycloak_search_operations', 'keycloak_describe_operation', 'keycloak_describe_schema', 'keycloak_read', 'keycloak_workflow']);
 });
 
-test('Hearth read tool accepts classified converter POSTs and refuses mutations', async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'keycloak-mcp-hearth-read-'));
+test('OpenClaw manifest declares every registered tool and the package entry', () => {
+  const read = path => JSON.parse(readFileSync(new URL(path, import.meta.url)));
+  const manifest = read('../openclaw.plugin.json');
+  const pkg = read('../package.json');
+  const names = [];
+  const old = Object.fromEntries(Object.keys(env).map(key => [key, process.env[key]]));
+  Object.assign(process.env, env);
+  try { openclaw.register({ registerTool(definition) { names.push(definition.name); } }); }
+  finally { for (const [key, value] of Object.entries(old)) if (value === undefined) delete process.env[key]; else process.env[key] = value; }
+  // OpenClaw discovers tool ownership from contracts.tools before importing plugin code.
+  assert.equal(manifest.id, openclaw.id);
+  assert.deepEqual(manifest.contracts?.tools, names);
+  assert.deepEqual(Object.keys(manifest.toolMetadata ?? {}), names);
+  assert.equal(manifest.toolMetadata?.keycloak_workflow?.replaySafe, false);
+  assert.equal(manifest.version, pkg.version);
+  assert.deepEqual(pkg.openclaw.extensions, ['./openclaw/index.js']);
+  assert.equal(pkg.exports['./openclaw'], './openclaw/index.js');
+  assert.ok(pkg.files.includes('openclaw') && pkg.files.includes('openclaw.plugin.json'));
+});
+
+test('OpenClaw read tool accepts classified converter POSTs and refuses mutations', async () => {
+  const dir = mkdtempSync(join(tmpdir(), 'keycloak-mcp-openclaw-read-'));
   const file = join(dir, 'service-account.json');
   writeFileSync(file, JSON.stringify(env), { mode: 0o600 });
   const tools = new Map();
@@ -535,7 +555,7 @@ test('Hearth read tool accepts classified converter POSTs and refuses mutations'
     return response(200, { clientId: 'converted-client' });
   };
   try {
-    hearth.register({ pluginConfig: { configPath: file }, registerTool(definition) { tools.set(definition.name, definition); } });
+    openclaw.register({ pluginConfig: { configPath: file }, registerTool(definition) { tools.set(definition.name, definition); } });
     const read = tools.get('keycloak_read');
     const converted = await read.execute('read-call', { operation: 'POST /admin/realms/{realm}/client-description-converter',
       args: { contentType: 'text/plain', body: '{"client_id":"converted-client"}' } });
@@ -543,6 +563,8 @@ test('Hearth read tool accepts classified converter POSTs and refuses mutations'
     const blocked = await read.execute('write-call', { operation: 'POST /admin/realms/{realm}/users',
       args: { body: { username: 'blocked' } } });
     assert.match(blocked.content[0].text, /compensating workflow/);
+    assert.deepEqual(blocked.details, { ok: false, error: 'mutations require a compensating workflow' });
+    assert.equal(converted.details.ok, undefined);
     assert.equal(calls, 1);
   } finally {
     globalThis.fetch = originalFetch;
@@ -550,18 +572,21 @@ test('Hearth read tool accepts classified converter POSTs and refuses mutations'
   }
 });
 
-test('Hearth plugin config selects a private service-account file', () => {
-  const dir = mkdtempSync(join(tmpdir(), 'keycloak-mcp-hearth-config-'));
+test('OpenClaw plugin config selects a private service-account file', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'keycloak-mcp-openclaw-config-'));
   const file = join(dir, 'service-account.json');
-  writeFileSync(file, JSON.stringify({ ...env, KEYCLOAK_CLIENT_ID: 'hearth-service' }), { mode: 0o600 });
+  writeFileSync(file, JSON.stringify({ ...env, KEYCLOAK_CLIENT_ID: 'openclaw-service' }), { mode: 0o600 });
   const old = Object.fromEntries(Object.keys(env).map(key => [key, process.env[key]]));
   Object.assign(process.env, env);
   try {
     process.env.KEYCLOAK_BASE_URL = 'http://untrusted.example';
-    hearth.register({ pluginConfig: { configPath: file }, registerTool() {} });
-    assert.throws(() => hearth.register({ registerTool() {} }), /HTTPS or loopback HTTP/);
+    openclaw.register({ pluginConfig: { configPath: file }, registerTool() {} });
+    assert.throws(() => openclaw.register({ registerTool() {} }), /HTTPS or loopback HTTP/);
     chmodSync(file, 0o644);
-    assert.throws(() => hearth.register({ pluginConfig: { configPath: file }, registerTool() {} }), /private file/);
-    assert.throws(() => hearth.register({ pluginConfig: { configPath: 'relative.json' }, registerTool() {} }), /absolute/);
-  } finally { for (const [key, value] of Object.entries(old)) if (value === undefined) delete process.env[key]; else process.env[key] = value; }
+    assert.throws(() => openclaw.register({ pluginConfig: { configPath: file }, registerTool() {} }), /private file/);
+    assert.throws(() => openclaw.register({ pluginConfig: { configPath: 'relative.json' }, registerTool() {} }), /absolute/);
+  } finally {
+    for (const [key, value] of Object.entries(old)) if (value === undefined) delete process.env[key]; else process.env[key] = value;
+    rmSync(dir, { recursive: true, force: true });
+  }
 });
