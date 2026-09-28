@@ -125,7 +125,9 @@ Requirements REQ-1 to REQ-8 are predicates over the numbered evidence records, d
 
 The script refuses a non-loopback base URL and a bootstrap password shorter than 16 characters, and it replaces local paths in the receipt by name. If a generated or bootstrap secret occurs anywhere in the receipt text, raw or JSON-escaped, it writes no receipt.
 
-On SIGINT or SIGTERM, the script aborts in-flight Gateway calls and starts no further step. It records every process it started, including those that OpenClaw moves into process groups of their own, and stops them. It then waits for them to exit, deletes the realm once its creation request has settled (if this run created it), and removes the throwaway directory until it stays gone for two seconds. It exits without writing a receipt.
+On SIGINT or SIGTERM, the script aborts in-flight Gateway calls and starts no further step. It records every process it started, including those that OpenClaw moves into process groups of their own, and stops them. It signals a recorded process only while its PID still has the recorded start time and command. It then waits for them to exit, deletes the realm once its creation request has settled (if this run created it), and removes the throwaway directory until it stays gone for two seconds. It exits without writing a receipt.
+
+If `ps` is unavailable, the script warns and stops only the command in progress and the Gateways. Waiting for processes and the directory takes at most about half a minute, even when a process ignores SIGTERM.
 
 The operator injected the following signals:
 
@@ -133,8 +135,9 @@ The operator injected the following signals:
 - SIGINT one second after the writer Gateway started;
 - SIGINT one second after the writer Gateway first answered;
 - SIGTERM one second after the reader Gateway started;
-- twelve SIGINTs spread from two to eight seconds into `plugins install`.
+- SIGINTs spread through the `plugins install` window;
+- one SIGINT with `ps` unavailable.
 
-Each run exited with 130 or 143 between 3.2 and 5.7 seconds after the signal. Most of that time was the two-second directory check and, once a Gateway was up, its graceful stop. No run wrote a receipt. Five seconds later, none had left a realm, Gateway, OpenClaw or npm process, work directory, or shared-log entry.
+Each run exited with 130 or 143 between 3.0 and 6.1 seconds after the signal. Most of that time was the two-second directory check and, once a Gateway was up, its graceful stop. No run wrote a receipt. Five seconds later, none had left a realm, Gateway, OpenClaw or npm process, work directory, or shared-log entry.
 
 **Missing.** No model-driven agent turn ran, so model-visible tool selection and approval prompts were not exercised. Other OpenClaw releases, container and production deployments, the PostgreSQL lock, and operations beyond those named here were not tested. OpenClaw leaves lock files in its temporary lock directory (`/tmp/openclaw-state-locks-<uid>` here), and the run does not remove them. No external report schema reviewed these receipts (`admission: NOT_RUN`). Rows above that name the private OpenClaw deployment were observed with the earlier package layout and manifest.

@@ -55,31 +55,47 @@ writeFileSync(join(state, 'openclaw.json'), `${JSON.stringify({ logging: { file:
 const env = Object.fromEntries(Object.entries(process.env).filter(([key]) => !key.startsWith('KEYCLOAK_') && !key.startsWith('OPENCLAW_')));
 Object.assign(env, { OPENCLAW_HOME: home, OPENCLAW_STATE_DIR: state, OPENCLAW_CONFIG_PATH: join(state, 'openclaw.json'),
   OPENCLAW_NO_AUTO_UPDATE: '1', OPENCLAW_DISABLE_BONJOUR: '1', OPENCLAW_SKIP_CHANNELS: '1', OPENCLAW_NO_PROMPT: '1', OPENCLAW_NO_ONBOARD: '1' });
-// Every process this run started, with its command name, from the process table. A descendant can sit in a
-// process group of its own and is re-parented once its parent exits, so the tree is read while it is intact.
+// Live processes, each identified by PID, start time, and command, so that a reused PID is never signalled;
+// null when ps is unavailable.
+function processTable() {
+  const ps = spawnSync('ps', ['-A', '-o', 'pid=,ppid=,stat=,lstart=,comm='], { encoding: 'utf8' });
+  if (ps.status !== 0) return null;
+  return ps.stdout.split('\n').map(line => line.trim().split(/\s+/))
+    .filter(([pid, , stat]) => pid && Number(pid) !== ps.pid && !stat.startsWith('Z'))
+    .map(([pid, ppid, , ...rest]) => ({ pid: Number(pid), ppid: Number(ppid), identity: rest.join(' ') }));
+}
+// Every process this run started. A descendant can sit in a process group of its own and is re-parented once
+// its parent exits, so the tree is read while it is intact.
 function descendants() {
-  const ps = spawnSync('ps', ['-A', '-o', 'pid=,ppid=,stat=,comm='], { encoding: 'utf8' });
-  const children = new Map();
-  for (const line of ps.status === 0 ? ps.stdout.split('\n') : []) {
-    const [pid, ppid, stat, ...comm] = line.trim().split(/\s+/);
-    if (!pid || stat.startsWith('Z') || Number(pid) === ps.pid) continue;
-    children.set(ppid, [...(children.get(ppid) ?? []), { pid: Number(pid), comm: comm.join(' ') }]);
-  }
+  const table = processTable();
+  if (!table) return null;
   const found = [];
-  for (let queue = [String(process.pid)]; queue.length;)
-    for (const child of children.get(queue.shift()) ?? []) { found.push(child); queue.push(String(child.pid)); }
+  for (let queue = [process.pid]; queue.length;) {
+    const parent = queue.shift();
+    for (const item of table) if (item.ppid === parent) { found.push(item); queue.push(item.pid); }
+  }
   return found;
 }
-const signalAll = (processes, signal) => { for (const { pid } of processes) try { process.kill(pid, signal); } catch {} };
+function signalAll(processes, signal) {
+  const live = new Map((processTable() ?? []).map(item => [item.pid, item.identity]));
+  for (const { pid, identity } of processes) if (live.get(pid) === identity) try { process.kill(pid, signal); } catch {}
+}
 // A signal marks the run interrupted, stops every process the run started, and aborts in-flight Gateway calls.
 // The run starts no further step, cleans up once, and writes no receipt.
 let interrupted = null;
 let stopped = [];
+let running = null;
 const aborter = new AbortController();
 for (const signal of ['SIGINT', 'SIGTERM']) process.once(signal, () => {
   interrupted ??= signal;
-  stopped = descendants();
-  signalAll(stopped, 'SIGTERM');
+  const tree = descendants();
+  if (tree) {
+    stopped = tree;
+    signalAll(stopped, 'SIGTERM');
+  } else {
+    console.error('ps is unavailable; stopping only the command in progress and the Gateways');
+    try { if (running) process.kill(-running.pid, 'SIGTERM'); } catch {}
+  }
   aborter.abort();
 });
 const halt = () => { if (interrupted) throw new Error(`interrupted by ${interrupted}`); };
@@ -88,13 +104,14 @@ function run(command, args, options = {}) {
   halt();
   return new Promise((resolve, reject) => {
     const child = spawn(command, args, { ...options, detached: true, stdio: ['ignore', 'pipe', 'pipe'] });
+    running = child;
     let stdout = '';
     let stderr = '';
     child.stdout.setEncoding('utf8').on('data', chunk => { stdout += chunk; });
     child.stderr.setEncoding('utf8').on('data', chunk => { stderr += chunk; });
     const timer = setTimeout(() => child.kill('SIGKILL'), 600_000);
-    child.once('error', error => { clearTimeout(timer); reject(error); });
-    child.once('close', (status, signal) => { clearTimeout(timer); resolve({ status, signal, stdout, stderr }); });
+    child.once('error', error => { clearTimeout(timer); running = null; reject(error); });
+    child.once('close', (status, signal) => { clearTimeout(timer); running = null; resolve({ status, signal, stdout, stderr }); });
   });
 }
 const cli = (...args) => run(openclawBin, args, { env });
@@ -147,7 +164,7 @@ async function startGateway() {
   let forced = false;
   const stop = async () => {
     if (child.exitCode === null && child.signalCode === null) child.kill('SIGTERM');
-    const timer = setTimeout(() => { forced = true; child.kill('SIGKILL'); }, 20_000);
+    const timer = setTimeout(() => { forced = true; child.kill('SIGKILL'); }, 10_000);
     const exit = await exited;
     clearTimeout(timer);
     return { ...exit, forced };
@@ -177,29 +194,26 @@ async function startGateway() {
 }
 
 const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
-// Wait for every process stopped at the signal, and any still in the tree, to exit. A survivor after ten
-// seconds is killed only if its PID still carries the command name recorded for it.
+// Wait for every process stopped at the signal, and any still in the tree, to exit; after five seconds a
+// survivor is killed. Each signal goes only to a PID that still has its recorded start time and command.
 async function settle() {
-  for (let round = 0; round < 3; round += 1) {
-    const pending = [...stopped, ...descendants()];
+  for (let round = 0; round < 2; round += 1) {
+    const pending = [...stopped, ...(descendants() ?? [])];
     stopped = [];
     if (!pending.length) return;
     signalAll(pending, 'SIGTERM');
-    const current = () => new Map(processTable().map(item => [item.pid, item.comm]));
-    for (const deadline = Date.now() + 10_000; Date.now() < deadline && pending.some(item => current().has(item.pid));) await pause(200);
-    const table = current();
-    signalAll(pending.filter(item => table.get(item.pid) === item.comm), 'SIGKILL');
+    const living = () => {
+      const live = new Map((processTable() ?? []).map(item => [item.pid, item.identity]));
+      return pending.filter(item => live.get(item.pid) === item.identity);
+    };
+    for (const deadline = Date.now() + 5_000; Date.now() < deadline && living().length;) await pause(200);
+    signalAll(living(), 'SIGKILL');
     await pause(200);
   }
 }
-function processTable() {
-  const ps = spawnSync('ps', ['-A', '-o', 'pid=,stat=,comm='], { encoding: 'utf8' });
-  return (ps.status === 0 ? ps.stdout.split('\n') : []).map(line => line.trim().split(/\s+/))
-    .filter(([pid, stat]) => pid && !stat.startsWith('Z')).map(([pid, , ...comm]) => ({ pid: Number(pid), comm: comm.join(' ') }));
-}
 // A process that outlived the signal can recreate files; remove the directory until it stays gone for two seconds.
 async function removeWork() {
-  for (let quiet = 0, round = 0; quiet < 4 && round < 40; round += 1) {
+  for (let quiet = 0, round = 0; quiet < 4 && round < 20; round += 1) {
     if (existsSync(work)) { rmSync(work, { recursive: true, force: true }); quiet = 0; } else quiet += 1;
     await pause(500);
   }
