@@ -1,6 +1,8 @@
 // Requirement predicates for the live OpenClaw run. The harness evaluates them when it writes a
 // receipt.
-export const tools = ['keycloak_search_operations', 'keycloak_describe_operation', 'keycloak_describe_schema', 'keycloak_read', 'keycloak_workflow'];
+import { toolNames as tools } from '../src/tools/registry.js';
+
+export { tools };
 
 const same = (actual, expected) => JSON.stringify(actual) === JSON.stringify(expected);
 const sameSet = (actual, expected) => same([...(actual ?? [])].sort(), [...expected].sort());
