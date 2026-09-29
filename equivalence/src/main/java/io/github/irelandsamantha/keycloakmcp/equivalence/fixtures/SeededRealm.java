@@ -21,6 +21,7 @@ public final class SeededRealm implements AutoCloseable {
     public static final String GROUP_ID = "groupId";
     public static final String SUB_GROUP_ID = "subGroupId";
     public static final String CLIENT_SCOPE_ID = "clientScopeId";
+    public static final String CLIENT_TEMPLATE_ID = "clientTemplateId";
     public static final String CLIENT_ID = "clientUuid";
     public static final String CLIENT_ROLE = "clientRoleName";
     public static final String COMPONENT_ID = "componentId";
@@ -28,6 +29,8 @@ public final class SeededRealm implements AutoCloseable {
     public static final String IDP = "idpAlias";
     public static final String ORG_ID = "orgId";
     public static final String ORG_MEMBER = "orgMember";
+    public static final String ORG_GROUP_ID = "orgGroupId";
+    public static final String WORKFLOW_ID = "workflowId";
     public static final String RESOURCE_ID = "resourceId";
     public static final String SCOPE_ID = "scopeId";
 

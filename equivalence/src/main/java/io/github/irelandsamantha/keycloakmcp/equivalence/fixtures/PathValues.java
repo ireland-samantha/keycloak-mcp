@@ -41,7 +41,7 @@ public final class PathValues {
         id("/composites/clients/$", SeededRealm.CLIENT_ID);
         id("/role-mappings/clients/$", SeededRealm.CLIENT_ID);
         id("/client-scopes/$", SeededRealm.CLIENT_SCOPE_ID);
-        id("/client-templates/$", SeededRealm.CLIENT_SCOPE_ID);
+        id("/client-templates/$", SeededRealm.CLIENT_TEMPLATE_ID);
         constant("/clients/\\{}/certificates/$", "jwt.credential");
         id("/default-(default|optional)-client-scopes/$", SeededRealm.CLIENT_SCOPE_ID);
         id("/default-client-scopes/$", SeededRealm.CLIENT_SCOPE_ID);
@@ -62,6 +62,8 @@ public final class PathValues {
         id("/organizations/members/$", SeededRealm.USER_ID);
         id("/organizations/\\{}/members/$", SeededRealm.ORG_MEMBER);
         id("/organizations/\\{}/identity-providers/$", SeededRealm.IDP);
+        constant("/organizations/\\{}/groups/group-by-path/$", RealmSeeder.ORG_GROUP);
+        id("/organizations/\\{}/groups/$", SeededRealm.ORG_GROUP_ID);
         id("/organizations/$", SeededRealm.ORG_ID);
         id("/roles-by-id/$", SeededRealm.ROLE_ID);
         constant("/roles/$", RealmSeeder.ROLE);
@@ -72,7 +74,10 @@ public final class PathValues {
         id("/users/$", SeededRealm.USER_ID);
         id("/workflows/scheduled/$", SeededRealm.USER_ID);
         id("/workflows/\\{}/(activate|deactivate)/\\{}/$", SeededRealm.USER_ID);
-        constant("/workflows/\\{}/(activate|deactivate)/$", "users");
+        // A ResourceType constant (ResourceType.java:30): the path parameter is converted with Enum.valueOf
+        // (WorkflowResource.java:159,213), and one that fails conversion is the generic 404.
+        constant("/workflows/\\{}/(activate|deactivate)/$", "USERS");
+        id("/workflows/$", SeededRealm.WORKFLOW_ID);
     }
 
     private final SeededRealm realm;

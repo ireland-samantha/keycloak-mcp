@@ -25,7 +25,10 @@ import org.keycloak.representations.idm.authorization.ScopePermissionRepresentat
 import org.keycloak.representations.idm.authorization.ScopeRepresentation;
 import org.keycloak.representations.idm.authorization.TimePolicyRepresentation;
 import org.keycloak.representations.idm.authorization.UserPolicyRepresentation;
+import org.keycloak.representations.workflows.WorkflowRepresentation;
+import org.keycloak.representations.workflows.WorkflowStepRepresentation;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -44,8 +47,11 @@ public final class RealmSeeder {
     public static final String ROLE = "seed-role";
     public static final String GROUP = "seed-group";
     public static final String SUB_GROUP = "seed-sub-group";
+    public static final String ORG_GROUP = "seed-org-group";
+    public static final String WORKFLOW = "seed-workflow";
     public static final String IDP_ALIAS = "seed-idp";
     public static final String SCOPE_NAME = "seed-scope";
+    public static final String TEMPLATE_SCOPE_NAME = "seed-template-scope";
     /** Policy names; each typed policy gets its own so deleting one type cannot remove another's target. */
     public static final String USER_POLICY = "p-user";
 
@@ -86,12 +92,11 @@ public final class RealmSeeder {
             });
             step(SeededRealm.GROUP_ID, () -> created(r.groups().add(group(GROUP))));
             step(SeededRealm.SUB_GROUP_ID, () -> created(r.groups().group(ids.get(SeededRealm.GROUP_ID)).subGroup(group(SUB_GROUP))));
-            step(SeededRealm.CLIENT_SCOPE_ID, () -> {
-                ClientScopeRepresentation cs = new ClientScopeRepresentation();
-                cs.setName(SCOPE_NAME);
-                cs.setProtocol("openid-connect");
-                return created(r.clientScopes().create(cs));
-            });
+            step(SeededRealm.CLIENT_SCOPE_ID, () -> created(r.clientScopes().create(clientScope(SCOPE_NAME))));
+            // client-templates is an alias of client-scopes (RealmAdminResource.java:219-223) whose {id} locator
+            // rejects an unknown scope (ClientScopesResource.java:148-155); its own scope survives
+            // DELETE client-scopes/{id}, which the probe sends first.
+            step(SeededRealm.CLIENT_TEMPLATE_ID, () -> created(r.clientScopes().create(clientScope(TEMPLATE_SCOPE_NAME))));
             step(SeededRealm.CLIENT_ID, () -> {
                 ClientRepresentation c = new ClientRepresentation();
                 c.setClientId("seed-authz");
@@ -120,6 +125,9 @@ public final class RealmSeeder {
                 }
                 return ids.get(SeededRealm.USER_ID);
             });
+            step(SeededRealm.ORG_GROUP_ID, () -> created(r.organizations().get(ids.get(SeededRealm.ORG_ID)).groups()
+                    .addTopLevelGroup(group(ORG_GROUP))));
+            step(SeededRealm.WORKFLOW_ID, () -> created(r.workflows().create(workflow())));
             populateAuthorization(r.clients().get(ids.getOrDefault(SeededRealm.CLIENT_ID, SeededRealm.MISSING)).authorization());
         }
 
@@ -245,6 +253,13 @@ public final class RealmSeeder {
         return role;
     }
 
+    private static ClientScopeRepresentation clientScope(String name) {
+        ClientScopeRepresentation cs = new ClientScopeRepresentation();
+        cs.setName(name);
+        cs.setProtocol("openid-connect");
+        return cs;
+    }
+
     private static GroupRepresentation group(String name) {
         GroupRepresentation g = new GroupRepresentation();
         g.setName(name);
@@ -259,6 +274,18 @@ public final class RealmSeeder {
         idp.setConfig(Map.of("clientId", "x", "clientSecret", "y", "authorizationUrl", "https://idp.invalid/auth",
                 "tokenUrl", "https://idp.invalid/token", "clientAuthMethod", "client_secret_post"));
         return idp;
+    }
+
+    /**
+     * A workflow needs a step: the steps decide the resource type it applies to, and none leaves it ambiguous
+     * ({@code Workflow.java:170-194}). Activating it (an operation under test) only schedules the step, far enough
+     * out that it never runs during a suite.
+     */
+    private static WorkflowRepresentation workflow() {
+        return WorkflowRepresentation.withName(WORKFLOW)
+                .withSteps(WorkflowStepRepresentation.create().of("set-user-attribute")
+                        .after(Duration.ofDays(3650)).withConfig("equivalence", "seeded").build())
+                .build();
     }
 
     private static OrganizationRepresentation organization() {

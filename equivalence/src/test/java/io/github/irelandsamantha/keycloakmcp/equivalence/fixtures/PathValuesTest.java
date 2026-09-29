@@ -38,6 +38,24 @@ class PathValuesTest {
     }
 
     @Test
+    void subtreesBehindAValidatingLocatorGetSeededEntities() {
+        PathValues seeded = new PathValues(new SeededRealm(null, "r1", Map.of(
+                SeededRealm.WORKFLOW_ID, "workflow-uuid",
+                SeededRealm.ORG_ID, "org-uuid",
+                SeededRealm.ORG_GROUP_ID, "org-group-uuid",
+                SeededRealm.USER_ID, "user-uuid",
+                SeededRealm.CLIENT_TEMPLATE_ID, "template-uuid"), List.of()));
+
+        assertEquals(List.of("r1", "workflow-uuid", "USERS", "user-uuid"),
+                seeded.valuesFor("/admin/realms/{realm}/workflows/{id}/activate/{type}/{resourceId}"));
+        assertEquals(List.of("r1", "org-uuid", "org-group-uuid", "user-uuid"),
+                seeded.valuesFor("/admin/realms/{realm}/organizations/{org-id}/groups/{group-id}/members/{userId}"));
+        assertEquals(List.of("r1", "org-uuid", RealmSeeder.ORG_GROUP),
+                seeded.valuesFor("/admin/realms/{realm}/organizations/{org-id}/groups/group-by-path/{path}"));
+        assertEquals(List.of("r1", "template-uuid"), seeded.valuesFor("/admin/realms/{realm}/client-templates/{id}"));
+    }
+
+    @Test
     void prefixCollapsesEarlierVariables() {
         assertEquals("/admin/realms/{}/clients/{}/roles/", PathValues.prefixBefore("/admin/realms/{a}/clients/{b}/roles/{c}", 2));
     }
