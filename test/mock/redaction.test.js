@@ -168,9 +168,15 @@ test('E6 the marker is refused in path, query and every body encoding before any
     /^request contains a value redacted by keycloak-mcp/);
   assertRefusedOffline(mock, await mcp.call('keycloak_read', { operation: 'GET /admin/realms/{realm}/users', args: { query: { search: ['ok', `x${marker}`] } } }),
     /^request contains a value redacted by keycloak-mcp/);
-  assertRefusedOffline(mock, await mcp.call('keycloak_read', { operation: 'POST /admin/realms/{realm}/identity-provider/upload-certificate',
-    args: { body: { keystoreFormat: 'Certificate PEM', file: { filename: 'idp.pem', contentType: 'application/x-pem-file', base64: Buffer.from(marker).toString('base64') } } } }),
-  /^request contains a value redacted by keycloak-mcp/);
+  // A multipart form carries the marker in a file part or, like a keystore password, in a text part.
+  const keystore = { filename: 'idp.p12', contentType: 'application/x-pkcs12', base64: Buffer.from('keystore').toString('base64') };
+  for (const body of [
+    { keystoreFormat: 'Certificate PEM', file: { filename: 'idp.pem', contentType: 'application/x-pem-file', base64: Buffer.from(marker).toString('base64') } },
+    { keystoreFormat: 'PKCS12', keyAlias: 'idp', keyPassword: marker, storePassword: 'store', file: keystore },
+  ]) {
+    assertRefusedOffline(mock, await mcp.call('keycloak_read', { operation: 'POST /admin/realms/{realm}/identity-provider/upload-certificate', args: { body } }),
+      /^request contains a value redacted by keycloak-mcp/);
+  }
   // A form body is percent-encoded on the wire; Keycloak decodes it before use.
   const form = 'application/x-www-form-urlencoded';
   const smtpConfig = new URLSearchParams({ config: JSON.stringify({ host: 'smtp.example.invalid', password: marker }) }).toString();

@@ -8,6 +8,7 @@ const converter = 'POST /admin/realms/{realm}/client-description-converter';
 const workflows = 'POST /admin/realms/{realm}/workflows';
 const smtpTest = 'POST /admin/realms/{realm}/testSMTPConnection';
 const invite = 'POST /admin/realms/{realm}/organizations/{org-id}/members/invite-user';
+const uploadCertificate = 'POST /admin/realms/{realm}/identity-provider/upload-certificate';
 const built = (key, args) => buildRequest(writer, key, args);
 
 test('without contentType a text body goes as the declared text type and is sent unquoted', () => {
@@ -42,6 +43,14 @@ test('a form body is checked for the redaction marker as Keycloak decodes it', (
   const encoded = new URLSearchParams({ config: JSON.stringify({ password: marker }) }).toString();
   assert.throws(() => built(smtpTest, { contentType: form, bodyBase64: Buffer.from(encoded).toString('base64') }), refused);
   assert.equal(built(smtpTest, { contentType: form, body: { config: '{"host":"smtp"}' } }).body, 'config=%7B%22host%22%3A%22smtp%22%7D');
+});
+
+test('a multipart body is checked for the redaction marker in its text fields', () => {
+  const marker = '[REDACTED by keycloak-mcp]';
+  const file = { filename: 'idp.p12', contentType: 'application/x-pkcs12', base64: Buffer.from('keystore').toString('base64') };
+  const fields = password => ({ keystoreFormat: 'PKCS12', keyAlias: 'idp', keyPassword: password, storePassword: 'store', file });
+  assert.throws(() => built(uploadCertificate, { body: fields(marker) }), { message: /^request contains a value redacted by keycloak-mcp/ });
+  assert.equal(built(uploadCertificate, { body: fields('key') }).body.get('keyPassword'), 'key');
 });
 
 test('a base64 body of many megabytes is validated without exhausting the stack', () => {
