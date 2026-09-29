@@ -18,7 +18,11 @@ export function adminClientRouteNames(method, path) {
   return Object.entries(ADMIN_CLIENT_ROUTES).filter(([, rule]) => rule.methods.includes(method) && rule.path.test(route)).map(([name]) => name);
 }
 
-const adminClientRoute = op => entry(ADMIN_CLIENT_ROUTES, adminClientRouteNames(op.method, op.path)[0]);
+// A supplement operation that no rule covers has had no review, so it gets the strictest classification.
+const UNREVIEWED_ADMIN_CLIENT_OPERATION = { mutation: true, irreversible: true, sensitive: true };
+
+const adminClientRoute = op => entry(ADMIN_CLIENT_ROUTES, adminClientRouteNames(op.method, op.path)[0]) ??
+  (op.origin === 'admin-client' ? UNREVIEWED_ADMIN_CLIENT_OPERATION : undefined);
 
 export function isMutation(key, operationCatalog = defaultCatalog()) {
   const op = describeOperation(key, operationCatalog);

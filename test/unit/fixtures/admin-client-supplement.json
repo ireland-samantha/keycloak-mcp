@@ -1,0 +1,306 @@
+{
+  "source": "org.keycloak:keycloak-admin-client:999.0.0-SNAPSHOT",
+  "resolvedVersion": "999.0.0-20260928.023246-474",
+  "sourceSha256": "f7a60fa049c2694a97705e2898a2b7e76feee4238ff4a4fd32614bd85d8c0065",
+  "scmRevision": "56daf6daed1ee19122fe04f18b47ed0c46b3135c",
+  "openapiSha256": "e9f2a48232a7a74415d63cd600eb00ef66402d381ea8824377dd39a1fe7b3a2c",
+  "operations": [
+    {
+      "key": "DELETE /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/role/{id}",
+      "method": "DELETE",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/role/{id}",
+      "summary": "Role policy: remove",
+      "description": "Reachable through the Java admin client (RolePolicyResource#remove); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [],
+      "responseTypes": [],
+      "requestSchema": null,
+      "responseSchema": null,
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#policies()",
+        "PoliciesResource#role()",
+        "RolePoliciesResource#findById(String)",
+        "RolePolicyResource#remove()"
+      ]
+    },
+    {
+      "key": "GET /admin/serverinfo",
+      "method": "GET",
+      "path": "/admin/serverinfo",
+      "summary": "Server info: get info",
+      "description": "Reachable through the Java admin client (ServerInfoResource#getInfo); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [],
+      "requestTypes": [],
+      "responseTypes": [
+        "application/json"
+      ],
+      "requestSchema": null,
+      "responseSchema": {
+        "$ref": "#/components/schemas/ServerInfoRepresentation"
+      },
+      "adminClient": [
+        "ServerInfoResource#getInfo()"
+      ]
+    },
+    {
+      "key": "POST /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/role",
+      "method": "POST",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/role",
+      "summary": "Role policies: create",
+      "description": "Reachable through the Java admin client (RolePoliciesResource#create); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [
+        "application/json"
+      ],
+      "responseTypes": [
+        "application/json"
+      ],
+      "requestSchema": {
+        "$ref": "#/components/schemas/RolePolicyRepresentation"
+      },
+      "responseSchema": null,
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#policies()",
+        "PoliciesResource#role()",
+        "RolePoliciesResource#create(RolePolicyRepresentation)"
+      ]
+    },
+    {
+      "key": "POST /admin/realms/{realm}/user-storage/{componentId}/sync",
+      "method": "POST",
+      "path": "/admin/realms/{realm}/user-storage/{componentId}/sync",
+      "summary": "User storage provider: sync users",
+      "description": "Reachable through the Java admin client (UserStorageProviderResource#syncUsers); absent from the Keycloak OpenAPI definition.",
+      "tags": [
+        "Realms Admin"
+      ],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "componentId",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "action",
+          "in": "query",
+          "required": false,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [],
+      "responseTypes": [
+        "application/json"
+      ],
+      "requestSchema": null,
+      "responseSchema": {
+        "$ref": "#/components/schemas/SynchronizationResultRepresentation"
+      },
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#userStorage()",
+        "UserStorageProviderResource#syncUsers(String,String)"
+      ]
+    },
+    {
+      "key": "POST /admin/realms/{realm}/users/{user-id}/vc/credentials",
+      "method": "POST",
+      "path": "/admin/realms/{realm}/users/{user-id}/vc/credentials",
+      "summary": "User verifiable credential: create credential",
+      "description": "Reachable through the Java admin client (UserVerifiableCredentialResource#createCredential); absent from the Keycloak OpenAPI definition.",
+      "tags": [
+        "Users"
+      ],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "user-id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [
+        "application/json"
+      ],
+      "responseTypes": [],
+      "requestSchema": {
+        "$ref": "#/components/schemas/UserVerifiableCredentialRepresentation"
+      },
+      "responseSchema": {
+        "$ref": "#/components/schemas/UserVerifiableCredentialRepresentation"
+      },
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#users()",
+        "UsersResource#get(String)",
+        "UserResource#verifiableCredentials()",
+        "UserVerifiableCredentialResource#createCredential(UserVerifiableCredentialRepresentation)"
+      ]
+    },
+    {
+      "key": "PUT /admin/realms/{realm}/users/{user-id}/vc/credentials/{credentialScopeName}",
+      "method": "PUT",
+      "path": "/admin/realms/{realm}/users/{user-id}/vc/credentials/{credentialScopeName}",
+      "summary": "User verifiable credential: update credential",
+      "description": "Reachable through the Java admin client (UserVerifiableCredentialResource#updateCredential); absent from the Keycloak OpenAPI definition.",
+      "tags": [
+        "Users"
+      ],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "user-id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "credentialScopeName",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [],
+      "responseTypes": [
+        "application/json"
+      ],
+      "requestSchema": null,
+      "responseSchema": {
+        "$ref": "#/components/schemas/UserVerifiableCredentialRepresentation"
+      },
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#users()",
+        "UsersResource#get(String)",
+        "UserResource#verifiableCredentials()",
+        "UserVerifiableCredentialResource#updateCredential(String)"
+      ]
+    }
+  ],
+  "schemas": {
+    "RolePolicyRepresentation": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "roles": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "decisionStrategy": {
+          "type": "string",
+          "enum": [
+            "AFFIRMATIVE",
+            "UNANIMOUS",
+            "CONSENSUS"
+          ]
+        }
+      }
+    },
+    "ServerInfoRepresentation": {
+      "type": "object",
+      "properties": {
+        "systemInfo": {
+          "type": "object"
+        },
+        "features": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "SynchronizationResultRepresentation": {
+      "type": "object",
+      "properties": {
+        "added": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "failed": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "ignored": {
+          "type": "boolean"
+        },
+        "removed": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "status": {
+          "type": "string"
+        },
+        "updated": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    }
+  }
+}

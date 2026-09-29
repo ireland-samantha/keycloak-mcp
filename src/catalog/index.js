@@ -3,6 +3,7 @@ import { loadBundled } from './bundled.js';
 import { pathParameterNames } from '../internal/path-template.js';
 import { correctionForDefinitionPath, correctionForPath, operationParameters, requestBodyCorrection } from './corrections.js';
 import { parseExtensionCatalog } from './extension.js';
+import { loadSupplement, withSupplement } from './supplement.js';
 
 function withCorrectedPath(version, op) {
   const correction = correctionForDefinitionPath(version, op.path);
@@ -13,21 +14,34 @@ function withCorrectedPath(version, op) {
   return op;
 }
 
-export function createCatalog(extensionPath = '', version = 'latest') {
+const sortedByKey = byKey => [...byKey.values()].sort((a, b) => a.key.localeCompare(b.key));
+
+// A bundled OpenAPI definition's operations alone, each with origin 'openapi'.
+export function openApiCatalog(version) {
   const { catalog: base, openapi } = loadBundled(version);
   const operations = base.operations.map(op => withCorrectedPath(version, { ...op, origin: 'openapi' }));
-  const byKey = new Map(operations.map(op => [op.key, op]));
-  if (!extensionPath) return { operations, byKey, source: base.source, sourceSha256: base.sourceSha256, openapi, version };
+  return { operations, byKey: new Map(operations.map(op => [op.key, op])), source: base.source, sourceSha256: base.sourceSha256, openapi, version };
+}
+
+function withExtension(catalog, extensionPath) {
   const extension = readPrivateJson(extensionPath, 'KEYCLOAK_MCP_EXTENSION_CATALOG');
   const extra = parseExtensionCatalog(extension);
-  const combined = new Map(byKey);
+  const byKey = new Map(catalog.byKey);
   for (const op of extra) {
-    if (combined.has(op.key)) throw new Error(`duplicate extension operation: ${op.key}`);
-    combined.set(op.key, op);
+    if (byKey.has(op.key)) throw new Error(`duplicate extension operation: ${op.key}`);
+    byKey.set(op.key, op);
   }
-  return { operations: [...combined.values()].sort((a, b) => a.key.localeCompare(b.key)), byKey: combined,
-    source: `${base.source}; ${extension.source}`, sourceSha256: base.sourceSha256, openapi, version,
+  return { ...catalog, operations: sortedByKey(byKey), byKey, source: `${catalog.source}; ${extension.source}`,
     extensionSource: extension.source, extensionCount: extra.length };
+}
+
+// A bundled OpenAPI catalog, with the version's admin-client supplement when one is bundled and the
+// deployment's extension routes when a file is given.
+export function createCatalog(extensionPath = '', version = 'latest') {
+  let catalog = openApiCatalog(version);
+  const supplement = loadSupplement(version);
+  if (supplement) catalog = withSupplement(catalog, supplement);
+  return extensionPath ? withExtension(catalog, extensionPath) : catalog;
 }
 
 const configured = new Map();
@@ -66,7 +80,7 @@ export function listOperations(query = {}, operationCatalog = defaultCatalog()) 
 export function describeOperation(key, operationCatalog = defaultCatalog()) {
   const op = operationCatalog.byKey.get(key);
   if (!op) throw new Error('operation is not in the pinned Keycloak catalog');
-  if (op.extension) return op;
+  if (op.extension || op.origin === 'admin-client') return op;
   const pathCorrection = correctionForPath(operationCatalog.version, op.path);
   const definitionPath = pathCorrection?.definitionPath ?? op.path;
   const path = operationCatalog.openapi.paths[definitionPath];
@@ -85,7 +99,9 @@ export function describeOperation(key, operationCatalog = defaultCatalog()) {
 
 export function describeSchema(name, operationCatalog = defaultCatalog()) {
   if (typeof name !== 'string' || !/^[A-Za-z0-9._-]{1,128}$/.test(name)) throw new Error('invalid schema name');
-  const schema = operationCatalog.openapi.components?.schemas?.[name];
-  if (!schema) throw new Error('schema is not in the pinned Keycloak definition');
+  // OpenAPI components first, then the representations only the admin-client supplement describes.
+  const holder = [operationCatalog.openapi.components?.schemas, operationCatalog.supplement?.schemas].find(schemas => schemas && Object.hasOwn(schemas, name));
+  if (!holder) throw new Error('schema is not in the pinned Keycloak definition');
+  const schema = holder[name];
   return { name, schema };
 }
