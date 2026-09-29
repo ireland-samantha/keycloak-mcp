@@ -8,11 +8,15 @@ class FakePgClient extends EventEmitter {
   queries = [];
   ended = false;
   broken = false;
+  constructor({ lockFree = true } = {}) {
+    super();
+    this.lockFree = lockFree;
+  }
   async connect() {}
   async query(text) {
     if (this.broken) throw new Error('Client has encountered a connection error and is not queryable');
     this.queries.push(text);
-    return { rows: [{ acquired: true }] };
+    return { rows: [{ acquired: this.lockFree }] };
   }
   async end() { this.ended = true; }
   // What pg does when the server closes an idle connection (idle_session_timeout, pg_terminate_backend).
@@ -44,5 +48,11 @@ test('a held lock is checked with a query and released with pg_advisory_unlock',
   await lock.assertHeld();
   await lock.release();
   assert.deepEqual(client.queries, ['SELECT pg_try_advisory_lock($1::bigint) AS acquired', 'SELECT 1', 'SELECT pg_advisory_unlock($1::bigint)']);
+  assert.equal(client.ended, true);
+});
+
+test('a lock another workflow holds is refused and its client closed', async () => {
+  const client = new FakePgClient({ lockFree: false });
+  await assert.rejects(holdAdvisoryLock(client, 'https://id.example.com|realm'), { message: 'another workflow holds this realm' });
   assert.equal(client.ended, true);
 });
