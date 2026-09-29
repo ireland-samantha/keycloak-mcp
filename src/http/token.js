@@ -3,6 +3,12 @@ import { discardBody, readLimitedBody } from './body.js';
 const REFRESH_BEFORE_EXPIRY_MS = 30_000;
 const TOKEN_RESPONSE_LIMIT = 64 * 1024;
 
+// RFC 6749 section 2.3.1 form-encodes client_id and client_secret before HTTP Basic, and Keycloak
+// URL-decodes both halves (core/src/main/java/org/keycloak/util/BasicAuthHelper.java:79-93, called from
+// ClientIdAndSecretAuthenticator.java:76): unencoded, '+' would arrive as a space and a ':' in the
+// client ID would split it.
+const formEncode = value => encodeURIComponent(value).replace(/%20/g, '+');
+
 // The configured service account's client_credentials token, cached until shortly before it expires.
 export class ServiceAccountToken {
   #config;
@@ -30,7 +36,7 @@ export class ServiceAccountToken {
   async get() {
     if (this.#value && Date.now() < this.#expiresAt - REFRESH_BEFORE_EXPIRY_MS) return this.#value;
     const { baseUrl, authRealm, clientId, clientSecret } = this.#config;
-    const credentials = Buffer.from(`${clientId}:${clientSecret}`, 'utf8').toString('base64');
+    const credentials = Buffer.from(`${formEncode(clientId)}:${formEncode(clientSecret)}`, 'utf8').toString('base64');
     const response = await this.#fetch(`${baseUrl}/realms/${encodeURIComponent(authRealm)}/protocol/openid-connect/token`, {
       method: 'POST', headers: { 'content-type': 'application/x-www-form-urlencoded', authorization: `Basic ${credentials}` },
       body: new URLSearchParams({ grant_type: 'client_credentials' }), redirect: 'error', signal: AbortSignal.timeout(this.#timeoutMs),

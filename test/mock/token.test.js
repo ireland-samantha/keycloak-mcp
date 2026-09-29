@@ -14,10 +14,12 @@ test('B1 the first call exchanges client credentials with HTTP Basic and a clien
   assert.equal(mock.adminRequests()[0].headers.authorization, 'Bearer mock-access-token-1');
 });
 
-test('B1 credentials with reserved characters authenticate as Keycloak decodes them', { todo: 'BC-03' }, async t => {
-  const { mcp } = await startScenario(t, { mock: { clientId: 'urn:bc03:reader', clientSecret: 'p+s%41ss:w rd' } });
+test('B1 credentials with reserved characters authenticate as Keycloak decodes them', async t => {
+  const { mock, mcp } = await startScenario(t, { mock: { clientId: 'urn:bc03:reader', clientSecret: 'p+s%41ss:w rd/ü' } });
   const result = await mcp.call('keycloak_read', readRealm);
   assert.equal(result.isError, false, result.text);
+  const [token] = mock.tokenRequests();
+  assert.equal(Buffer.from(token.headers.authorization.slice('Basic '.length), 'base64').toString('utf8'), 'urn%3Abc03%3Areader:p%2Bs%2541ss%3Aw+rd%2F%C3%BC');
 });
 
 test('B2 reads reuse one cached token', async t => {
