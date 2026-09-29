@@ -86,12 +86,24 @@ test('F5 SPI extension routes are pinned to the configured realm too', async t =
   assert.equal(override.text, 'realm cannot be overridden');
 });
 
-test('F6 the realm list does not reveal other realms', { todo: 'SEC-5' }, async t => {
-  const { mock, mcp } = await startScenario(t);
+function programRealmList(mock) {
   const realm = mock.fixture('realm.get').json;
   mock.on('GET /admin/realms', { json: [realm, { ...realm, id: '00000000-0000-4000-8000-00000000f006', realm: 'other-realm' }] });
+}
+
+test('F6 the realm list does not reveal other realms', async t => {
+  const { mock, mcp } = await startScenario(t);
+  programRealmList(mock);
   const result = await mcp.call('keycloak_read', { operation: 'GET /admin/realms' });
   assert.equal(result.text.includes('other-realm'), false);
+  assertRefusedOffline(mock, result, /^realm administration is disabled$/);
+});
+
+test('F6 KEYCLOAK_MCP_ALLOW_REALM_ADMIN opens reads outside the configured realm', async t => {
+  const { mock, mcp } = await startScenario(t, { settings: { KEYCLOAK_MCP_ALLOW_REALM_ADMIN: 'true' } });
+  programRealmList(mock);
+  const result = await mcp.call('keycloak_read', { operation: 'GET /admin/realms' });
+  assert.deepEqual(result.value.value.map(realm => realm.realm), [mock.realm, 'other-realm']);
 });
 
 test('F7 an extension path hiding dot segments behind control characters cannot leave the realm', async t => {
