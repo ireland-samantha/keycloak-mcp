@@ -59,3 +59,19 @@ export const tools = [
 ];
 
 export const toolNames = tools.map(tool => tool.name);
+
+// The tool's arguments as JSON Schema, the same document the MCP SDK advertises without its $schema dialect.
+export function toolParameters(tool) {
+  const { $schema: _dialect, ...schema } = z.toJSONSchema(tool.input, { io: 'input' });
+  return schema;
+}
+
+const describeIssue = issue => (issue.path.length ? `${issue.path.join('.')}: ${issue.message}` : issue.message);
+
+// Validates and defaults a tool's arguments, refusing invalid ones in the MCP SDK's wording
+// (validateToolInput in @modelcontextprotocol/server), so every adapter answers alike.
+export function parseToolInput(tool, input) {
+  const parsed = tool.input.safeParse(input ?? {});
+  if (parsed.success) return parsed.data;
+  throw new Error(`Input validation error: Invalid arguments for tool ${tool.name}: ${parsed.error.issues.map(describeIssue).join(', ')}`);
+}
