@@ -50,7 +50,7 @@ test('F3 group-by-path encodes each segment and refuses traversal', async t => {
   assert.equal(mock.adminRequests().length, 1);
 });
 
-test('F3 a name containing a slash or backslash is sent as one encoded segment', { todo: 'BC-06' }, async t => {
+test('F3 a name containing a slash or backslash is sent as one encoded segment', async t => {
   const { mock, mcp } = await startScenario(t);
   mock.on('GET /admin/realms/{realm}/roles/{role-name}', { json: { name: 'role' } });
   for (const name of ['team/admin', 'back\\slash']) {

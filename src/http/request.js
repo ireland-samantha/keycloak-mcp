@@ -14,6 +14,9 @@ function encodeSegments(value) {
 }
 
 // {realm} is always the configured realm; every other value must stay inside its own path segment.
+// encodeURIComponent turns '/', '\', '%' and ';' into escapes that Keycloak decodes only after routing
+// (GET /roles/team%2Fadmin reaches getRole("team/admin"), RoleContainerResource.java:255-266), but it
+// leaves '.' and '..' as they are, and the URL parser would resolve those as dot segments.
 function expandPath(config, template, inputPath) {
   const names = pathParameterNames(template);
   if (Object.keys(inputPath).some(name => !names.includes(name))) throw new Error('unknown path parameter');
@@ -23,7 +26,7 @@ function expandPath(config, template, inputPath) {
     if (typeof value !== 'string' && !Number.isFinite(value)) throw new Error(`path parameter ${name} must be a string or number`);
     if (name === 'realm' && inputPath.realm !== undefined && inputPath.realm !== config.realm) throw new Error('realm cannot be overridden');
     if (name === MULTI_SEGMENT_PATH_PARAMETER.name) return encodeSegments(value);
-    if (isDotSegment(String(value)) || /[\\/]/.test(String(value))) throw new Error(`unsafe path parameter: ${name}`);
+    if (isDotSegment(String(value))) throw new Error(`unsafe path parameter: ${name}`);
     return encodeURIComponent(String(value));
   });
 }

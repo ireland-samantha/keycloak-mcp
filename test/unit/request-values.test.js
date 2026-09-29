@@ -24,3 +24,11 @@ test('a path value is a string or a finite number', () => {
     assert.throws(() => buildRequest(testConfig(), user, { path: { 'user-id': value } }), { message: 'path parameter user-id must be a string or number' }, String(value));
   }
 });
+
+test('a single-segment path value is percent-encoded into its segment; only a whole dot segment is refused', () => {
+  const role = value => buildRequest(testConfig(), 'GET /admin/realms/{realm}/roles/{role-name}', { path: { 'role-name': value } }).url;
+  const encoded = { 'team/admin': 'team%2Fadmin', 'back\\slash': 'back%5Cslash', '../../other-realm': '..%2F..%2Fother-realm',
+    'semi;colon': 'semi%3Bcolon', 'per%2Fcent': 'per%252Fcent', 'x/..': 'x%2F..', 'a b': 'a%20b' };
+  for (const [value, segment] of Object.entries(encoded)) assert.equal(role(value), `https://id.example.com/auth/admin/realms/test-realm/roles/${segment}`, value);
+  for (const value of ['.', '..']) assert.throws(() => role(value), { message: 'unsafe path parameter: role-name' }, value);
+});
