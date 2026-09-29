@@ -207,6 +207,9 @@ const defaultRoutes = [
   ['POST /admin/realms/{realm}/logout-all', mock => mock.fixture('logoutAll')],
   // Named creates answer with the name in Location (RoleContainerResource.java:174, IdentityProvidersResource.java:291).
   ['POST /admin/realms/{realm}/roles', (mock, request) => createdAt(mock, request, request.json().name)],
+  ['POST /admin/realms/{realm}/clients/{id}/roles', (mock, request) => createdAt(mock, request, request.json().name)],
+  ['GET /admin/realms/{realm}/roles/{role-name}', mock => mock.fixture('role.get')],
+  ['GET /admin/realms/{realm}/clients/{id}/roles/{role-name}', mock => mock.fixture('clientRole.get')],
   ['POST /admin/realms/{realm}/identity-provider/instances', (mock, request) => createdAt(mock, request, request.json().alias)],
   // Authorization objects are created with the ID the body names, if any (RepresentationToModel.java:1758, :1809).
   ['POST /admin/realms/{realm}/clients/{id}/authz/resource-server/scope', (mock, request) =>

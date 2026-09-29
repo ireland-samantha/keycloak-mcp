@@ -195,16 +195,25 @@ export const TOKEN_REFRESH_BEFORE_COMPENSATION = [
 ];
 
 // Creates whose new child is addressed by a name taken from the request body rather than a generated ID.
+// Names change, so right after such a create keycloak-mcp reads the child by its name (`lookup`) for its
+// immutable ID (`idField`). The compensation then deletes by that ID (`deleteById`) where Keycloak has a
+// route for it, and otherwise checks, right before deleting by name, that the name still has that ID.
+const ROLE_BY_ID = { operation: 'DELETE /admin/realms/{realm}/roles-by-id/{role-id}', parameter: 'role-id' };
+const ROLE_NAMES = 'The role is created under, and its Location names, the body name. A PUT with another name renames a role, so a later step or another administrator can give that name to a different role; roles-by-id deletes the created role whatever it is called by then.';
+const ROLE_SOURCE = 'services/resources/admin/RoleContainerResource.java:170-174; RoleResource.java:65-73; RoleByIdResource.java:124-145';
 export const NAMED_CREATE_TARGETS = {
   'POST /admin/realms/{realm}/roles': {
-    child: 'role-name', field: 'name',
-    reason: 'The role is created under, and its Location names, the body name.',
-    source: 'services/resources/admin/RoleContainerResource.java:170-174',
+    child: 'role-name', field: 'name', lookup: 'GET /admin/realms/{realm}/roles/{role-name}', idField: 'id', deleteById: ROLE_BY_ID,
+    reason: ROLE_NAMES, source: ROLE_SOURCE,
+  },
+  'POST /admin/realms/{realm}/clients/{client-uuid}/roles': {
+    child: 'role-name', field: 'name', lookup: 'GET /admin/realms/{realm}/clients/{client-uuid}/roles/{role-name}', idField: 'id', deleteById: ROLE_BY_ID,
+    reason: `${ROLE_NAMES} Client roles share the realm-wide roles-by-id route.`, source: ROLE_SOURCE,
   },
   'POST /admin/realms/{realm}/identity-provider/instances': {
-    child: 'alias', field: 'alias',
-    reason: 'The identity provider is created under, and its Location names, the body alias.',
-    source: 'services/resources/admin/IdentityProvidersResource.java:265-291',
+    child: 'alias', field: 'alias', lookup: 'GET /admin/realms/{realm}/identity-provider/instances/{alias}', idField: 'internalId',
+    reason: 'The identity provider is created under, and its Location names, the body alias. Keycloak has no route by internalId; HEAD refuses to change an alias, but an alias can be deleted and created again, so the compensation deletes by alias only while it still has the created internalId.',
+    source: 'services/resources/admin/IdentityProvidersResource.java:265-291; IdentityProviderResource.java:196-205',
   },
 };
 

@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { buildRequest } from '../http/request.js';
-import { upsertIdField } from '../policy/classify.js';
+import { namedCreateTarget, upsertIdField } from '../policy/classify.js';
 import { idBindings, LOCATION_ID } from './markers.js';
 
 const GENERATED_UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -56,4 +56,28 @@ export function resolveCompensation(config, operationCatalog, step, result, chos
   const resolved = { operation: compensate.operation, args: { ...compensate.args, path: { ...compensate.args?.path, [parameter]: id } } };
   buildRequest(config, resolved.operation, resolved.args, operationCatalog);
   return { compensate: resolved, created: { parameter, id } };
+}
+
+// For a create of a named child (see NAMED_CREATE_TARGETS), reads the child by the name its
+// compensation deletes to learn its immutable ID. Returns the compensation by that ID where Keycloak
+// has a route for it, else the compensation by name with the ID to recheck (`verify`) before it runs;
+// null for any other create.
+export async function pinToCreatedId(admin, step, compensate) {
+  const named = namedCreateTarget(step.operation);
+  if (!named || !compensate) return null;
+  const lookup = { operation: named.lookup, args: { path: { ...step.args.path, [named.child]: compensate.args.path[named.child] } } };
+  const { value } = await admin.invoke(lookup.operation, lookup.args);
+  const id = value?.[named.idField];
+  if (typeof id !== 'string' || !id) throw new Error(`${named.lookup} did not return the ${named.idField} of the created object`);
+  if (!named.deleteById) return { compensate: { ...compensate, verify: { ...lookup, field: named.idField, id } }, created: { parameter: named.idField, id } };
+  const { operation, parameter } = named.deleteById;
+  return { compensate: { operation, args: { path: { [parameter]: id } } }, created: { parameter, id } };
+}
+
+// Checks, right before a compensation by name runs, that the name still leads to the object created.
+export async function verifyCompensationTarget(admin, compensate) {
+  const { verify } = compensate;
+  if (!verify) return;
+  const { value } = await admin.invoke(verify.operation, verify.args);
+  if (value?.[verify.field] !== verify.id) throw new Error(`${verify.operation} now names another object than the one this workflow created`);
 }

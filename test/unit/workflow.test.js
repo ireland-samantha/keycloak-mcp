@@ -89,28 +89,31 @@ test('preflight refuses unrelated POST compensation and different resource bindi
 
 test('named create compensation must delete the exact new role or identity-provider alias', () => {
   const config = testConfig({ KEYCLOAK_MCP_ALLOW_WRITE: 'true', KEYCLOAK_MCP_SINGLE_WRITER: 'true' });
-  for (const [collection, parameter, bodyKey, body] of [
-    ['roles', 'role-name', 'name', { name: 'new-role' }],
-    ['identity-provider/instances', 'alias', 'alias', { alias: 'new-idp', providerId: 'oidc' }],
+  for (const [collection, parameter, bodyKey, body, parent] of [
+    ['roles', 'role-name', 'name', { name: 'new-role' }, {}],
+    ['clients/{client-uuid}/roles', 'role-name', 'name', { name: 'new-role' }, { 'client-uuid': 'client-a' }],
+    ['identity-provider/instances', 'alias', 'alias', { alias: 'new-idp', providerId: 'oidc' }, {}],
   ]) {
     const operation = `POST /admin/realms/{realm}/${collection}`;
     const compensate = { operation: `DELETE /admin/realms/{realm}/${collection}/{${parameter}}`,
-      args: { path: { [parameter]: body[bodyKey] } } };
-    assert.equal(preflight(config, [{ operation, args: { body }, compensate }])[0].operation, operation);
+      args: { path: { ...parent, [parameter]: body[bodyKey] } } };
+    assert.equal(preflight(config, [{ operation, args: { path: parent, body }, compensate }])[0].operation, operation);
     for (const target of ['existing-name', '']) {
-      assert.throws(() => preflight(config, [{ operation, args: { body },
-        compensate: { ...compensate, args: { path: { [parameter]: target } } } }]),
+      assert.throws(() => preflight(config, [{ operation, args: { path: parent, body },
+        compensate: { ...compensate, args: { path: { ...parent, [parameter]: target } } } }]),
       /irreversible compensation|generated-ID binding/);
     }
-    assert.throws(() => preflight(config, [{ operation, args: { body: {} }, compensate }]),
+    assert.throws(() => preflight(config, [{ operation, args: { path: parent, body: {} }, compensate }]),
       /irreversible compensation/);
   }
 });
 
-test('named create rollback calls the matching child DELETE after a failed read', async () => {
-  for (const [collection, parameter, body] of [
-    ['roles', 'role-name', { name: 'new-role' }],
-    ['identity-provider/instances', 'alias', { alias: 'new-idp', providerId: 'oidc' }],
+test('named create rollback deletes the created role by ID and the identity provider by its rechecked alias', async () => {
+  const createdRole = 'baebccda-a5cd-4ed8-a889-c95e4cf2d64b';
+  for (const [collection, parameter, body, lookedUp, deleted] of [
+    ['roles', 'role-name', { name: 'new-role' }, { id: createdRole, name: 'new-role' }, `roles-by-id/${createdRole}`],
+    ['identity-provider/instances', 'alias', { alias: 'new-idp', providerId: 'oidc' }, { alias: 'new-idp', internalId: createdRole },
+      'identity-provider/instances/new-idp'],
   ]) {
     const name = body.name ?? body.alias;
     const calls = [];
@@ -119,7 +122,7 @@ test('named create rollback calls the matching child DELETE after a failed read'
       if (url.endsWith('/token')) return tokenResponse();
       calls.push(`${options.method} ${new URL(url).pathname}`);
       if (options.method === 'POST') return jsonResponse(201, null);
-      if (options.method === 'GET') return jsonResponse(404, {});
+      if (options.method === 'GET') return url.endsWith(`/${name}`) ? jsonResponse(200, lookedUp) : jsonResponse(404, {});
       return jsonResponse(204, null);
     });
     const result = await runWorkflow(admin, [
@@ -130,7 +133,7 @@ test('named create rollback calls the matching child DELETE after a failed read'
     ], { dryRun: false });
     assert.equal(result.status, 'IN_DOUBT');
     assert.equal(result.priorStepsCompensated, true);
-    assert.equal(calls.at(-1), `DELETE /auth/admin/realms/test-realm/${collection}/${name}`);
+    assert.equal(calls.at(-1), `DELETE /auth/admin/realms/test-realm/${deleted}`);
   }
 });
 

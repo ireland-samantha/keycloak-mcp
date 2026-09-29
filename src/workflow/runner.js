@@ -1,7 +1,7 @@
 import { wasNotSent } from '../http/transport.js';
 import { execute } from '../internal/capabilities.js';
 import { isMutation, needsFreshTokenToCompensate } from '../policy/classify.js';
-import { argsToSend, resolveCompensation } from './compensation.js';
+import { argsToSend, pinToCreatedId, resolveCompensation, verifyCompensationTarget } from './compensation.js';
 import { completedReceipt, createdReceipt, openJournal, receiptPath } from './journal.js';
 import { acquireRealmLock } from './locks.js';
 import { preflight } from './preflight.js';
@@ -19,6 +19,7 @@ async function compensateStep(admin, lock, done) {
   try {
     await lock.assertHeld();
     if (needsFreshTokenToCompensate(done.step.operation, operation)) admin.invalidateToken();
+    await verifyCompensationTarget(admin, done.compensate);
     const result = await execute(admin, operation, args);
     return { operation, path: receiptPath(args), status: result.status, outcome: 'COMPENSATED' };
   } catch (compensationError) {
@@ -66,7 +67,8 @@ async function runStep(admin, lock, journal, step, completed) {
     return { failure: { step, error, sent: !wasNotSent(error) } };
   }
   try {
-    const { compensate, created } = resolveCompensation(admin.config, admin.catalog, step, result, chosenId);
+    const bound = resolveCompensation(admin.config, admin.catalog, step, result, chosenId);
+    const { compensate, created } = (await pinToCreatedId(admin, step, bound.compensate)) ?? bound;
     return { done: { step, status: result.status, location: result.location, created, compensate } };
   } catch (error) {
     return { failure: { step, error, sent: true, response: result } };

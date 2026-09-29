@@ -123,16 +123,24 @@ test('K3 ambiguous or conflicting generated IDs are refused and nothing is delet
   });
 });
 
-test('K4 named creates are compensated by deleting exactly that name', async t => {
+test('K4 named creates are compensated by the created role\'s ID and the identity provider\'s rechecked alias', async t => {
   const { mock, result } = await executeWorkflow(t, [
     { operation: 'POST /admin/realms/{realm}/roles', args: { body: { name: 'k4 role' } },
       compensate: { operation: 'DELETE /admin/realms/{realm}/roles/{role-name}', args: { path: { 'role-name': 'k4 role' } } } },
+    { operation: 'POST /admin/realms/{realm}/clients/{client-uuid}/roles', args: { path: client, body: { name: 'k4-client-role' } },
+      compensate: { operation: 'DELETE /admin/realms/{realm}/clients/{client-uuid}/roles/{role-name}', args: { path: { ...client, 'role-name': '$step.locationId' } } } },
     { operation: 'POST /admin/realms/{realm}/identity-provider/instances', args: { body: { alias: 'k4-idp', providerId: 'oidc' } },
       compensate: { operation: 'DELETE /admin/realms/{realm}/identity-provider/instances/{alias}', args: { path: { alias: 'k4-idp' } } } },
     missingUser,
   ]);
+  const [roleId, clientRoleId, internalId] = [['role.get', 'id'], ['clientRole.get', 'id'], ['idp.get', 'internalId']]
+    .map(([fixture, field]) => mock.fixture(fixture).json[field]);
+  assert.deepEqual(result.completed.map(item => item.id), [roleId, clientRoleId, internalId]);
   assert.equal(result.priorStepsCompensated, true);
-  assert.deepEqual(deletes(mock), [`${mock.realmPath}/identity-provider/instances/k4-idp`, `${mock.realmPath}/roles/k4%20role`]);
+  assert.deepEqual(deletes(mock), [`${mock.realmPath}/identity-provider/instances/k4-idp`,
+    `${mock.realmPath}/roles-by-id/${clientRoleId}`, `${mock.realmPath}/roles-by-id/${roleId}`]);
+  const idpReads = mock.adminRequests().filter(request => request.key === `GET ${mock.realmPath}/identity-provider/instances/k4-idp`);
+  assert.equal(idpReads.length, 2, 'looked up after the create and again before the delete');
 });
 
 test('K5 an authorization create that names its own ID cannot bind a compensation to it', async t => {
@@ -149,5 +157,20 @@ test('K6 an authorization create whose response names another object is not comp
     mock.on(`POST ${authz}/scope`, { status: 201, json: { id: otherId, name: 'outcome' } }) });
   assert.equal(result.status, 'IN_DOUBT');
   assert.match(result.error, /create response names another object than the one this step created/);
+  assert.deepEqual(deletes(mock), []);
+});
+
+test('K7 an identity provider is not deleted when its alias names another one by rollback time', async t => {
+  const { mock, result } = await executeWorkflow(t, [
+    { operation: 'POST /admin/realms/{realm}/identity-provider/instances', args: { body: { alias: 'k7-idp', providerId: 'oidc' } },
+      compensate: { operation: 'DELETE /admin/realms/{realm}/identity-provider/instances/{alias}', args: { path: { alias: 'k7-idp' } } } },
+    missingUser,
+  ], { program: mock => {
+    const idp = mock.fixture('idp.get');
+    mock.on('GET /admin/realms/{realm}/identity-provider/instances/{alias}', idp, { ...idp, json: { ...idp.json, internalId: otherId } });
+  } });
+  assert.deepEqual(result.rollback.map(({ outcome, error }) => ({ outcome, error })), [{ outcome: 'FAILED',
+    error: 'GET /admin/realms/{realm}/identity-provider/instances/{alias} now names another object than the one this workflow created' }]);
+  assert.equal(result.priorStepsCompensated, false);
   assert.deepEqual(deletes(mock), []);
 });
