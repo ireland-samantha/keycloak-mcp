@@ -1,9 +1,12 @@
 import { createHash } from 'node:crypto';
 import { randomUUID } from 'node:crypto';
-import { closeSync, fsyncSync, mkdirSync, openSync, renameSync, statSync, writeFileSync } from 'node:fs';
+import { closeSync, fsyncSync, openSync, renameSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 import { isDeepStrictEqual } from 'node:util';
+import { directChildParameter } from './internal/path-template.js';
+import { ensurePrivateDirectory } from './internal/private-file.js';
+import { REDACTED } from './internal/redaction.js';
 import { buildRequest, describeOperation, isMutation, isIrreversible } from './keycloak.js';
 
 const held = new Set();
@@ -18,7 +21,7 @@ const generatedUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]
 const sensitivePathName = /secret|token|password|credential/i;
 
 function receiptPath(args = {}) {
-  return Object.fromEntries(Object.entries(args.path ?? {}).map(([name, value]) => [name, sensitivePathName.test(name) ? '[REDACTED]' : String(value)]));
+  return Object.fromEntries(Object.entries(args.path ?? {}).map(([name, value]) => [name, sensitivePathName.test(name) ? REDACTED : String(value)]));
 }
 
 function compensationArgsForValidation(compensate) {
@@ -92,8 +95,7 @@ async function acquirePostgres(connectionString, key) {
 
 function journalWriter(config, plan) {
   const directory = config.journalDir || join(homedir(), '.local', 'state', 'keycloak-mcp');
-  mkdirSync(directory, { recursive: true, mode: 0o700 });
-  if ((statSync(directory).mode & 0o077) !== 0) throw new Error('journal directory must be private (mode 0700)');
+  ensurePrivateDirectory(directory, 'journal directory');
   const id = randomUUID();
   const file = join(directory, `${id}.json`);
   return {
@@ -135,8 +137,7 @@ export function preflight(config, steps, operationCatalog) {
         const source = describeOperation(step.operation, operationCatalog);
         const compensation = describeOperation(step.compensate.operation, operationCatalog);
         const collection = source.path.replace(/\/$/, '');
-        const childParameter = compensation.path.startsWith(`${collection}/`)
-          ? /^\{([^/{}]+)\}$/.exec(compensation.path.slice(collection.length + 1))?.[1] : null;
+        const childParameter = directChildParameter(collection, compensation.path);
         const childValue = step.compensate.args?.path?.[childParameter];
         const bound = Object.entries(step.compensate.args?.path ?? {}).filter(([, value]) => idMarkers.has(value));
         if (source.method === 'POST' && compensation.method !== 'DELETE')

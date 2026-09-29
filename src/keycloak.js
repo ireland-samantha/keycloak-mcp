@@ -1,5 +1,11 @@
-import { readFileSync, statSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { setTimeout as delay } from 'node:timers/promises';
+import { DEFAULT_BODY_BYTES } from './config.js';
+import { pathParameterNames } from './internal/path-template.js';
+import { readPrivateJson } from './internal/private-file.js';
+import { redactKeys, REDACTED_ENDPOINT } from './internal/redaction.js';
+
+export { configFromEnv } from './config.js';
 
 const catalog = JSON.parse(readFileSync(new URL('../data/operations.json', import.meta.url), 'utf8'));
 const openapi = JSON.parse(readFileSync(new URL('../data/openapi.json', import.meta.url), 'utf8'));
@@ -7,7 +13,6 @@ const catalog2635 = JSON.parse(readFileSync(new URL('../data/operations-26.3.5.j
 const openapi2635 = JSON.parse(readFileSync(new URL('../data/openapi-26.3.5.json', import.meta.url), 'utf8'));
 const baseCatalogs = { latest: [catalog, openapi], '26.3.5': [catalog2635, openapi2635] };
 const sensitive = /secret|password|credential|private.?key|access.?token|refresh.?token|authorization|^token$/i;
-const realmPattern = /^[A-Za-z0-9._~-]{1,255}$/;
 const sideEffectingGets = new Set(['GET /admin/realms/{realm}/identity-provider/instances/{alias}/reload-keys']);
 const readOnlyPosts = new Set([
   'POST /admin/realms/{realm}/client-description-converter',
@@ -23,17 +28,6 @@ const sensitivePaths = /\/client-secret(?:\/|$)|\/clients-initial-access(?:\/|$)
 const irreversiblePath = /(?:\/logout|\/reset-password|\/send-|\/execute-actions-email|\/client-secret|\/sessions(?:\/|$)|\/brute-force\/users|\/credentials\/|\/disable-credential-types|\/push-revocation|\/testSMTPConnection|\/impersonation|\/clear-|\/members\/invite-|\/identity-provider\/import-config)/;
 const irreversibleInvitationResend = /\/invitations\/\{id\}\/resend$/;
 const irreversibleWorkflowActions = /\/workflows\/(?:migrate$|\{id\}\/(?:activate|deactivate)\/)/;
-const defaultBodyLimit = 1024 * 1024;
-const maximumBodyLimit = 64 * 1024 * 1024;
-
-function bodyLimit(value) {
-  if (value === undefined || value === '') return defaultBodyLimit;
-  if (!/^[1-9]\d*$/.test(String(value))) throw new Error('KEYCLOAK_MCP_MAX_BODY_BYTES must be a positive integer');
-  const bytes = Number(value);
-  if (!Number.isSafeInteger(bytes) || bytes > maximumBodyLimit) throw new Error('KEYCLOAK_MCP_MAX_BODY_BYTES exceeds 64 MiB');
-  return bytes;
-}
-
 async function limitedBody(response, limit) {
   const length = Number(response.headers.get('content-length'));
   if (Number.isFinite(length) && length > limit) {
@@ -59,25 +53,19 @@ async function limitedBody(response, limit) {
   return Buffer.concat(chunks, total);
 }
 
-function privateJson(path, label) {
-  const info = statSync(path);
-  if (!info.isFile() || (info.mode & 0o077) !== 0) throw new Error(`${label} must be a private file (mode 0600)`);
-  return JSON.parse(readFileSync(path, 'utf8'));
-}
-
 export function createCatalog(extensionPath = '', version = 'latest') {
   const pair = baseCatalogs[version];
   if (!pair) throw new Error('unsupported KEYCLOAK_MCP_CATALOG_VERSION');
   const [base, spec] = pair;
   const byKey = new Map(base.operations.map(op => [op.key, op]));
   if (!extensionPath) return { operations: base.operations, byKey, source: base.source, sourceSha256: base.sourceSha256, openapi: spec, version };
-  const extension = privateJson(extensionPath, 'KEYCLOAK_MCP_EXTENSION_CATALOG');
+  const extension = readPrivateJson(extensionPath, 'KEYCLOAK_MCP_EXTENSION_CATALOG');
   if (!extension || !Array.isArray(extension.operations) || typeof extension.source !== 'string') throw new Error('invalid extension catalog');
   const extra = extension.operations.map(item => {
     if (!item || !['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD'].includes(item.method) ||
       typeof item.path !== 'string' || !/^\/(?:admin\/)?realms\/\{realm\}(?:\/|$)/.test(item.path) ||
       /[?#\\%:]/.test(item.path) || /\/\.{1,2}(?:\/|$)/.test(item.path) || item.path.includes('//')) throw new Error('invalid extension operation');
-    const names = [...item.path.matchAll(/\{([^}]+)\}/g)].map(match => match[1]);
+    const names = pathParameterNames(item.path);
     if (names.some(name => !/^[A-Za-z][A-Za-z0-9_-]*$/.test(name))) throw new Error('invalid extension path parameter');
     if (item.method === 'GET' && item.readOnly !== true && item.readOnly !== false) throw new Error('extension GET must declare readOnly');
     if (typeof item.serviceAccountSupported !== 'boolean') throw new Error('extension operation must declare serviceAccountSupported');
@@ -120,49 +108,6 @@ export function isIrreversible(key, operationCatalog = createCatalog()) {
   if (irreversiblePath.test(op.path) || irreversibleInvitationResend.test(op.path) ||
     irreversibleWorkflowActions.test(op.path)) return true;
   return false;
-}
-
-function required(name, value) {
-  if (!value) throw new Error(`${name} is required`);
-  return value;
-}
-
-function baseUrl(value) {
-  const url = new URL(value);
-  if (url.username || url.password || url.search || url.hash) throw new Error('KEYCLOAK_BASE_URL must not contain credentials, query, or fragment');
-  if (url.protocol !== 'https:' && !(url.protocol === 'http:' && ['localhost', '127.0.0.1', '[::1]'].includes(url.hostname))) throw new Error('KEYCLOAK_BASE_URL must use HTTPS or loopback HTTP');
-  return url.href.replace(/\/$/, '');
-}
-
-function realm(name, label) {
-  if (!realmPattern.test(name)) throw new Error(`${label} has invalid characters`);
-  return name;
-}
-
-export function configFromEnv(env = process.env) {
-  let values = env;
-  if (env.KEYCLOAK_MCP_CONFIG) {
-    const file = privateJson(env.KEYCLOAK_MCP_CONFIG, 'KEYCLOAK_MCP_CONFIG');
-    if (!file || Array.isArray(file) || typeof file !== 'object') throw new Error('KEYCLOAK_MCP_CONFIG must be a JSON object');
-    values = { ...file, ...env };
-  }
-  return {
-    baseUrl: baseUrl(required('KEYCLOAK_BASE_URL', values.KEYCLOAK_BASE_URL)),
-    realm: realm(required('KEYCLOAK_REALM', values.KEYCLOAK_REALM), 'KEYCLOAK_REALM'),
-    authRealm: realm(values.KEYCLOAK_AUTH_REALM || 'master', 'KEYCLOAK_AUTH_REALM'),
-    clientId: required('KEYCLOAK_CLIENT_ID', values.KEYCLOAK_CLIENT_ID),
-    clientSecret: required('KEYCLOAK_CLIENT_SECRET', values.KEYCLOAK_CLIENT_SECRET),
-    allowWrite: values.KEYCLOAK_MCP_ALLOW_WRITE === 'true',
-    allowRealmAdmin: values.KEYCLOAK_MCP_ALLOW_REALM_ADMIN === 'true',
-    allowSensitiveReads: values.KEYCLOAK_MCP_ALLOW_SENSITIVE_READS === 'true',
-    allowIrreversible: values.KEYCLOAK_MCP_ALLOW_IRREVERSIBLE === 'true',
-    lockDatabaseUrl: values.KEYCLOAK_MCP_LOCK_DATABASE_URL || '',
-    singleWriter: values.KEYCLOAK_MCP_SINGLE_WRITER === 'true',
-    journalDir: values.KEYCLOAK_MCP_JOURNAL_DIR || '',
-    extensionCatalogPath: values.KEYCLOAK_MCP_EXTENSION_CATALOG || '',
-    catalogVersion: values.KEYCLOAK_MCP_CATALOG_VERSION || 'latest',
-    maxBodyBytes: bodyLimit(values.KEYCLOAK_MCP_MAX_BODY_BYTES),
-  };
 }
 
 export function listOperations({ search = '', tag = '', method = '', offset = 0, limit = 25 } = {}, operationCatalog = createCatalog()) {
@@ -243,19 +188,13 @@ function encodeMultipart(fields, limit) {
   return form;
 }
 
-function scrub(value, redactRepresentation = false) {
-  if (Array.isArray(value)) return value.map(item => scrub(item, redactRepresentation));
-  if (value && typeof value === 'object') return Object.fromEntries(Object.entries(value).map(([key, child]) => [key, sensitive.test(key) || (redactRepresentation && key === 'representation') ? '[REDACTED]' : scrub(child, redactRepresentation)]));
-  return value;
-}
-
 export function buildRequest(config, key, args = {}, operationCatalog = createCatalog()) {
   const op = describeOperation(key, operationCatalog);
   if (op.extension && !op.serviceAccountSupported) throw new Error('extension operation requires a non-service-account credential');
   if (isMutation(key, operationCatalog) && !config.allowWrite) throw new Error('writes are disabled');
   if (!op.path.includes('{realm}') && isMutation(key, operationCatalog) && !config.allowRealmAdmin) throw new Error('realm administration is disabled');
   const inputPath = args.path ?? {};
-  const names = [...op.path.matchAll(/\{([^}]+)\}/g)].map(match => match[1]);
+  const names = pathParameterNames(op.path);
   if (Object.keys(inputPath).some(name => !names.includes(name))) throw new Error('unknown path parameter');
   const path = op.path.replace(/\{([^}]+)\}/g, (_match, name) => {
     const value = name === 'realm' ? config.realm : inputPath[name];
@@ -284,9 +223,9 @@ export function buildRequest(config, key, args = {}, operationCatalog = createCa
     if (args.body !== undefined && args.bodyBase64 !== undefined) throw new Error('choose body or bodyBase64');
     if (contentType === 'multipart/form-data') {
       if (args.bodyBase64 !== undefined) throw new Error('multipart requires structured fields');
-      body = encodeMultipart(args.body, config.maxBodyBytes ?? defaultBodyLimit);
+      body = encodeMultipart(args.body, config.maxBodyBytes ?? DEFAULT_BODY_BYTES);
     } else if (args.bodyBase64 !== undefined) {
-      body = decodeBase64Bounded(args.bodyBase64, config.maxBodyBytes ?? defaultBodyLimit, 'base64 body');
+      body = decodeBase64Bounded(args.bodyBase64, config.maxBodyBytes ?? DEFAULT_BODY_BYTES, 'base64 body');
     } else if (contentType === 'application/json') body = JSON.stringify(args.body);
     else if (contentType === 'application/x-www-form-urlencoded') {
       if (!args.body || typeof args.body !== 'object' || Array.isArray(args.body)) throw new Error('form body must be an object');
@@ -301,7 +240,7 @@ export function buildRequest(config, key, args = {}, operationCatalog = createCa
     }
     else if (typeof args.body === 'string') body = args.body;
     else throw new Error('non-JSON bodies require text or bodyBase64');
-    if (!(body instanceof FormData) && Buffer.byteLength(body) > (config.maxBodyBytes ?? defaultBodyLimit)) throw new Error('request body exceeds configured limit');
+    if (!(body instanceof FormData) && Buffer.byteLength(body) > (config.maxBodyBytes ?? DEFAULT_BODY_BYTES)) throw new Error('request body exceeds configured limit');
     if (!(body instanceof FormData)) headers['content-type'] = contentType;
   }
   if (args.accept) {
@@ -382,13 +321,16 @@ export class KeycloakAdmin {
       await delay(transientRetries === 1 ? 150 : 400);
     }
     if (key === 'POST /admin/realms/{realm}/logout-all') this.invalidateToken();
-    const bytes = await limitedBody(response, this.config.maxBodyBytes ?? defaultBodyLimit);
+    const bytes = await limitedBody(response, this.config.maxBodyBytes ?? DEFAULT_BODY_BYTES);
     const contentType = response.headers.get('content-type')?.split(';')[0] ?? '';
     let value = null;
-    if (bytes.length && sensitivePaths.test(req.op.path) && !this.config.allowSensitiveReads) value = '[REDACTED: sensitive endpoint]';
+    if (bytes.length && sensitivePaths.test(req.op.path) && !this.config.allowSensitiveReads) value = REDACTED_ENDPOINT;
     else if (bytes.length && contentType.includes('json')) {
       try { value = JSON.parse(bytes.toString('utf8')); } catch { throw new Error('Keycloak returned invalid JSON'); }
-      if (!this.config.allowSensitiveReads) value = scrub(value, req.op.path === '/admin/realms/{realm}/admin-events');
+      if (!this.config.allowSensitiveReads) {
+        const redactRepresentation = req.op.path === '/admin/realms/{realm}/admin-events';
+        value = redactKeys(value, key => sensitive.test(key) || (redactRepresentation && key === 'representation'));
+      }
     } else if (bytes.length && (contentType.startsWith('text/') || contentType.includes('xml') || contentType.includes('yaml'))) value = bytes.toString('utf8');
     else if (bytes.length) value = { base64: bytes.toString('base64'), contentType };
     const location = response.headers.get('location');
