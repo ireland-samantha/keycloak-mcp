@@ -33,12 +33,23 @@ export function defaultCatalog() {
   return catalogFor({});
 }
 
-export function listOperations({ search = '', tag = '', method = '', offset = 0, limit = 25 } = {}, operationCatalog = defaultCatalog()) {
-  const needle = search.toLowerCase();
+const MAX_PAGE_SIZE = 100;
+
+// Every adapter and the JavaScript API share this contract, so a caller cannot page past the size cap
+// or get an empty page from a string offset or a negative limit.
+function pageQuery({ search = '', tag = '', method = '', offset = 0, limit = 25 }) {
+  for (const [name, value] of Object.entries({ search, tag, method })) if (typeof value !== 'string') throw new Error(`${name} must be a string`);
+  if (!Number.isSafeInteger(offset) || offset < 0) throw new Error('offset must be a non-negative integer');
+  if (!Number.isInteger(limit) || limit < 1 || limit > MAX_PAGE_SIZE) throw new Error(`limit must be an integer from 1 to ${MAX_PAGE_SIZE}`);
+  return { needle: search.toLowerCase(), tag, method: method.toUpperCase(), offset, limit };
+}
+
+export function listOperations(query = {}, operationCatalog = defaultCatalog()) {
+  const { needle, tag, method, offset, limit } = pageQuery(query);
   const filtered = operationCatalog.operations.filter(op => (!needle || `${op.key} ${op.summary}`.toLowerCase().includes(needle)) &&
-    (!tag || op.tags.includes(tag)) && (!method || op.method === method.toUpperCase()));
+    (!tag || op.tags.includes(tag)) && (!method || op.method === method));
   return { source: operationCatalog.source, sourceSha256: operationCatalog.sourceSha256, extensionCount: operationCatalog.extensionCount ?? 0,
-    total: filtered.length, operations: filtered.slice(offset, offset + Math.min(limit, 100)).map(({ key, summary, tags }) => ({ key, summary, tags })) };
+    total: filtered.length, operations: filtered.slice(offset, offset + limit).map(({ key, summary, tags }) => ({ key, summary, tags })) };
 }
 
 export function describeOperation(key, operationCatalog = defaultCatalog()) {
