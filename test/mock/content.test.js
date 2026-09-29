@@ -73,7 +73,7 @@ test('O7 a Location header on a read result is surfaced', async t => {
   assert.equal(result.value.location, mock.location('/elsewhere'));
 });
 
-test('O8 integers beyond 2^53 and number spelling survive the read', { todo: 'MCPLIVE-03' }, async t => {
+test('O8 integers beyond 2^53 and number spelling survive the read', async t => {
   const { result } = await readWith(t, { json: '{"eventsExpiration":9007199254740993,"ratio":1.0}' },
     { operation: 'GET /admin/realms/{realm}/events/config' });
   assert.match(result.text, /"eventsExpiration":9007199254740993/);
