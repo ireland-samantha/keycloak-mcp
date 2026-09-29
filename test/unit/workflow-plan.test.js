@@ -59,3 +59,10 @@ test('a step stopped before its request is sent is not reported as possibly comm
   assert.match(result.error, /token request failed \(HTTP 503\)/);
   assert.equal(result.failedStepMayHaveCommitted, false);
 });
+
+test('every preflight rule, the write gate included, sees the same copy of a step', () => {
+  let reads = 0;
+  const step = { args: {}, get operation() { reads += 1; return reads === 1 ? 'GET /admin/realms/{realm}' : 'PUT /admin/realms/{realm}'; } };
+  assert.deepEqual(preflight(testConfig(), [step]).map(planned => planned.operation), ['GET /admin/realms/{realm}']);
+  assert.equal(reads, 1);
+});

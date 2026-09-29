@@ -76,8 +76,9 @@ function planStep(context) {
 // is built from that copy, so a caller that changes its step objects later cannot change what runs.
 export function preflight(config, steps, operationCatalog = catalogFor(config)) {
   requireStepCount(steps);
-  const contexts = frozenJsonCopy(steps).map((step, index) => ({ config, operationCatalog, step, label: `step ${index + 1}` }));
+  const copy = frozenJsonCopy(steps);
+  const contexts = copy.map((step, index) => ({ config, operationCatalog, step, label: `step ${index + 1}` }));
   contexts.forEach(requireOperation);
-  requireWritesForMutations(config, steps, operationCatalog);
+  requireWritesForMutations(config, copy, operationCatalog);
   return contexts.map(planStep);
 }
