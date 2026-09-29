@@ -71,14 +71,14 @@ function leaves(value, path = []) {
 }
 
 // Each successful JSON response of a catalog operation, read as keycloak_read reads it.
-async function recordedReads() {
+async function recordedReads(settings = {}) {
   const reads = [];
   for (const [name, { operation, status, headers, body }] of Object.entries(recorded)) {
     if (status >= 300 || body === null || typeof body === 'string') continue;
     let op;
     try { op = describeOperation(operation); } catch { continue; }
     const response = new Response(JSON.stringify(body), { status, headers });
-    reads.push({ name, op, body, result: await readResult(response, { op, config: testConfig() }) });
+    reads.push({ name, op, body, result: await readResult(response, { op, config: testConfig(settings) }) });
   }
   return reads;
 }
@@ -98,12 +98,23 @@ test('recorded HEAD representations lose nothing but their planted secrets', asy
   }
 });
 
-test('no planted secret that Keycloak returns in clear survives a read, except custom attributes', async () => {
+async function survivingSecrets(settings) {
   const survivors = [];
-  for (const { name, result } of await recordedReads()) {
+  for (const { name, result } of await recordedReads(settings)) {
     for (const [path, value] of leaves(result.value)) if (typeof value === 'string' && isPlanted(value)) survivors.push(`${name} ${path}`);
   }
+  return survivors;
+}
+
+test('no planted secret that Keycloak returns in clear survives a read once the operator names custom secret attributes', async () => {
+  assert.deepEqual(await survivingSecrets({ KEYCLOAK_MCP_SECRET_ATTRIBUTES: 'customApiKey, custom.api.key' }), []);
   // Attributes a deployment invents are not in Keycloak's model; nothing but their name marks them as secret.
-  assert.deepEqual(survivors, ['realm.get attributes/customApiKey', 'client.registrationAccessToken attributes/custom.api.key',
+  assert.deepEqual(await survivingSecrets(), ['realm.get attributes/customApiKey', 'client.registrationAccessToken attributes/custom.api.key',
     'clients.list 0/attributes/custom.api.key', 'client.get attributes/custom.api.key']);
+});
+
+test('operator-named secret keys are redacted in attribute and config maps only', () => {
+  const value = { customApiKey: 'visible', attributes: { customApiKey: ['k'], other: ['v'] }, config: { customApiKey: ['k'] } };
+  assert.deepEqual(redactResponse(value, realmOp, ['customApiKey']),
+    { customApiKey: 'visible', attributes: { customApiKey: [MARKER], other: ['v'] }, config: { customApiKey: [MARKER] } });
 });

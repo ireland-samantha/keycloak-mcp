@@ -52,6 +52,15 @@ function settings(env) {
   return { ...fromEnv, ...file };
 }
 
+// A comma-separated list, or in the JSON config a list, of non-empty names.
+function nameList(values, name) {
+  const value = values[name];
+  if (value === undefined) return [];
+  const names = Array.isArray(value) ? value : typeof value === 'string' ? value.split(',').map(item => item.trim()) : null;
+  if (!names || names.some(item => typeof item !== 'string' || !item)) throw new Error(`${name} must list non-empty names`);
+  return names;
+}
+
 export function configFromEnv(env = process.env) {
   const values = settings(env);
   return {
@@ -70,5 +79,6 @@ export function configFromEnv(env = process.env) {
     extensionCatalogPath: values.KEYCLOAK_MCP_EXTENSION_CATALOG || '',
     catalogVersion: values.KEYCLOAK_MCP_CATALOG_VERSION || 'latest',
     maxBodyBytes: bodyLimit(values.KEYCLOAK_MCP_MAX_BODY_BYTES),
+    secretAttributes: nameList(values, 'KEYCLOAK_MCP_SECRET_ATTRIBUTES'),
   };
 }

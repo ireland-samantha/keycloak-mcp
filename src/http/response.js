@@ -12,7 +12,7 @@ function decodeValue(bytes, header, op, config) {
   if (isJsonType(contentType)) {
     let value;
     try { value = parseLosslessJson(decodeText(bytes, header)); } catch { throw new Error('Keycloak returned invalid JSON'); }
-    return config.allowSensitiveReads ? value : redactResponse(value, op);
+    return config.allowSensitiveReads ? value : redactResponse(value, op, config.secretAttributes);
   }
   if (isTextType(contentType)) return decodeText(bytes, header);
   return { base64: bytes.toString('base64'), contentType };

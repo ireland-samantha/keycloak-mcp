@@ -33,6 +33,14 @@ test('E1 non-secret realm settings are returned exactly as Keycloak sent them', 
   assert.deepEqual(actual, expected);
 });
 
+test('E1 attribute names the operator declares secret are redacted too', async t => {
+  const { mcp } = await startScenario(t, { settings: { KEYCLOAK_MCP_SECRET_ATTRIBUTES: 'custom.api.key,customApiKey' } });
+  const client = (await mcp.call('keycloak_read', { operation: 'GET /admin/realms/{realm}/clients/{client-uuid}', args: clientPath })).value.value;
+  assert.equal(client.attributes['custom.api.key'], '[REDACTED by keycloak-mcp]');
+  const realm = (await mcp.call('keycloak_read', { operation: 'GET /admin/realms/{realm}' })).value.value;
+  assert.equal(realm.attributes.customApiKey, '[REDACTED by keycloak-mcp]');
+});
+
 test('E2 admin-event representations are redacted, the event itself is not', async t => {
   const { mock, mcp } = await startScenario(t);
   const events = (await mcp.call('keycloak_read', { operation: 'GET /admin/realms/{realm}/admin-events' })).value.value;

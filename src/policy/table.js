@@ -132,6 +132,14 @@ export const SECRET_VALUE_SHAPES = {
   },
 };
 
+// Maps whose keys a deployment chooses. Keycloak cannot tell which of them hold secrets and returns them
+// in clear, so an operator names such keys in KEYCLOAK_MCP_SECRET_ATTRIBUTES.
+export const CUSTOM_KEY_MAPS = {
+  holders: ['attributes', 'config'],
+  reason: 'Realm, client, user and group attributes and component and identity-provider config accept any key.',
+  source: 'core/src/main/java/org/keycloak/representations/idm/RealmRepresentation.java:219; ClientRepresentation.java:61; AbstractUserRepresentation.java:46; ComponentRepresentation.java:35; IdentityProviderRepresentation.java:66',
+};
+
 // Values Keycloak masked itself or that only reference a vault; they are not secrets and are left as
 // sent, which Keycloak understands on update as "keep the stored value".
 export const KEYCLOAK_OWN_MASKS = {

@@ -42,3 +42,12 @@ test('a realm named "." or ".." is refused, since it would act as a dot segment 
   }
   assert.equal(configFromEnv({ ...testEnv, KEYCLOAK_REALM: '...' }).realm, '...');
 });
+
+test('KEYCLOAK_MCP_SECRET_ATTRIBUTES is a comma-separated list, or a list in the JSON config', () => {
+  assert.deepEqual(configFromEnv(testEnv).secretAttributes, []);
+  assert.deepEqual(configFromEnv({ ...testEnv, KEYCLOAK_MCP_SECRET_ATTRIBUTES: 'customApiKey, custom.api.key' }).secretAttributes, ['customApiKey', 'custom.api.key']);
+  assert.deepEqual(configFromEnv({ KEYCLOAK_MCP_CONFIG: configFile({ ...testEnv, KEYCLOAK_MCP_SECRET_ATTRIBUTES: ['a.key'] }) }).secretAttributes, ['a.key']);
+  for (const value of ['a,,b', [''], [3], 5]) {
+    assert.throws(() => configFromEnv({ ...testEnv, KEYCLOAK_MCP_SECRET_ATTRIBUTES: value }), { message: 'KEYCLOAK_MCP_SECRET_ATTRIBUTES must list non-empty names' }, JSON.stringify(value));
+  }
+});
