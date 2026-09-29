@@ -6,20 +6,20 @@ import { createCatalog, KeycloakAdmin, preflight, runWorkflow, WorkflowBuilder }
 import { catalogFor } from '../../src/catalog/index.js';
 import { buildRequest } from '../../src/http/request.js';
 import { isIrreversible, isMutation } from '../../src/policy/classify.js';
-import { samplePathArgs } from '../support/catalog.js';
+import { catalogVersions, samplePathArgs } from '../support/catalog.js';
 import { testConfig } from '../support/config.js';
 import { jsonResponse, tokenResponse } from '../support/fetch.js';
 import { privateTempDir, writePrivateJson } from '../support/temp.js';
 
+// Which operations mutate is pinned per operation by test/unit/fixtures/classification-<version>.json.
 test('every official mutation requires compensation or an irreversible override before network', () => {
-  const expected = { latest: 199, '26.3.5': 181 };
-  for (const version of Object.keys(expected)) {
+  for (const version of catalogVersions) {
     const catalog = createCatalog('', version);
     const config = testConfig({ KEYCLOAK_MCP_CATALOG_VERSION: version,
       KEYCLOAK_MCP_ALLOW_WRITE: 'true', KEYCLOAK_MCP_ALLOW_REALM_ADMIN: 'true',
       KEYCLOAK_MCP_SINGLE_WRITER: 'true' });
     const mutations = catalog.operations.filter(operation => isMutation(operation.key, catalog));
-    assert.equal(mutations.length, expected[version]);
+    assert.ok(mutations.length > 0, version);
     for (const operation of mutations) {
       const path = samplePathArgs(operation);
       const args = { path, ...(operation.key === 'POST /admin/realms' ? { body: { realm: config.realm } } : {}) };
