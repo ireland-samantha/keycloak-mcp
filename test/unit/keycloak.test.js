@@ -4,6 +4,7 @@ import { chmodSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { configFromEnv, createCatalog, describeOperation, describeSchema, KeycloakAdmin, listOperations, preflight, runWorkflow } from '../../src/api.js';
 import { buildRequest } from '../../src/http/request.js';
+import { execute } from '../../src/internal/capabilities.js';
 import { isMutation } from '../../src/policy/classify.js';
 import openclaw from '../../openclaw/index.js';
 import { samplePathArgs } from '../support/catalog.js';
@@ -265,7 +266,7 @@ test('a rejected cached token refreshes once for a GET and never replays a mutat
   assert.equal(read.status, 200);
   assert.equal(read.attempts, 2);
   assert.equal(reads, 2);
-  await assert.rejects(() => admin._invoke('POST /admin/realms/{realm}/logout-all'), /HTTP 401; attempts 1/);
+  await assert.rejects(() => execute(admin, 'POST /admin/realms/{realm}/logout-all'), /HTTP 401; attempts 1/);
   assert.equal(writes, 1);
   assert.equal(tokens, 2);
   const again = await admin.invoke('GET /admin/realms/{realm}');
@@ -361,7 +362,7 @@ test('certificate downloads never expose returned keystore bytes by default', as
     'POST /admin/realms/{realm}/clients/{client-uuid}/certificates/{attr}/download',
     'POST /admin/realms/{realm}/clients/{client-uuid}/certificates/{attr}/generate-and-download',
   ]) {
-    const result = await admin._invoke(operation, { path: { 'client-uuid': 'client', attr: 'jwt.credential' },
+    const result = await execute(admin, operation, { path: { 'client-uuid': 'client', attr: 'jwt.credential' },
       body: { format: 'JKS', keyAlias: 'key', keyPassword: 'password', storePassword: 'password' } });
     assert.equal(result.value, '[REDACTED: sensitive endpoint]');
   }
@@ -541,7 +542,14 @@ test('OpenClaw plugin config selects a private service-account file', () => {
   }
 });
 
-test('KeycloakAdmin offers no public way around the read guard and workflow preflight', { todo: 'ARCH-2' }, () => {
+test('KeycloakAdmin offers no public way around the read guard and workflow preflight', async () => {
   const admin = new KeycloakAdmin(testConfig(), () => { throw new Error('network not expected'); });
   assert.equal(admin._invoke, undefined);
+  // Neither reflection over string keys nor over symbol keys finds another way to send a request.
+  assert.deepEqual(Object.getOwnPropertyNames(KeycloakAdmin.prototype), ['constructor', 'invalidateToken', 'token', 'invoke']);
+  assert.deepEqual(Object.getOwnPropertySymbols(KeycloakAdmin.prototype), []);
+  assert.deepEqual(Object.getOwnPropertyNames(admin), ['config', 'catalog']);
+  assert.deepEqual(Object.getOwnPropertySymbols(admin), []);
+  await assert.rejects(admin.invoke('DELETE /admin/realms/{realm}/users/{user-id}', { path: { 'user-id': 'u1' } }), /compensating workflow/);
+  assert.throws(() => execute({ ...admin }, 'GET /admin/realms/{realm}', {}), /need a KeycloakAdmin/);
 });

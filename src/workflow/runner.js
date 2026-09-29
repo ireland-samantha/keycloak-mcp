@@ -1,3 +1,4 @@
+import { execute } from '../internal/capabilities.js';
 import { isMutation, needsFreshTokenToCompensate } from '../policy/classify.js';
 import { resolveCompensation } from './compensation.js';
 import { completedReceipt, openJournal, receiptPath } from './journal.js';
@@ -11,7 +12,7 @@ async function compensateStep(admin, lock, done) {
   try {
     await lock.assertHeld();
     if (needsFreshTokenToCompensate(done.step.operation, operation)) admin.invalidateToken();
-    const result = await admin._invoke(operation, args);
+    const result = await execute(admin, operation, args);
     return { operation, path: receiptPath(args), status: result.status, outcome: 'COMPENSATED' };
   } catch (compensationError) {
     return { operation, path: receiptPath(args), outcome: 'FAILED', error: String(compensationError.message) };
@@ -38,7 +39,7 @@ async function rollBack(admin, lock, journal, completed, failed, error) {
     priorStepsCompensated, rollback, completed: summary(completed) };
 }
 
-async function execute(admin, plan, lock) {
+async function runSteps(admin, plan, lock) {
   const completed = [];
   const journal = openJournal(admin.config, plan);
   journal.write({ status: 'RUNNING', completed: [], next: plan[0].operation });
@@ -46,7 +47,7 @@ async function execute(admin, plan, lock) {
     try {
       await lock.assertHeld();
       journal.write({ status: 'STEP_IN_FLIGHT', completed: completedReceipt(completed), next: step.operation, nextPath: receiptPath(step.args) });
-      const result = await admin._invoke(step.operation, step.args);
+      const result = await execute(admin, step.operation, step.args);
       const compensate = resolveCompensation(admin.config, admin.catalog, step, result);
       completed.push({ step, compensate, status: result.status });
       journal.write({ status: 'RUNNING', completed: completedReceipt(completed) });
@@ -63,7 +64,7 @@ export async function runWorkflow(admin, steps, { dryRun = true } = {}) {
   if (dryRun) return { status: 'PREFLIGHT_OK', steps: plan.map(step => ({ operation: step.operation, compensation: step.compensate?.operation ?? null })) };
   const lock = await acquireRealmLock(admin.config);
   try {
-    return await execute(admin, plan, lock);
+    return await runSteps(admin, plan, lock);
   } finally {
     await lock.release();
   }
