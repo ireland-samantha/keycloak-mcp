@@ -427,3 +427,17 @@ test('preflight and buildRequest see the configured extension catalog when no ca
 test('preflight reports a step without an operation before checking write permission', () => {
   assert.throws(() => preflight(testConfig(), [null]), { name: 'Error', message: 'step 1 has no operation' });
 });
+
+test('a GET or HEAD extension mutation cannot claim a compensation preflight has no rule to check', () => {
+  const file = writePrivateJson(join(privateTempDir('keycloak-mcp-spi-'), 'extensions.json'), { source: 'test provider',
+    operations: ['GET', 'HEAD'].map(method => ({ method, path: '/realms/{realm}/sample/rotate', readOnly: false, irreversible: false, serviceAccountSupported: true })) });
+  const base = { KEYCLOAK_MCP_EXTENSION_CATALOG: file, KEYCLOAK_MCP_ALLOW_WRITE: 'true', KEYCLOAK_MCP_SINGLE_WRITER: 'true' };
+  const disableRealm = { operation: 'PUT /admin/realms/{realm}', args: { body: { enabled: false } } };
+  for (const method of ['GET', 'HEAD']) {
+    const operation = `${method} /realms/{realm}/sample/rotate`;
+    assert.throws(() => preflight(testConfig(base), [{ operation, compensate: disableRealm }]),
+      { message: `step 1 is a ${method} mutation whose compensation preflight cannot check; mark it irreversible instead` });
+    const allowed = preflight(testConfig({ ...base, KEYCLOAK_MCP_ALLOW_IRREVERSIBLE: 'true' }), [{ operation, irreversible: true }]);
+    assert.equal(allowed[0].irreversible, true);
+  }
+});

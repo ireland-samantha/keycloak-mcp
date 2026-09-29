@@ -7,6 +7,8 @@ import { REALM_CREATION } from '../policy/table.js';
 import { idBindings, isIdMarker, withPendingIds } from './markers.js';
 
 const UPDATE_METHODS = ['PUT', 'PATCH'];
+// Methods whose compensation the rules below give a shape: creates, updates and deletes.
+const CHECKABLE_METHODS = ['POST', ...UPDATE_METHODS, 'DELETE'];
 
 const fail = (context, message) => { throw new Error(`${context.label} ${message}`); };
 
@@ -19,6 +21,12 @@ function compensationTarget({ step, operationCatalog }) {
   const childParameter = directChildParameter(collection, compensation.path);
   return { source, compensation, collection, childParameter,
     childValue: step.compensate.args?.path?.[childParameter], bindings: idBindings(step.compensate.args) };
+}
+
+// A mutation by another method, such as an extension GET declared reversible, would otherwise pass
+// with any mutating compensation, however unrelated.
+function compensationCheckable({ source }, context) {
+  if (!CHECKABLE_METHODS.includes(source.method)) fail(context, `is a ${source.method} mutation whose compensation preflight cannot check; mark it irreversible instead`);
 }
 
 const deletesAfterCreate = ({ source, compensation }) => source.method === 'POST' && compensation.method === 'DELETE';
@@ -87,7 +95,7 @@ function compensationMutates(_target, context) {
 
 // Applied in this order; the first failing rule's message is the one reported.
 const rules = [
-  createUndoneByDelete, createdChildKeepsParent, singleBindingOnCreate, bindingDeletesCreatedChild,
+  compensationCheckable, createUndoneByDelete, createdChildKeepsParent, singleBindingOnCreate, bindingDeletesCreatedChild,
   deleteTargetsCreatedResource, generatedIdNeedsBinding, updateRestoresSameResource, irreversibleUndoesOnlyTheCreate,
   compensationBuilds, compensationMutates,
 ];
