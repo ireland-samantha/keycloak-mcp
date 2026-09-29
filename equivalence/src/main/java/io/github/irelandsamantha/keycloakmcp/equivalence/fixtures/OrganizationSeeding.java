@@ -9,7 +9,7 @@ import java.util.List;
 
 /**
  * An organization with a domain, the seeded user as member, the seeded identity provider linked, a group with a
- * subgroup, a member and a role mapping, and a pending invitation.
+ * subgroup, a member and realm and client role mappings, and a pending invitation.
  */
 final class OrganizationSeeding {
 
@@ -31,6 +31,8 @@ final class OrganizationSeeding {
             Seeding.ensure2xx(group.addSubGroup(RoleAndGroupSeeding.group(RealmSeeder.ORG_GROUP + "-child")));
             group.addMember(s.id(SeededRealm.ORG_MEMBER));
             group.roles().realmLevel().add(List.of(s.realm.roles().get(RealmSeeder.ROLE).toRepresentation()));
+            String client = s.id(SeededRealm.CLIENT_ID);
+            group.roles().clientLevel(client).add(List.of(s.realm.clients().get(client).roles().get(RealmSeeder.ROLE).toRepresentation()));
         });
         // The invitation is stored only if its mail goes out (OrganizationInvitationResource.java:184-205).
         s.step(SeededRealm.INVITATION_ID, () -> {

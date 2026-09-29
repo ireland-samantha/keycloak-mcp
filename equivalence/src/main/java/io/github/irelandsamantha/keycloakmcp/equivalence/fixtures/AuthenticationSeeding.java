@@ -6,7 +6,10 @@ import org.keycloak.representations.idm.AuthenticatorConfigRepresentation;
 
 import java.util.Map;
 
-/** A top-level flow of its own (the built-in flows stay untouched) with one execution that carries a config. */
+/**
+ * A top-level flow of its own (the built-in flows stay untouched) with one execution that carries a config, and one
+ * unregistered required action.
+ */
 final class AuthenticationSeeding {
 
     private AuthenticationSeeding() {
@@ -25,6 +28,9 @@ final class AuthenticationSeeding {
             config.setConfig(Map.of("defaultProvider", RealmSeeder.IDP_ALIAS));
             return Seeding.created(flows.newExecutionConfig(s.id(SeededRealm.EXECUTION_ID), config));
         });
+        // Every provided required action is registered in a new realm; one that is disabled by default is
+        // unregistered, so the list of unregistered ones is not empty.
+        s.run("unregistered required action", () -> flows.removeRequiredAction("TERMS_AND_CONDITIONS"));
     }
 
     private static AuthenticationFlowRepresentation flow() {

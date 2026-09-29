@@ -34,12 +34,15 @@ public final class SeededRealm implements AutoCloseable {
     /** The disabled LDAP user-storage component: the only kind with sub-component types. */
     public static final String COMPONENT_ID = "componentId";
     public static final String KEY_PROVIDER_ID = "keyProviderId";
+    /** Base64 DER certificate of the seeded key provider's key: a real certificate to upload. */
+    public static final String CERTIFICATE = "keyProviderCertificate";
     public static final String FLOW_ID = "flowId";
     /** An execution of the seeded flow that carries {@link #AUTH_CONFIG_ID}. */
     public static final String EXECUTION_ID = "executionId";
     public static final String AUTH_CONFIG_ID = "authenticatorConfigId";
     public static final String IDP = "idpAlias";
     public static final String IDP_MAPPER_ID = "idpMapperId";
+    public static final String SAML_IDP = "samlIdpAlias";
     public static final String ORG_ID = "orgId";
     public static final String ORG_MEMBER = "orgMember";
     public static final String ORG_GROUP_ID = "orgGroupId";
@@ -74,7 +77,7 @@ public final class SeededRealm implements AutoCloseable {
         return name;
     }
 
-    /** Seeded id for a fixture key, or {@link #MISSING} when that seeding step failed. */
+    /** Seeded id (or other seeded value) for a fixture key, or {@link #MISSING} when that seeding step failed. */
     public String id(String key) {
         return ids.getOrDefault(key, MISSING);
     }

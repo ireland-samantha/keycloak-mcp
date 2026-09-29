@@ -33,7 +33,7 @@ import java.util.function.Supplier;
  */
 final class AuthorizationSeeding {
 
-    private static final String GENERIC_POLICY = "p-generic-dependency";
+    private static final String GENERIC_POLICY = RealmSeeder.policyName("generic-dependency");
 
     private AuthorizationSeeding() {
     }
@@ -46,7 +46,7 @@ final class AuthorizationSeeding {
         });
         // Clients created over REST get no "Default Resource" on HEAD; create one.
         s.step(SeededRealm.RESOURCE_ID, () -> {
-            ResourceRepresentation resource = new ResourceRepresentation("seed-resource", RealmSeeder.SCOPE_NAME);
+            ResourceRepresentation resource = new ResourceRepresentation(RealmSeeder.RESOURCE, RealmSeeder.SCOPE_NAME);
             resource.setType("urn:seed:resource");
             resource.setUris(Set.of("/seed/*"));
             resource.setAttributes(Map.of("seed-attribute", List.of("seeded")));
@@ -67,38 +67,38 @@ final class AuthorizationSeeding {
             p.addUser(s.id(SeededRealm.USER_ID));
             return p;
         }, (a, rep) -> a.policies().user().create((UserPolicyRepresentation) rep));
-        entry(s, SeededRealm.policy("role"), authz, "p-role", () -> {
+        entry(s, SeededRealm.policy("role"), authz, RealmSeeder.policyName("role"), () -> {
             RolePolicyRepresentation p = new RolePolicyRepresentation();
             p.addRole(RealmSeeder.ROLE);
             return p;
         }, (a, rep) -> a.policies().role().create((RolePolicyRepresentation) rep));
-        entry(s, SeededRealm.policy("group"), authz, "p-group", () -> {
+        entry(s, SeededRealm.policy("group"), authz, RealmSeeder.policyName("group"), () -> {
             GroupPolicyRepresentation p = new GroupPolicyRepresentation();
             p.addGroup(s.id(SeededRealm.GROUP_ID), false);
             return p;
         }, (a, rep) -> a.policies().group().create((GroupPolicyRepresentation) rep));
-        entry(s, SeededRealm.policy("time"), authz, "p-time", () -> {
+        entry(s, SeededRealm.policy("time"), authz, RealmSeeder.policyName("time"), () -> {
             TimePolicyRepresentation p = new TimePolicyRepresentation();
             p.setNotBefore("2020-01-01 00:00:00");
             return p;
         }, (a, rep) -> a.policies().time().create((TimePolicyRepresentation) rep));
-        entry(s, SeededRealm.policy("client"), authz, "p-client", () -> {
+        entry(s, SeededRealm.policy("client"), authz, RealmSeeder.policyName("client"), () -> {
             ClientPolicyRepresentation p = new ClientPolicyRepresentation();
             p.addClient(s.id(SeededRealm.CLIENT_ID));
             return p;
         }, (a, rep) -> a.policies().client().create((ClientPolicyRepresentation) rep));
-        entry(s, SeededRealm.policy("client-scope"), authz, "p-client-scope", () -> {
+        entry(s, SeededRealm.policy("client-scope"), authz, RealmSeeder.policyName("client-scope"), () -> {
             ClientScopePolicyRepresentation p = new ClientScopePolicyRepresentation();
             p.addClientScope(s.id(SeededRealm.CLIENT_SCOPE_ID));
             return p;
         }, (a, rep) -> a.policies().clientScope().create((ClientScopePolicyRepresentation) rep));
-        entry(s, SeededRealm.policy("regex"), authz, "p-regex", () -> {
+        entry(s, SeededRealm.policy("regex"), authz, RealmSeeder.policyName("regex"), () -> {
             RegexPolicyRepresentation p = new RegexPolicyRepresentation();
             p.setTargetClaim("preferred_username");
             p.setPattern("^seed-.*$");
             return p;
         }, (a, rep) -> a.policies().regex().create((RegexPolicyRepresentation) rep));
-        entry(s, SeededRealm.policy("aggregate"), authz, "p-aggregate", () -> {
+        entry(s, SeededRealm.policy("aggregate"), authz, RealmSeeder.policyName("aggregate"), () -> {
             AggregatePolicyRepresentation p = new AggregatePolicyRepresentation();
             p.addPolicy(RealmSeeder.USER_POLICY);
             return p;
@@ -106,13 +106,13 @@ final class AuthorizationSeeding {
     }
 
     private static void permissions(Seeding s, Supplier<AuthorizationResource> authz) {
-        entry(s, SeededRealm.permission("resource"), authz, "perm-resource", () -> {
+        entry(s, SeededRealm.permission("resource"), authz, RealmSeeder.permissionName("resource"), () -> {
             ResourcePermissionRepresentation p = new ResourcePermissionRepresentation();
             p.addResource(s.id(SeededRealm.RESOURCE_ID));
             p.addPolicy(RealmSeeder.USER_POLICY);
             return p;
         }, (a, rep) -> a.permissions().resource().create((ResourcePermissionRepresentation) rep));
-        entry(s, SeededRealm.permission("scope"), authz, "perm-scope", () -> scopePermission(s, RealmSeeder.USER_POLICY),
+        entry(s, SeededRealm.permission("scope"), authz, RealmSeeder.permissionName("scope"), () -> scopePermission(s, RealmSeeder.USER_POLICY),
                 (a, rep) -> a.permissions().scope().create((ScopePermissionRepresentation) rep));
         // A permission whose last associated policy is deleted is deleted with it (AuthorizationProvider.java:
         // 374-378), so the untyped target depends on a policy no typed path addresses.
@@ -121,7 +121,7 @@ final class AuthorizationSeeding {
             p.addUser(s.id(SeededRealm.USER_ID));
             return p;
         }, (a, rep) -> a.policies().user().create((UserPolicyRepresentation) rep));
-        entry(s, SeededRealm.policy("generic"), authz, "perm-generic", () -> scopePermission(s, GENERIC_POLICY),
+        entry(s, SeededRealm.policy("generic"), authz, RealmSeeder.permissionName("generic"), () -> scopePermission(s, GENERIC_POLICY),
                 (a, rep) -> a.permissions().scope().create((ScopePermissionRepresentation) rep));
     }
 

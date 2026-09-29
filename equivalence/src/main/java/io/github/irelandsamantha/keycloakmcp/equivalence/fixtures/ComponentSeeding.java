@@ -14,6 +14,9 @@ final class ComponentSeeding {
     static void seed(Seeding s) {
         s.step(SeededRealm.KEY_PROVIDER_ID, () -> Seeding.created(s.realm.components().add(component(s,
                 "seed-keys", "rsa-generated", "org.keycloak.keys.KeyProvider", Map.of("priority", "10", "keySize", "2048")))));
+        s.step(SeededRealm.CERTIFICATE, () -> s.realm.keys().getKeyMetadata().getKeys().stream()
+                .filter(k -> s.id(SeededRealm.KEY_PROVIDER_ID).equals(k.getProviderId()) && k.getCertificate() != null)
+                .findFirst().orElseThrow().getCertificate());
         // Disabled, so user lookups skip it; 192.0.2.1 is TEST-NET-1 (RFC 5737) in case anything connects anyway.
         // Creating it validates the configuration only (LDAPStorageProviderFactory.java:268-334) and adds the
         // default mappers as sub-components (:392).

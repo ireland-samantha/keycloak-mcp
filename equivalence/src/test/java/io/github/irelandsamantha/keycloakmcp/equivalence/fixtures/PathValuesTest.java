@@ -60,6 +60,7 @@ class PathValuesTest {
         PathValues seeded = new PathValues(new SeededRealm(null, "r1", Map.of(
                 SeededRealm.FLOW_ID, "flow-uuid",
                 SeededRealm.CLIENT_ID, "client-uuid",
+                SeededRealm.PUBLIC_CLIENT_ID, "public-uuid",
                 SeededRealm.SAML_CLIENT_ID, "saml-uuid"), List.of()));
 
         assertEquals(List.of("r1", "flow-uuid"), seeded.valuesFor("/admin/realms/{realm}/authentication/flows/{id}"));
@@ -67,8 +68,9 @@ class PathValuesTest {
                 seeded.valuesFor("/admin/realms/{realm}/authentication/flows/{flowAlias}/executions"));
         assertEquals(List.of("r1", "saml-uuid"),
                 seeded.valuesFor("/admin/realms/{realm}/clients/{client-uuid}/evaluate-scopes/generate-example-saml-response"));
-        assertEquals(List.of("r1", "client-uuid"),
-                seeded.valuesFor("/admin/realms/{realm}/clients/{client-uuid}/evaluate-scopes/generate-example-id-token"));
+        assertEquals(List.of("r1", "public-uuid", "client-uuid"),
+                seeded.valuesFor("/admin/realms/{realm}/clients/{client-uuid}/scope-mappings/clients/{client}/available"));
+        assertEquals(List.of("r1", "client-uuid"), seeded.valuesFor("/admin/realms/{realm}/clients/{client-uuid}/roles"));
     }
 
     @Test

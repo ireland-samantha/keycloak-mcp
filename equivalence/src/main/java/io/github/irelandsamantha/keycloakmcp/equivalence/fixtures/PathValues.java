@@ -24,6 +24,9 @@ public final class PathValues {
         }
     }
 
+    /** The client attribute certificate paths address; the seeder generates one under it. */
+    public static final String CERTIFICATE_ATTRIBUTE = "jwt.credential";
+
     private static final List<Rule> RULES = new ArrayList<>();
 
     static {
@@ -55,7 +58,7 @@ public final class PathValues {
         id("/role-mappings/clients/$", SeededRealm.CLIENT_ID);
         id("/client-scopes/$", SeededRealm.CLIENT_SCOPE_ID);
         id("/client-templates/$", SeededRealm.CLIENT_TEMPLATE_ID);
-        constant("/clients/\\{}/certificates/$", "jwt.credential");
+        constant("/clients/\\{}/certificates/$", CERTIFICATE_ATTRIBUTE);
         id("/default-(default|optional)-client-scopes/$", SeededRealm.CLIENT_SCOPE_ID);
         id("/default-client-scopes/$", SeededRealm.CLIENT_SCOPE_ID);
         id("/optional-client-scopes/$", SeededRealm.CLIENT_SCOPE_ID);
@@ -63,6 +66,7 @@ public final class PathValues {
         constant("/installation/providers/$", "keycloak-oidc-keycloak-json");
         id("/clients/\\{}/roles/$", SeededRealm.CLIENT_ROLE);
         id("^/admin/realms/\\{}/clients/$", "^/evaluate-scopes/generate-example-saml-response$", SeededRealm.SAML_CLIENT_ID);
+        id("^/admin/realms/\\{}/clients/$", "^/(scope-mappings|evaluate-scopes)(/|$)", SeededRealm.PUBLIC_CLIENT_ID);
         id("/clients/$", SeededRealm.CLIENT_ID);
         id("/components/$", SeededRealm.COMPONENT_ID);
         id("/default-groups/$", SeededRealm.GROUP_ID);
@@ -70,6 +74,8 @@ public final class PathValues {
         id("/groups/\\{}/members/$", SeededRealm.USER_ID);
         id("^/admin/realms/\\{}/groups/$", SeededRealm.GROUP_ID);
         id("/identity-provider/instances/\\{}/mappers/$", SeededRealm.IDP_MAPPER_ID);
+        // An OIDC broker exports nothing; a SAML one exports its SP descriptor.
+        id("/identity-provider/instances/$", "^/export$", SeededRealm.SAML_IDP);
         id("/identity-provider/instances/$", SeededRealm.IDP);
         constant("/identity-provider/providers/$", "oidc");
         constant("/localization/\\{}/$", RealmSeeder.LOCALIZATION_KEY);

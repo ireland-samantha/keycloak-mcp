@@ -44,8 +44,8 @@ public final class RealmSeeder {
     public static final String LOCALE = "en";
     public static final String LOCALIZATION_KEY = "seed.key";
     public static final String DOMAIN = "seed.example";
-    /** Policy names; each typed policy gets its own so deleting one type cannot remove another's target. */
-    public static final String USER_POLICY = "p-user";
+    public static final String RESOURCE = "seed-resource";
+    public static final String USER_POLICY = policyName("user");
 
     private static final SecureRandom RANDOM = new SecureRandom();
 
@@ -75,6 +75,16 @@ public final class RealmSeeder {
         AuthorizationSeeding.seed(s);
         SessionSeeding.seed(s);
         return new SeededRealm(admin, name, s.ids(), s.log());
+    }
+
+    /** Name of the seeded authorization policy of {@code type}; each type has its own. */
+    public static String policyName(String type) {
+        return "p-" + type;
+    }
+
+    /** Name of the seeded permission of {@code type} ({@code resource}, {@code scope}). */
+    public static String permissionName(String type) {
+        return "perm-" + type;
     }
 
     /** A random secret for a seeded credential; seeded realms are disposable, so it is never reused. */

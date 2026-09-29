@@ -13,10 +13,13 @@ import java.util.function.Consumer;
 
 /**
  * Clients of every access type (confidential with service account and authorization services, public, bearer-only,
- * SAML), the confidential client's roles (composite like the realm's), two client scopes with scope mappings, and
- * a protocol mapper on the confidential client and on each scope.
+ * SAML), the confidential client's roles (composite like the realm's) and certificate, two client scopes with
+ * scope mappings, and a protocol mapper on the confidential client and on each scope.
  */
 final class ClientSeeding {
+
+    /** A client role nothing maps, so "available" and "not granted" role lists have an entry. */
+    private static final String UNMAPPED_ROLE = "seed-unmapped-role";
 
     private ClientSeeding() {
     }
@@ -29,8 +32,12 @@ final class ClientSeeding {
             c.setAuthorizationServicesEnabled(true);
             c.setDirectAccessGrantsEnabled(true);
         }))));
+        s.run("client certificate", () -> s.realm.clients().get(s.id(SeededRealm.CLIENT_ID))
+                .getCertficateResource(PathValues.CERTIFICATE_ATTRIBUTE).generate());
         s.step(SeededRealm.PUBLIC_CLIENT_ID, () -> Seeding.created(s.realm.clients().create(client("seed-public", c -> {
             c.setPublicClient(true);
+            // Only mapped roles are in its scope, so its scope mappings have roles left to add and not granted.
+            c.setFullScopeAllowed(false);
             c.setDirectAccessGrantsEnabled(true);
             c.setRedirectUris(List.of("https://app." + RealmSeeder.DOMAIN + "/*"));
             c.setWebOrigins(List.of("https://app." + RealmSeeder.DOMAIN));
@@ -52,6 +59,7 @@ final class ClientSeeding {
             ClientResource client = s.realm.clients().get(s.id(SeededRealm.CLIENT_ID));
             client.roles().create(RoleAndGroupSeeding.role(RealmSeeder.CHILD_ROLE));
             client.roles().create(RoleAndGroupSeeding.role(RealmSeeder.ROLE));
+            client.roles().create(RoleAndGroupSeeding.role(UNMAPPED_ROLE));
             return RealmSeeder.ROLE;
         });
         s.run("role composites", () -> {
@@ -82,9 +90,10 @@ final class ClientSeeding {
                 s.realm.clientScopes().get(scope).getScopeMappings().realmLevel().add(realmRole);
                 s.realm.clientScopes().get(scope).getScopeMappings().clientLevel(client).add(clientRole);
             }
-            ClientResource authz = s.realm.clients().get(client);
-            authz.getScopeMappings().realmLevel().add(realmRole);
-            authz.getScopeMappings().clientLevel(client).add(clientRole);
+            // A client always has its own roles in scope, so the mappings that matter are another client's.
+            ClientResource audience = s.realm.clients().get(s.id(SeededRealm.PUBLIC_CLIENT_ID));
+            audience.getScopeMappings().realmLevel().add(realmRole);
+            audience.getScopeMappings().clientLevel(client).add(clientRole);
         });
     }
 
