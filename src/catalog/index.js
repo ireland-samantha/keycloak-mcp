@@ -15,7 +15,7 @@ function withCorrectedPath(version, op) {
 
 export function createCatalog(extensionPath = '', version = 'latest') {
   const { catalog: base, openapi } = loadBundled(version);
-  const operations = base.operations.map(op => withCorrectedPath(version, op));
+  const operations = base.operations.map(op => withCorrectedPath(version, { ...op, origin: 'openapi' }));
   const byKey = new Map(operations.map(op => [op.key, op]));
   if (!extensionPath) return { operations, byKey, source: base.source, sourceSha256: base.sourceSha256, openapi, version };
   const extension = readPrivateJson(extensionPath, 'KEYCLOAK_MCP_EXTENSION_CATALOG');
