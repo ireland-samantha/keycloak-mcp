@@ -26,6 +26,15 @@ public final class KeycloakMcpProcess implements AutoCloseable {
     /** The redaction switch: {@code true} shows secrets as the server returns them. */
     public static final String ALLOW_SENSITIVE_READS = "KEYCLOAK_MCP_ALLOW_SENSITIVE_READS";
 
+    /**
+     * Lifts keycloak-mcp's refusal of every operation without {@code {realm}}, which acts beyond the pinned realm
+     * (SEC-5): {@code GET /admin/realms} returns every realm the token can see.
+     */
+    public static final String ALLOW_REALM_ADMIN = "KEYCLOAK_MCP_ALLOW_REALM_ADMIN";
+
+    /** The path variable keycloak-mcp pins; an operation whose catalog path lacks it needs {@link #ALLOW_REALM_ADMIN}. */
+    private static final String REALM_VARIABLE = "{realm}";
+
     private static final Duration REQUEST_TIMEOUT = Duration.ofSeconds(60);
 
     private final Path workDir;
@@ -85,6 +94,14 @@ public final class KeycloakMcpProcess implements AutoCloseable {
         out.putAll(switches);
         out.values().removeIf(Objects::isNull);
         return out;
+    }
+
+    /**
+     * Whether keycloak-mcp runs an operation of this catalog path only with {@link #ALLOW_REALM_ADMIN}: the path has no
+     * {@code {realm}} (keycloak-mcp {@code src/policy/access.js}).
+     */
+    public static boolean needsRealmAdministration(String catalogPath) {
+        return !catalogPath.contains(REALM_VARIABLE);
     }
 
     public McpStdioClient client() {

@@ -2,7 +2,7 @@ package io.github.irelandsamantha.keycloakmcp.equivalence;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import io.github.irelandsamantha.keycloakmcp.equivalence.harness.EquivalenceEnvironment;
-import io.github.irelandsamantha.keycloakmcp.equivalence.harness.KeycloakMcpProcess;
+import io.github.irelandsamantha.keycloakmcp.equivalence.harness.KeycloakMcpPair;
 import io.github.irelandsamantha.keycloakmcp.equivalence.harness.KeycloakMcpReads;
 import io.github.irelandsamantha.keycloakmcp.equivalence.harness.KeycloakMcpReads.Classification;
 import io.github.irelandsamantha.keycloakmcp.equivalence.ledger.EquivalenceLedger.Check;
@@ -153,10 +153,13 @@ class MutationEquivalenceIT {
                 + " classifies them as reads, so F1 covers them): " + coverage.notMutations());
     }
 
-    /** Which reference operations F2 owns, by keycloak-mcp's own classification, observed without sending anything. */
+    /**
+     * Which reference operations F2 owns, by keycloak-mcp's own classification, observed without sending anything;
+     * an operation without {@code {realm}} is classified with realm administration on ({@link KeycloakMcpPair}).
+     */
     private static Map<String, Owner> classify(Map<String, JsonNode> catalog) throws Exception {
-        try (KeycloakMcpProcess mcp = env.startKeycloakMcp(CLASSIFYING_REALM, Map.of())) {
-            KeycloakMcpReads.brokenSignals(mcp.client()).ifPresent(answers -> fail("keycloak-mcp's dry run no longer"
+        try (KeycloakMcpPair mcp = KeycloakMcpPair.start(env, CLASSIFYING_REALM, Map.of())) {
+            KeycloakMcpReads.brokenSignals(mcp.pinned()).ifPresent(answers -> fail("keycloak-mcp's dry run no longer"
                     + " tells a mutation from a read the way KeycloakMcpReads expects, so F2 cannot tell what it owns. " + answers));
             Map<String, Owner> out = new TreeMap<>();
             for (String key : reference.keys()) {
@@ -166,7 +169,7 @@ class MutationEquivalenceIT {
         }
     }
 
-    private static Owner owner(KeycloakMcpProcess mcp, OpView op, JsonNode listed) throws Exception {
+    private static Owner owner(KeycloakMcpPair mcp, OpView op, JsonNode listed) throws Exception {
         if (listed == null) {
             return op.method().equals("GET") || op.method().equals("HEAD")
                     ? new Owner(Scope.READ, "a " + op.method() + " absent from the catalog; F1 covers it")
@@ -174,12 +177,11 @@ class MutationEquivalenceIT {
         }
         String template = listed.path("path").asText();
         CaseArgs args = new CaseArgs(Collections.nCopies(PathTemplates.variableNames(template).size(), ANY_VALUE), Map.of(), null);
-        Classification classification = KeycloakMcpReads.classify(mcp.client(), listed.path("key").asText(),
-                args.mcpArguments(template));
+        Classification classification = mcp.classify(listed.path("key").asText(), template, args.mcpArguments(template));
         return switch (classification.kind()) {
             case MUTATION -> new Owner(Scope.MUTATION, "keycloak-mcp classifies it as a mutation");
             case READ -> new Owner(Scope.READ, "keycloak-mcp classifies it as a read; F1 covers it");
-            case UNKNOWN -> new Owner(Scope.UNKNOWN, "keycloak-mcp's dry run neither accepted it as a read nor refused"
+            case UNKNOWN, REALM_ADMINISTRATION_DISABLED -> new Owner(Scope.UNKNOWN, "keycloak-mcp's dry run neither accepted it as a read nor refused"
                     + " it as a mutation: " + classification.answer());
         };
     }

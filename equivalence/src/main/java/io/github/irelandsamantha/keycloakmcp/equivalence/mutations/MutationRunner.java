@@ -2,6 +2,7 @@ package io.github.irelandsamantha.keycloakmcp.equivalence.mutations;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import io.github.irelandsamantha.keycloakmcp.equivalence.harness.EquivalenceEnvironment;
+import io.github.irelandsamantha.keycloakmcp.equivalence.harness.KeycloakMcpPair;
 import io.github.irelandsamantha.keycloakmcp.equivalence.harness.KeycloakMcpProcess;
 import io.github.irelandsamantha.keycloakmcp.equivalence.harness.KeycloakMcpWorkflow;
 import io.github.irelandsamantha.keycloakmcp.equivalence.harness.KeycloakMcpWorkflow.Result;
@@ -34,7 +35,10 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public final class MutationRunner {
 
-    /** keycloak-mcp as the mutation checks drive it: writes allowed, one writer, the irreversible override available. */
+    /**
+     * keycloak-mcp as the mutation checks drive it: writes allowed, one writer, the irreversible override available.
+     * An operation without {@code {realm}} also gets realm administration ({@link #writer}).
+     */
     private static final Map<String, String> WRITER = Map.of("KEYCLOAK_MCP_ALLOW_WRITE", "true",
             "KEYCLOAK_MCP_SINGLE_WRITER", "true", "KEYCLOAK_MCP_ALLOW_IRREVERSIBLE", "true");
 
@@ -63,7 +67,7 @@ public final class MutationRunner {
         String realms = "equivalence-f2-" + family.name() + "-" + run + "-" + cases.incrementAndGet();
         try (CaseRealm a = CaseRealm.create(env, realms + "-a", family, mutation);
              CaseRealm b = CaseRealm.create(env, realms + "-b", family, mutation);
-             KeycloakMcpProcess mcp = env.startKeycloakMcp(a.name(), WRITER)) {
+             KeycloakMcpProcess mcp = env.startKeycloakMcp(a.name(), writer(mutation))) {
             Step reversible = reversibleStep(mutation, a.context());
             Result plan = dryRun(mcp, reversible);
             boolean acceptedAsReversible = KeycloakMcpWorkflow.PREFLIGHT_OK.equals(plan.status());
@@ -79,6 +83,15 @@ public final class MutationRunner {
             }
             return CaseOutcome.failed(mutation, CaseOutcome.ERROR, e.toString());
         }
+    }
+
+    /**
+     * The switches of the process that runs {@code mutation}: {@link #WRITER}, with realm administration only when the
+     * operation has no {@code {realm}}, since keycloak-mcp refuses such an operation without it.
+     */
+    private static Map<String, String> writer(MutationCase mutation) {
+        String path = mutation.operation().substring(mutation.operation().indexOf(' ') + 1);
+        return KeycloakMcpProcess.needsRealmAdministration(path) ? KeycloakMcpPair.withRealmAdministration(WRITER) : WRITER;
     }
 
     /** The operation with the case's compensation and no override: what keycloak-mcp must judge reversible or not. */
@@ -105,7 +118,7 @@ public final class MutationRunner {
     private Check forcedFailure(MutationFamily family, MutationCase mutation, String name) throws Exception {
         Check frame;
         try (CaseRealm c = CaseRealm.create(env, name, family, mutation);
-             KeycloakMcpProcess mcp = env.startKeycloakMcp(c.name(), WRITER)) {
+             KeycloakMcpProcess mcp = env.startKeycloakMcp(c.name(), writer(mutation))) {
             Readbacks readbacks = Readbacks.resolve(mutation, c.context());
             Step operation = reversibleStep(mutation, c.context());
             Step failing = steps.step(new CaseRequest(FORCED_FAILURE, CaseArgs.path(c.name(), ABSENT_GROUP)));

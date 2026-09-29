@@ -25,13 +25,20 @@ class KeycloakMcpReadsTest {
         assertEquals(Kind.MUTATION, classify(true, "writes are disabled"));
     }
 
-    /** Anything else must not let a raw request through, however close it comes to one of the two signals. */
+    @Test
+    void theRealmAdministrationRefusalIsItsOwnSignal() {
+        assertEquals(Kind.REALM_ADMINISTRATION_DISABLED, classify(true, "realm administration is disabled"));
+    }
+
+    /** Anything else must not let a raw request through, however close it comes to one of the signals. */
     @ParameterizedTest
     @CsvSource(delimiter = '|', textBlock = """
             true  | missing path parameter: id
             true  | step 1 needs an explicit compensation
             true  | Writes are disabled for this server
             true  | {"status":"PREFLIGHT_OK"}
+            true  | Realm administration is disabled
+            false | realm administration is disabled
             false | writes are disabled
             false | {"status":"COMPLETED","steps":[]}
             false | {"status":{"value":"PREFLIGHT_OK"}}

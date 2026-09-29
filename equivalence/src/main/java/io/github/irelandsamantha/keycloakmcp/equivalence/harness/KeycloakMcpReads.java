@@ -18,8 +18,10 @@ import java.util.regex.Pattern;
  * <p>The classification is read from a dry run: {@code keycloak_workflow} with {@code execute=false} never sends a
  * request. It fails closed, because a read is then sent raw to the live server: only keycloak-mcp's two explicit
  * answers classify. A plan it accepts ({@value #PREFLIGHT_OK}) is a read; its refusal {@value #WRITES_DISABLED}
- * (keycloak-mcp runs without {@code KEYCLOAK_MCP_ALLOW_WRITE}) is a mutation. Any other answer is
- * {@link Classification.Kind#UNKNOWN}.
+ * (keycloak-mcp runs without {@code KEYCLOAK_MCP_ALLOW_WRITE}) is a mutation. Its refusal
+ * {@value #REALM_ADMIN_DISABLED} names neither: keycloak-mcp gives it for a read without {@code {realm}} before it
+ * judges anything else, so only a process with {@link KeycloakMcpProcess#ALLOW_REALM_ADMIN} can classify that read
+ * ({@link KeycloakMcpPair}). Any other answer is {@link Classification.Kind#UNKNOWN}.
  */
 public final class KeycloakMcpReads {
 
@@ -29,6 +31,12 @@ public final class KeycloakMcpReads {
     /** Status of a dry run whose plan passed preflight. */
     public static final String PREFLIGHT_OK = "PREFLIGHT_OK";
 
+    /**
+     * Refusal of an operation without {@code {realm}} while realm administration is off; keycloak-mcp checks it after
+     * the write gate, so a mutation is still refused as one (keycloak-mcp {@code src/policy/access.js}).
+     */
+    public static final String REALM_ADMIN_DISABLED = "realm administration is disabled";
+
     private static final Pattern HTTP_STATUS = Pattern.compile("\\bHTTP (\\d{3})\\b");
 
     /** Operations every catalog lists whose classification is beyond doubt; see {@link #brokenSignals}. */
@@ -37,7 +45,12 @@ public final class KeycloakMcpReads {
 
     /** How keycloak-mcp classified an operation, with its answer verbatim. */
     public record Classification(Kind kind, String answer) {
-        public enum Kind { READ, MUTATION, UNKNOWN }
+        public enum Kind {
+            READ, MUTATION,
+            /** Refused as {@value #REALM_ADMIN_DISABLED}: neither a read nor a mutation until realm administration is on. */
+            REALM_ADMINISTRATION_DISABLED,
+            UNKNOWN
+        }
     }
 
     private KeycloakMcpReads() {
@@ -75,8 +88,10 @@ public final class KeycloakMcpReads {
     static Classification classification(McpStdioClient.ToolResult dryRun) {
         boolean read = !dryRun.isError() && PREFLIGHT_OK.equals(status(dryRun.text()));
         boolean mutation = dryRun.isError() && WRITES_DISABLED.equals(dryRun.text());
+        boolean realmAdministration = dryRun.isError() && REALM_ADMIN_DISABLED.equals(dryRun.text());
         Classification.Kind kind = read ? Classification.Kind.READ
-                : mutation ? Classification.Kind.MUTATION : Classification.Kind.UNKNOWN;
+                : mutation ? Classification.Kind.MUTATION
+                : realmAdministration ? Classification.Kind.REALM_ADMINISTRATION_DISABLED : Classification.Kind.UNKNOWN;
         return new Classification(kind, dryRun.text());
     }
 

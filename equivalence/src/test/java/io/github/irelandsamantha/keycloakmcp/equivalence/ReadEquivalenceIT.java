@@ -12,7 +12,7 @@ import io.github.irelandsamantha.keycloakmcp.equivalence.fixtures.ReadRequest;
 import io.github.irelandsamantha.keycloakmcp.equivalence.fixtures.ReadRequests;
 import io.github.irelandsamantha.keycloakmcp.equivalence.fixtures.SeededRealm;
 import io.github.irelandsamantha.keycloakmcp.equivalence.harness.EquivalenceEnvironment;
-import io.github.irelandsamantha.keycloakmcp.equivalence.harness.KeycloakMcpProcess;
+import io.github.irelandsamantha.keycloakmcp.equivalence.harness.KeycloakMcpPair;
 import io.github.irelandsamantha.keycloakmcp.equivalence.harness.KeycloakMcpReads;
 import io.github.irelandsamantha.keycloakmcp.equivalence.harness.KeycloakMcpReads.Classification;
 import io.github.irelandsamantha.keycloakmcp.equivalence.harness.RawHttp;
@@ -56,7 +56,9 @@ import static org.junit.jupiter.api.DynamicTest.dynamicTest;
  * lacks is a read by its method. A catalog operation is what keycloak-mcp's dry run says it is
  * ({@link KeycloakMcpReads#classify}): a read, or a mutation, recorded as out of scope for F2. Any other answer fails
  * the operation's test as {@value #CLASSIFICATION_UNKNOWN} without sending anything, and the factory sends nothing
- * at all unless a known mutation and a known read still classify as such.
+ * at all unless a known mutation and a known read still classify as such. keycloak-mcp refuses every operation without
+ * {@code {realm}} unless realm administration is on, so those alone are classified and read by a second process
+ * that has it ({@link KeycloakMcpPair}).
  *
  * <p>Reads run in one seeded realm. A read the server refuses there is {@code ROUTED_ONLY} only when
  * {@code divergences.json} documents the refusal as a feature or provider gate. Every verdict lands in the ledger.
@@ -88,8 +90,13 @@ class ReadEquivalenceIT {
             return catalog != null ? catalog.path("key").asText() : named();
         }
 
+        /** The operation's path as keycloak-mcp names it. */
+        String catalogPath() {
+            return catalog != null ? catalog.path("path").asText() : template();
+        }
+
         JsonNode mcpArguments() {
-            return request.mcpArguments(catalog != null ? catalog.path("path").asText() : template());
+            return request.mcpArguments(catalogPath());
         }
     }
 
@@ -99,7 +106,7 @@ class ReadEquivalenceIT {
     private static Map<String, List<Endpoint>> adapterBindings;
     private static SeededRealm realm;
     private static PathValues values;
-    private static KeycloakMcpProcess mcp;
+    private static KeycloakMcpPair mcp;
     private static AdminClientOracle adapter;
     private static Volatility volatility;
     private static KnownLag knownLag;
@@ -117,7 +124,7 @@ class ReadEquivalenceIT {
         judge = new ReadJudge(DocumentedDivergences.load(), knownLag);
         realm = env.seeder().seed("equivalence-f1-" + System.currentTimeMillis());
         values = new PathValues(realm);
-        mcp = env.startKeycloakMcp(realm.name(), Map.of());
+        mcp = KeycloakMcpPair.start(env, realm.name(), Map.of());
         adapter = new AdminClientOracle(env.serverUrl(), env.serviceAccount());
         System.out.printf("F1: seeded %s; seeding failures: %s%n", realm.name(), realm.log());
     }
@@ -156,7 +163,7 @@ class ReadEquivalenceIT {
      * a changed refusal text, check order or argument validation must stop the run, not turn mutations into reads.
      */
     private static void requireClassificationSignals() throws Exception {
-        KeycloakMcpReads.brokenSignals(mcp.client()).ifPresent(answers -> fail("keycloak-mcp's dry run no longer tells a"
+        KeycloakMcpReads.brokenSignals(mcp.pinned()).ifPresent(answers -> fail("keycloak-mcp's dry run no longer tells a"
                 + " mutation from a read the way KeycloakMcpReads expects, so F1 sends nothing. " + answers));
     }
 
@@ -177,7 +184,7 @@ class ReadEquivalenceIT {
         if (listed == null) {
             return Optional.of(dynamicTest(read.named(), () -> check(read)));
         }
-        Classification classification = KeycloakMcpReads.classify(mcp.client(), read.operation(), read.mcpArguments());
+        Classification classification = mcp.classify(read.operation(), read.catalogPath(), read.mcpArguments());
         return switch (classification.kind()) {
             case READ -> Optional.of(dynamicTest(read.named(), () -> check(read)));
             case MUTATION -> {
@@ -185,7 +192,8 @@ class ReadEquivalenceIT {
                         + KeycloakMcpReads.WRITES_DISABLED + "')");
                 yield Optional.empty();
             }
-            case UNKNOWN -> Optional.of(dynamicTest(read.named(), () -> unclassified(read, classification)));
+            case UNKNOWN, REALM_ADMINISTRATION_DISABLED ->
+                    Optional.of(dynamicTest(read.named(), () -> unclassified(read, classification)));
         };
     }
 
@@ -237,7 +245,7 @@ class ReadEquivalenceIT {
     }
 
     private static Observation throughMcp(Read read) throws Exception {
-        return KeycloakMcpReads.read(mcp.client(), read.operation(), read.mcpArguments());
+        return KeycloakMcpReads.read(mcp.forPath(read.catalogPath()), read.operation(), read.mcpArguments());
     }
 
     private static Check throughAdapter(Read read, ReadRequest request, UnaryOperator<JsonNode> mask) throws Exception {

@@ -9,6 +9,7 @@ import java.util.Map;
 import static io.github.irelandsamantha.keycloakmcp.equivalence.harness.KeycloakMcpProcess.ALLOW_SENSITIVE_READS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class KeycloakMcpProcessTest {
 
@@ -36,5 +37,13 @@ class KeycloakMcpProcessTest {
                         "KEYCLOAK_MCP_CATALOG_VERSION", "nightly", ALLOW_SENSITIVE_READS, "true",
                         "KEYCLOAK_MCP_JOURNAL_DIR", "/private/home/journal", "KEYCLOAK_MCP_ALLOW_WRITE", "true"),
                 environment(Map.of("KEYCLOAK_MCP_ALLOW_WRITE", "true")));
+    }
+
+    @Test
+    void onlyAnOperationWithoutTheRealmVariableNeedsRealmAdministration() {
+        assertTrue(KeycloakMcpProcess.needsRealmAdministration("/admin/realms"));
+        assertTrue(KeycloakMcpProcess.needsRealmAdministration("/admin/serverinfo"));
+        assertFalse(KeycloakMcpProcess.needsRealmAdministration("/admin/realms/{realm}"));
+        assertFalse(KeycloakMcpProcess.needsRealmAdministration("/admin/realms/{realm}/users/{user-id}"));
     }
 }
