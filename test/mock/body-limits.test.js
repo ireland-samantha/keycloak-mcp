@@ -56,9 +56,45 @@ test('N5 body limits above 64 MiB or not an integer stop the server at startup',
   });
 });
 
-test('N6 a request frame larger than the stdio buffer does not end the session', { todo: 'MCPLIVE-07' }, async t => {
-  const { mcp } = await startScenario(t, { transport: 'stdio', settings: limit(16 * 1024 * 1024) });
+const STDIO_MESSAGE_BYTES = 10 * 1024 * 1024;
+const STDIO_BODY_BYTES = 7_815_168;
+
+test('N6 a request frame larger than the stdio buffer does not end the session', async t => {
+  const { mcp, server } = await startScenario(t, { transport: 'stdio' });
   const bodyBase64 = Buffer.alloc(8 * 1024 * 1024).toString('base64');
-  await mcp.call('keycloak_read', { operation: converter, args: { contentType: 'application/json', bodyBase64 } }, { timeoutMs: 10_000 }).catch(() => {});
+  // The id is inside the dropped bytes, so the refusal answers no request; this call stays pending.
+  const dropped = mcp.call('keycloak_read', { operation: converter, args: { contentType: 'application/json', bodyBase64 } }, { timeoutMs: 60_000 }).catch(error => error);
+  for (let waited = 0; !mcp.unmatched.length && waited < 10_000; waited += 20) await new Promise(resolve => setTimeout(resolve, 20));
+  assert.deepEqual(mcp.unmatched, [{ jsonrpc: '2.0', error: { code: -32600, message: `dropped an MCP message larger than ${STDIO_MESSAGE_BYTES} bytes` } }]);
   assert.equal((await mcp.listTools()).length, 5);
+  assert.match(server.stderr, /^MCP transport error: dropped an MCP message larger than 10485760 bytes\n$/);
+  await server.close();
+  assert.match((await dropped).message, /server exited/);
+});
+
+test('N6 a body at the stdio limit arrives whole across many pipe chunks', async t => {
+  const { mock, mcp } = await startScenario(t, { transport: 'stdio', settings: limit(STDIO_BODY_BYTES) });
+  mock.on(`POST /admin/realms/{realm}/client-description-converter`, { json: { clientId: 'converted' } });
+  const body = Buffer.alloc(STDIO_BODY_BYTES, 0x20);
+  const result = await mcp.call('keycloak_read', { operation: converter, args: { contentType: 'application/json', bodyBase64: body.toString('base64') } });
+  assert.equal(result.isError, false, result.text);
+  assert.equal(mock.adminRequests()[0].body.length, STDIO_BODY_BYTES);
+});
+
+test('N7 a body limit that one stdio message cannot carry stops the stdio server at startup', async () => {
+  const server = spawnStdioServer({ settings: { KEYCLOAK_BASE_URL: 'http://127.0.0.1:9', KEYCLOAK_REALM: 'test-realm',
+    KEYCLOAK_CLIENT_ID: 'mcp-service', KEYCLOAK_CLIENT_SECRET: 'secret', ...limit(STDIO_BODY_BYTES + 1) } });
+  assert.equal((await server.exited).code, 1);
+  assert.equal(server.stderr, `KEYCLOAK_MCP_MAX_BODY_BYTES exceeds ${STDIO_BODY_BYTES}, the largest body one MCP stdio message can carry\n`);
+});
+
+test('N8 a result too large for one stdio message is a tool error and the session continues', async t => {
+  const { mock, mcp } = await startScenario(t, { transport: 'stdio', settings: limit(STDIO_BODY_BYTES) });
+  // Each backslash is two bytes of JSON and doubles again when the result text is put in a message.
+  mock.on('GET /admin/realms/{realm}', { json: JSON.stringify(['\\'.repeat(3 * 1024 * 1024)]) });
+  const result = await mcp.call('keycloak_read', readRealm);
+  assert.equal(result.isError, true);
+  assert.match(result.text, /^the result needs a \d+-byte MCP message, more than the 10485760 bytes one message can carry; request less/);
+  mock.on('GET /admin/realms/{realm}', mock.fixture('realm.get'));
+  assert.equal((await mcp.call('keycloak_read', readRealm)).isError, false);
 });

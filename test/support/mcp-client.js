@@ -15,6 +15,8 @@ export class McpSession {
     this.send = send;
     this.#close = close;
     this.timeoutMs = timeoutMs;
+    // Messages that answer no pending request, such as an error for a message the server could not read.
+    this.unmatched = [];
   }
 
   close() { return this.#close(); }
@@ -30,7 +32,10 @@ export class McpSession {
 
   receive(message) {
     const pending = this.#pending.get(message.id);
-    if (!pending) return;
+    if (!pending) {
+      this.unmatched.push(message);
+      return;
+    }
     this.#pending.delete(message.id);
     clearTimeout(pending.timer);
     pending.resolve(message);

@@ -24,7 +24,7 @@ const layers = [
   ['bin', 'src/index.js', ['config', 'keycloak-admin', 'adapters']],
   ['openclaw-entry', 'openclaw/index.js', ['adapters']],
 ];
-const packages = { tools: ['zod'], adapters: ['@modelcontextprotocol/server'], bin: ['@modelcontextprotocol/server'], workflow: ['pg'] };
+const packages = { tools: ['zod'], adapters: ['@modelcontextprotocol/server'], workflow: ['pg'] };
 
 const layerOf = file => layers.find(([, prefix]) => file === prefix || (prefix.endsWith('/') && file.startsWith(prefix)))?.[0];
 const packageName = specifier => specifier.split('/').slice(0, specifier.startsWith('@') ? 2 : 1).join('/');
