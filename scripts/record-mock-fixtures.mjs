@@ -4,7 +4,7 @@
 //   KEYCLOAK_URL=http://127.0.0.1:18080 KEYCLOAK_ADMIN=admin KEYCLOAK_ADMIN_PASSWORD=... \
 //   KEYCLOAK_IMAGE=quay.io/keycloak/keycloak:nightly KEYCLOAK_IMAGE_DIGEST=sha256:... \
 //   node scripts/record-mock-fixtures.mjs
-import { generateKeyPairSync } from 'node:crypto';
+import { generateKeyPairSync, randomUUID } from 'node:crypto';
 import { writeFileSync } from 'node:fs';
 
 const origin = new URL(process.env.KEYCLOAK_URL ?? 'http://127.0.0.1:18080').origin;
@@ -137,6 +137,9 @@ async function recordAll() {
   await record('groups.conflict', 'POST /admin/realms/{realm}/groups', 'POST', '/groups', { json: { name: 'fixture-group' } });
   await record('groups.list', 'GET /admin/realms/{realm}/groups', 'GET', '/groups');
   await record('roles.create', 'POST /admin/realms/{realm}/roles', 'POST', '/roles', { json: { name: 'fixture-role' } });
+  await record('role.get', 'GET /admin/realms/{realm}/roles/{role-name}', 'GET', '/roles/fixture-role');
+  await record('clientRoles.create', 'POST /admin/realms/{realm}/clients/{client-uuid}/roles', 'POST', `/clients/${clientId}/roles`, { json: { name: 'fixture-client-role' } });
+  await record('clientRole.get', 'GET /admin/realms/{realm}/clients/{client-uuid}/roles/{role-name}', 'GET', `/clients/${clientId}/roles/fixture-client-role`);
   await record('idp.create', 'POST /admin/realms/{realm}/identity-provider/instances', 'POST', '/identity-provider/instances', { json: {
     alias: 'fixture-idp', providerId: 'oidc', enabled: false, config: {
       clientId: 'fixture-broker', clientSecret: planted.idpSecret, clientAuthMethod: 'client_secret_post',
@@ -144,6 +147,9 @@ async function recordAll() {
     },
   } });
   await record('idp.get', 'GET /admin/realms/{realm}/identity-provider/instances/{alias}', 'GET', '/identity-provider/instances/fixture-idp');
+  // The alias of an identity provider cannot be changed (IdentityProviderResource.java:203-205).
+  await record('idp.renameRefused', 'PUT /admin/realms/{realm}/identity-provider/instances/{alias}', 'PUT', '/identity-provider/instances/fixture-idp',
+    { json: { alias: 'fixture-idp-renamed', providerId: 'oidc' } });
   // The converter returns the private key of an uploaded keystore in clear (CertificateInfoHelper.java:303-305).
   const keystore = new FormData();
   for (const [name, value] of Object.entries({ keystoreFormat: 'PKCS12', keyAlias: 'fixture-key', keyPassword: planted.keystorePassword, storePassword: planted.keystorePassword }))
@@ -170,6 +176,14 @@ async function recordAll() {
     `${authz}/scope`, { json: { name: 'fixture-scope' } });
   await record('authz.resource.create', 'POST /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/resource', 'POST',
     `${authz}/resource`, { json: { name: 'fixture-resource' } });
+  // With an ID nothing has yet, both creates are strict: Keycloak creates exactly that ID or refuses the
+  // taken name (RepresentationToModel.java:1719-1758, :1794-1809) (WF-01).
+  await record('authz.scope.createWithId', 'POST /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/scope', 'POST',
+    `${authz}/scope`, { json: { id: randomUUID(), name: 'fixture-scope-with-id' } });
+  await record('authz.scope.createWithIdExisting', 'POST /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/scope', 'POST',
+    `${authz}/scope`, { json: { id: randomUUID(), name: 'fixture-scope' } });
+  await record('authz.resource.createWithIdExisting', 'POST /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/resource', 'POST',
+    `${authz}/resource`, { json: { _id: randomUUID(), name: 'fixture-resource' } });
 
   await record('initialAccess.create', 'POST /admin/realms/{realm}/clients-initial-access', 'POST', '/clients-initial-access', { json: { expiration: 60, count: 1 } });
   await record('initialAccess.list', 'GET /admin/realms/{realm}/clients-initial-access', 'GET', '/clients-initial-access');
