@@ -90,6 +90,10 @@ function encodeForm(fields) {
   return form.toString();
 }
 
+// Keycloak reads a form body percent-decoded, so the redaction marker is looked for in its decoded
+// names and values, whether the body came as fields or as base64.
+const decodedForm = body => [...new URLSearchParams(String(body))].flat().join('\n');
+
 function serialize(contentType, args, limit) {
   if (args.bodyBase64 !== undefined) return decodeBase64Bounded(args.bodyBase64, limit, 'base64 body');
   if (contentType === 'application/json') return JSON.stringify(args.body);
@@ -121,6 +125,6 @@ export function encodeBody(op, args, limit) {
   }
   const body = serialize(contentType, args, limit);
   if (Buffer.byteLength(body) > limit) throw limitExceeded();
-  refuseRedactedValue(body);
+  refuseRedactedValue(contentType === 'application/x-www-form-urlencoded' ? decodedForm(body) : body);
   return { body, contentType };
 }

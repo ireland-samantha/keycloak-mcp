@@ -32,6 +32,18 @@ test('a body the preferred types cannot carry falls back to the first declared t
   assert.throws(() => built(invite, { path: { 'org-id': 'o' }, body: 'email=a' }), { message: 'form body must be an object' });
 });
 
+test('a form body is checked for the redaction marker as Keycloak decodes it', () => {
+  const marker = '[REDACTED by keycloak-mcp]';
+  const form = 'application/x-www-form-urlencoded';
+  const refused = { message: /^request contains a value redacted by keycloak-mcp/ };
+  assert.throws(() => built(invite, { path: { 'org-id': 'o' }, body: { email: 'a@example.invalid', firstName: marker } }), refused);
+  assert.throws(() => built(invite, { path: { 'org-id': 'o' }, body: { [marker]: 'x' } }), refused);
+  assert.throws(() => built(smtpTest, { contentType: form, body: { config: JSON.stringify({ host: 'smtp', password: marker }) } }), refused);
+  const encoded = new URLSearchParams({ config: JSON.stringify({ password: marker }) }).toString();
+  assert.throws(() => built(smtpTest, { contentType: form, bodyBase64: Buffer.from(encoded).toString('base64') }), refused);
+  assert.equal(built(smtpTest, { contentType: form, body: { config: '{"host":"smtp"}' } }).body, 'config=%7B%22host%22%3A%22smtp%22%7D');
+});
+
 test('a base64 body of many megabytes is validated without exhausting the stack', () => {
   const size = 12 * 1024 * 1024;
   const config = testConfig({ KEYCLOAK_MCP_ALLOW_WRITE: 'true', KEYCLOAK_MCP_MAX_BODY_BYTES: String(size) });

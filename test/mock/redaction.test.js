@@ -157,7 +157,7 @@ test('E6 writing back a redacted read never sends the redaction marker to Keyclo
 });
 
 test('E6 the marker is refused in path, query and every body encoding before any request', async t => {
-  const { mock, mcp } = await startScenario(t, { settings: WRITER });
+  const { mock, mcp } = await startScenario(t, { settings: { ...WRITER, KEYCLOAK_MCP_ALLOW_IRREVERSIBLE: 'true' } });
   const marker = '[REDACTED by keycloak-mcp]';
   const converter = 'POST /admin/realms/{realm}/client-description-converter';
   for (const args of [{ body: `{"secret":"${marker}"}` }, { contentType: 'application/json', body: { nested: [{ value: marker }] } },
@@ -171,6 +171,16 @@ test('E6 the marker is refused in path, query and every body encoding before any
   assertRefusedOffline(mock, await mcp.call('keycloak_read', { operation: 'POST /admin/realms/{realm}/identity-provider/upload-certificate',
     args: { body: { keystoreFormat: 'Certificate PEM', file: { filename: 'idp.pem', contentType: 'application/x-pem-file', base64: Buffer.from(marker).toString('base64') } } } }),
   /^request contains a value redacted by keycloak-mcp/);
+  // A form body is percent-encoded on the wire; Keycloak decodes it before use.
+  const form = 'application/x-www-form-urlencoded';
+  const smtpConfig = new URLSearchParams({ config: JSON.stringify({ host: 'smtp.example.invalid', password: marker }) }).toString();
+  for (const step of [
+    { operation: 'POST /admin/realms/{realm}/organizations/{org-id}/members/invite-user', args: { path: { 'org-id': 'org-1' }, body: { email: 'a@example.invalid', firstName: marker } } },
+    { operation: 'POST /admin/realms/{realm}/testSMTPConnection', args: { contentType: form, bodyBase64: Buffer.from(smtpConfig).toString('base64') } },
+  ]) {
+    assertRefusedOffline(mock, await mcp.call('keycloak_workflow', { execute: true, steps: [{ ...step, irreversible: true }] }),
+      /^request contains a value redacted by keycloak-mcp/);
+  }
 });
 
 test('E7 a JSON body with a mixed-case media type is still redacted', async t => {
