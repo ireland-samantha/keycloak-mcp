@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { REQUEST_BODY_CORRECTIONS } from '../../src/catalog/corrections.js';
+import { PATH_PARAMETER_CORRECTIONS, REQUEST_BODY_CORRECTIONS } from '../../src/catalog/corrections.js';
 import { createCatalog } from '../../src/catalog/index.js';
 import * as table from '../../src/policy/table.js';
 import { catalogVersions } from '../support/catalog.js';
@@ -10,7 +10,8 @@ const rules = Object.entries(table).flatMap(([name, value]) => ('reason' in valu
   : Object.entries(value).map(([key, rule]) => [`${name} ${key}`, rule])));
 
 test('every policy and catalog-correction rule states its reason and the Keycloak source behind it', () => {
-  const all = [...rules, ...REQUEST_BODY_CORRECTIONS.map((rule, index) => [`REQUEST_BODY_CORRECTIONS ${index}`, rule])];
+  const all = [...rules, ...REQUEST_BODY_CORRECTIONS.map((rule, index) => [`REQUEST_BODY_CORRECTIONS ${index}`, rule]),
+    ...PATH_PARAMETER_CORRECTIONS.map((rule, index) => [`PATH_PARAMETER_CORRECTIONS ${index}`, rule])];
   assert.ok(all.length > 30, `${all.length} rules`);
   for (const [name, rule] of all) {
     assert.ok(typeof rule.reason === 'string' && rule.reason.length > 10, `${name} reason`);
@@ -23,6 +24,6 @@ test('every operation key the policy names exists in a bundled catalog', () => {
   const keys = [...Object.keys(table.OPERATION_OVERRIDES), ...Object.keys(table.NAMED_CREATE_TARGETS),
     table.REALM_CREATION.operation, table.REALM_CREATION.compensation,
     ...table.TOKEN_REFRESH_BEFORE_COMPENSATION.flatMap(pair => [pair.operation, pair.compensation]),
-    ...REQUEST_BODY_CORRECTIONS.flatMap(rule => rule.keys)];
+    ...REQUEST_BODY_CORRECTIONS.flatMap(rule => rule.keys), ...PATH_PARAMETER_CORRECTIONS.map(rule => `GET ${rule.path}`)];
   for (const key of keys) assert.ok(known.has(key), key);
 });

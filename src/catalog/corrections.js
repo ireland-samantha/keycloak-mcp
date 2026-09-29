@@ -1,6 +1,8 @@
-// Request bodies that Keycloak handlers consume but a bundled OpenAPI definition omits; a correction
+// Corrections to a bundled OpenAPI definition where it disagrees with the Keycloak handlers; a correction
 // without `versions` applies to every catalog version. Sources are Keycloak HEAD paths under
 // services/src/main/java/org/keycloak/.
+
+// Request bodies that Keycloak handlers consume but the definition omits.
 const certificateUploadForm = {
   required: true,
   content: { 'multipart/form-data': { schema: { type: 'object', required: ['keystoreFormat', 'file'], properties: {
@@ -34,4 +36,29 @@ export const REQUEST_BODY_CORRECTIONS = [
 export function requestBodyCorrection(version, key, detail) {
   if (detail.requestBody) return null;
   return REQUEST_BODY_CORRECTIONS.find(correction => correction.keys.includes(key) && (!correction.versions || correction.versions.includes(version))) ?? null;
+}
+
+// Paths that name one parameter twice, so a single value filled both places. The later occurrence is
+// renamed as Keycloak HEAD names it; `definitionPath` is the path in the bundled definition.
+export const PATH_PARAMETER_CORRECTIONS = [
+  {
+    versions: ['26.3.5'],
+    definitionPath: '/admin/realms/{realm}/clients/{client-uuid}/roles/{role-name}/composites/clients/{client-uuid}',
+    path: '/admin/realms/{realm}/clients/{client-uuid}/roles/{role-name}/composites/clients/{targetClientUuid}',
+    parameter: 'targetClientUuid',
+    reason: 'The 26.3.5 definition names both the role\'s client and the composite\'s client {client-uuid}, so a lookup across two clients could not be expressed; the handler reads the second as a parameter of its own, which HEAD names targetClientUuid.',
+    source: 'services/resources/admin/RoleContainerResource.java:447-458',
+  },
+];
+
+const appliesTo = (correction, version) => correction.versions.includes(version);
+
+// The correction for an operation path as the bundled definition spells it.
+export function correctionForDefinitionPath(version, definitionPath) {
+  return PATH_PARAMETER_CORRECTIONS.find(correction => appliesTo(correction, version) && correction.definitionPath === definitionPath) ?? null;
+}
+
+// The correction that produced a catalog operation path.
+export function correctionForPath(version, path) {
+  return PATH_PARAMETER_CORRECTIONS.find(correction => appliesTo(correction, version) && correction.path === path) ?? null;
 }

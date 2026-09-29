@@ -1,12 +1,23 @@
 import { readPrivateJson } from '../internal/private-file.js';
 import { loadBundled } from './bundled.js';
-import { requestBodyCorrection } from './corrections.js';
+import { pathParameterNames } from '../internal/path-template.js';
+import { correctionForDefinitionPath, correctionForPath, requestBodyCorrection } from './corrections.js';
 import { parseExtensionCatalog } from './extension.js';
+
+function withCorrectedPath(version, op) {
+  const correction = correctionForDefinitionPath(version, op.path);
+  if (correction) op = { ...op, key: `${op.method} ${correction.path}`, path: correction.path,
+    parameters: [...op.parameters, { name: correction.parameter, in: 'path', required: true, type: 'string' }] };
+  const names = pathParameterNames(op.path);
+  if (new Set(names).size !== names.length) throw new Error(`catalog operation names a path parameter twice: ${op.key}`);
+  return op;
+}
 
 export function createCatalog(extensionPath = '', version = 'latest') {
   const { catalog: base, openapi } = loadBundled(version);
-  const byKey = new Map(base.operations.map(op => [op.key, op]));
-  if (!extensionPath) return { operations: base.operations, byKey, source: base.source, sourceSha256: base.sourceSha256, openapi, version };
+  const operations = base.operations.map(op => withCorrectedPath(version, op));
+  const byKey = new Map(operations.map(op => [op.key, op]));
+  if (!extensionPath) return { operations, byKey, source: base.source, sourceSha256: base.sourceSha256, openapi, version };
   const extension = readPrivateJson(extensionPath, 'KEYCLOAK_MCP_EXTENSION_CATALOG');
   const extra = parseExtensionCatalog(extension);
   const combined = new Map(byKey);
@@ -56,13 +67,15 @@ export function describeOperation(key, operationCatalog = defaultCatalog()) {
   const op = operationCatalog.byKey.get(key);
   if (!op) throw new Error('operation is not in the pinned Keycloak catalog');
   if (op.extension) return op;
-  const path = operationCatalog.openapi.paths[op.path];
+  const pathCorrection = correctionForPath(operationCatalog.version, op.path);
+  const path = operationCatalog.openapi.paths[pathCorrection?.definitionPath ?? op.path];
   const detail = path?.[op.method.toLowerCase()];
   if (!detail) throw new Error('operation is absent from the bundled OpenAPI definition');
   const correction = requestBodyCorrection(operationCatalog.version, key, detail);
+  const correctedParameters = pathCorrection ? [{ name: pathCorrection.parameter, in: 'path', required: true, schema: { type: 'string' } }] : [];
   return {
     ...op,
-    parameters: [...(path.parameters ?? []), ...(detail.parameters ?? [])],
+    parameters: [...(path.parameters ?? []), ...(detail.parameters ?? []), ...correctedParameters],
     requestTypes: correction?.requestTypes ?? op.requestTypes,
     requestBody: detail.requestBody ?? correction?.requestBody ?? null,
     responses: detail.responses ?? {},

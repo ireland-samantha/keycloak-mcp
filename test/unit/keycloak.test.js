@@ -31,7 +31,7 @@ test('versioned Keycloak 26.3.5 catalog matches the deployed API shape', () => {
   const versioned = createCatalog('', '26.3.5');
   assert.equal(listOperations({}, versioned).total, 374);
   assert.equal(versioned.version, '26.3.5');
-  assert.ok(describeOperation('GET /admin/realms/{realm}/clients/{client-uuid}/roles/{role-name}/composites/clients/{client-uuid}', versioned));
+  assert.ok(describeOperation('GET /admin/realms/{realm}/clients/{client-uuid}/roles/{role-name}/composites/clients/{targetClientUuid}', versioned));
   assert.throws(() => describeOperation('GET /admin/realms/{realm}/workflows', versioned), /not in/);
   const config = testConfig({ KEYCLOAK_MCP_ALLOW_WRITE: 'true', KEYCLOAK_MCP_ALLOW_REALM_ADMIN: 'true', KEYCLOAK_MCP_CATALOG_VERSION: '26.3.5' });
   const admin = new KeycloakAdmin(config, () => { throw new Error('network not expected'); });

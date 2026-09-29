@@ -16,7 +16,7 @@ const isListOf = (value, valid) => Array.isArray(value ?? []) && (value ?? []).e
 function parseOperation(item) {
   if (!item || !METHODS.includes(item.method) || !isRealmPinnedPath(item.path)) throw new Error('invalid extension operation');
   const names = pathParameterNames(item.path);
-  if (names.some(name => !NAME.test(name))) throw new Error('invalid extension path parameter');
+  if (names.some(name => !NAME.test(name)) || new Set(names).size !== names.length) throw new Error('invalid extension path parameter');
   if (item.method === 'GET' && item.readOnly !== true && item.readOnly !== false) throw new Error('extension GET must declare readOnly');
   if (typeof item.serviceAccountSupported !== 'boolean') throw new Error('extension operation must declare serviceAccountSupported');
   if (!isListOf(item.query, name => typeof name === 'string' && NAME.test(name))) throw new Error('invalid extension query');
