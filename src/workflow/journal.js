@@ -11,10 +11,10 @@ export function receiptPath(args = {}) {
   return Object.fromEntries(Object.entries(args.path ?? {}).map(([name, value]) => [name, isSensitiveReceiptParameter(name) ? REDACTED : String(value)]));
 }
 
-// A completed step's Location and created ID as the receipt keeps them. The Location repeats the step's
-// path, so it is withheld whenever one of the step's path parameters is, and the ID whenever the
-// parameter it fills is.
-function createdReceipt({ step, location, created }) {
+// A step's Location and created ID as the receipt keeps them. The Location repeats the step's path,
+// so it is withheld whenever one of the step's path parameters is, and the ID whenever the parameter
+// it fills is.
+export function createdReceipt({ step, location, created = null }) {
   const hidesId = Boolean(created) && isSensitiveReceiptParameter(created.parameter);
   const hidesPath = hidesId || Object.keys(step.args.path ?? {}).some(isSensitiveReceiptParameter);
   return { ...(location ? { location: hidesPath ? REDACTED : location } : {}), ...(created ? { id: hidesId ? REDACTED : created.id } : {}) };

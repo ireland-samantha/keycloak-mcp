@@ -2,9 +2,9 @@ import { isDeepStrictEqual } from 'node:util';
 import { describeOperation } from '../catalog/index.js';
 import { buildRequest } from '../http/request.js';
 import { directChildParameter } from '../internal/path-template.js';
-import { isGeneratedIdParameter, isIrreversible, isMutation, namedCreateTarget } from '../policy/classify.js';
+import { isGeneratedIdParameter, isIrreversible, isMutation, isSensitiveEndpoint, namedCreateTarget } from '../policy/classify.js';
 import { REALM_CREATION } from '../policy/table.js';
-import { idBindings, isIdMarker, withPendingIds } from './markers.js';
+import { idBindings, isIdMarker, RESPONSE_ID, withPendingIds } from './markers.js';
 
 const UPDATE_METHODS = ['PUT', 'PATCH'];
 // Methods whose compensation the rules below give a shape: creates, updates and deletes.
@@ -49,6 +49,13 @@ function singleBindingOnCreate({ bindings }, context) {
 function bindingDeletesCreatedChild({ bindings, compensation, collection }, context) {
   if (bindings.length && (compensation.method !== 'DELETE' || compensation.path !== `${collection}/{${bindings[0][0]}}`))
     fail(context, 'compensation must target the created resource');
+}
+
+// A withheld response, such as a client initial-access token's, is replaced by a marker before the
+// runner reads it, so its ID could never be bound and the create would be left behind.
+function responseIdReadable({ source, bindings }, context) {
+  if (bindings[0]?.[1] === RESPONSE_ID && isSensitiveEndpoint(source) && !context.config.allowSensitiveReads)
+    fail(context, 'cannot bind $step.responseId to a response keycloak-mcp withholds; use $step.locationId');
 }
 
 function deleteTargetsCreatedResource(target, context) {
@@ -96,7 +103,7 @@ function compensationMutates(_target, context) {
 // Applied in this order; the first failing rule's message is the one reported.
 const rules = [
   compensationCheckable, createUndoneByDelete, createdChildKeepsParent, singleBindingOnCreate, bindingDeletesCreatedChild,
-  deleteTargetsCreatedResource, generatedIdNeedsBinding, updateRestoresSameResource, irreversibleUndoesOnlyTheCreate,
+  responseIdReadable, deleteTargetsCreatedResource, generatedIdNeedsBinding, updateRestoresSameResource, irreversibleUndoesOnlyTheCreate,
   compensationBuilds, compensationMutates,
 ];
 

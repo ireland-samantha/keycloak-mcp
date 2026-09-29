@@ -2,13 +2,16 @@ import { wasNotSent } from '../http/transport.js';
 import { execute } from '../internal/capabilities.js';
 import { isMutation, needsFreshTokenToCompensate } from '../policy/classify.js';
 import { resolveCompensation } from './compensation.js';
-import { completedReceipt, openJournal, receiptPath } from './journal.js';
+import { completedReceipt, createdReceipt, openJournal, receiptPath } from './journal.js';
 import { acquireRealmLock } from './locks.js';
 import { preflight } from './preflight.js';
 
 // Each completed step with Keycloak's Location, when it sent one, and the ID of what it created.
 const summary = completed => completed.map(({ step, status, location, created }) =>
   ({ operation: step.operation, status, ...(location ? { location } : {}), ...(created ? { id: created.id } : {}) }));
+// What Keycloak answered a step that committed without a compensation: enough to find the object.
+const responseSummary = ({ status, location, value }) =>
+  ({ status, ...(location ? { location } : {}), ...(value === undefined ? {} : { value }) });
 const journalFailures = journal => (journal.failures.length ? { journalErrors: [...journal.failures] } : {});
 
 async function compensateStep(admin, lock, done) {
@@ -23,10 +26,12 @@ async function compensateStep(admin, lock, done) {
   }
 }
 
-// Compensates the completed steps in reverse order after `failure.step` failed with `failure.error`;
-// `failure.sent` is false when its request never left keycloak-mcp.
-async function rollBack(admin, lock, journal, completed, { step: failed, error, sent }) {
-  const failure = { failedOperation: failed.operation, failedPath: receiptPath(failed.args) };
+// Compensates the completed steps in reverse order after `failure.step` failed with `failure.error`.
+// `failure.sent` is false when its request never left keycloak-mcp; `failure.response` is Keycloak's
+// successful response when the step itself committed but no compensation could be bound to it.
+async function rollBack(admin, lock, journal, completed, { step: failed, error, sent, response }) {
+  const failure = { failedOperation: failed.operation, failedPath: receiptPath(failed.args),
+    ...(response ? { failedStepResponse: { status: response.status, ...createdReceipt({ step: failed, location: response.location }) } } : {}) };
   const rollback = [];
   journal.record({ status: 'COMPENSATING', ...failure, completed: completedReceipt(completed) });
   for (const done of [...completed].reverse()) {
@@ -41,7 +46,8 @@ async function rollBack(admin, lock, journal, completed, { step: failed, error, 
   const priorStepsCompensated = !rollback.some(item => item.outcome === 'FAILED') && !completed.some(item => item.step.irreversible);
   journal.record({ status, ...failure, completed: completedReceipt(completed), failedStepMayHaveCommitted, priorStepsCompensated, rollback });
   return { runId: journal.id, status, failedOperation: failed.operation, error: String(error.message), failedStepMayHaveCommitted,
-    priorStepsCompensated, rollback, completed: summary(completed), ...journalFailures(journal) };
+    ...(response ? { failedStepResponse: responseSummary(response) } : {}), priorStepsCompensated, rollback, completed: summary(completed),
+    ...journalFailures(journal) };
 }
 
 // Runs one planned step and returns { done } with its completed entry, or { failure } to stop the run.
@@ -52,12 +58,17 @@ async function runStep(admin, lock, journal, step, completed) {
   } catch (error) {
     return { failure: { step, error, sent: false } };
   }
+  let result;
   try {
-    const result = await execute(admin, step.operation, step.args);
+    result = await execute(admin, step.operation, step.args);
+  } catch (error) {
+    return { failure: { step, error, sent: !wasNotSent(error) } };
+  }
+  try {
     const { compensate, created } = resolveCompensation(admin.config, admin.catalog, step, result);
     return { done: { step, status: result.status, location: result.location, created, compensate } };
   } catch (error) {
-    return { failure: { step, error, sent: !wasNotSent(error) } };
+    return { failure: { step, error, sent: true, response: result } };
   }
 }
 

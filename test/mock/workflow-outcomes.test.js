@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { assertRefusedOffline, executeWorkflow } from '../support/scenario.js';
+import { assertRefusedOffline, executeWorkflow, receipts } from '../support/scenario.js';
 import { createStep, missingUser, readRealm } from '../support/steps.js';
 
 const createdId = '7c1d2e3f-4a5b-4c6d-8e7f-9a0b1c2d3e4f';
@@ -45,16 +45,15 @@ test('J3 an IN_DOUBT result has the documented shape', async t => {
     location: mock.location(`${mock.realmPath}/users/${createdId}`), id: createdId }]);
 });
 
-test('J4 a committed create whose compensation cannot be bound still reports what it created', { todo: 'WF-05' }, async t => {
-  const recorded = { operation: 'POST /admin/realms/{realm}/clients-initial-access', args: { body: { expiration: 60, count: 1 } },
-    compensate: { operation: 'DELETE /admin/realms/{realm}/clients-initial-access/{id}', args: { path: { id: '$step.responseId' } } } };
-  let created;
-  const { text } = await executeWorkflow(t, [recorded], { program: mock => {
-    const response = mock.fixture('initialAccess.create');
-    created = response.json.id;
-    mock.on('POST /admin/realms/{realm}/clients-initial-access', response);
-  } });
-  assert.ok(text.includes(created), text);
+test('J4 a committed create whose compensation cannot be bound still reports what it created', async t => {
+  const { mock, result, journalDir } = await executeWorkflow(t, [userCreate], { program: mock =>
+    mock.on('POST /admin/realms/{realm}/users', mock.created(`${mock.realmPath}/users/${createdId}/groups`)) });
+  const location = mock.location(`${mock.realmPath}/users/${createdId}/groups`);
+  assert.equal(result.status, 'IN_DOUBT');
+  assert.equal(result.failedStepMayHaveCommitted, true);
+  assert.deepEqual(result.failedStepResponse, { status: 201, location });
+  assert.deepEqual(deletes(mock), []);
+  assert.deepEqual(receipts(journalDir)[0].failedStepResponse, { status: 201, location });
 });
 
 test('J5 a mutation that was never sent is not reported as possibly committed', async t => {
@@ -68,6 +67,17 @@ test('J6 the error Keycloak sent is part of the failure report', async t => {
   const conflict = createStep('groups', 'group-id', { name: 'fixture-group' });
   const { result } = await executeWorkflow(t, [conflict], { program: mock => mock.on('POST /admin/realms/{realm}/groups', mock.fixture('groups.conflict')) });
   assert.match(result.error, /Top level group named 'fixture-group' already exists/);
+});
+
+test('J7 $step.responseId is refused where keycloak-mcp withholds the create response', async t => {
+  const initialAccess = { operation: 'POST /admin/realms/{realm}/clients-initial-access', args: { body: { expiration: 60, count: 1 } },
+    compensate: { operation: 'DELETE /admin/realms/{realm}/clients-initial-access/{id}', args: { path: { id: '$step.responseId' } } } };
+  const refused = await executeWorkflow(t, [initialAccess]);
+  assertRefusedOffline(refused.mock, refused, /step 1 cannot bind \$step\.responseId to a response keycloak-mcp withholds; use \$step\.locationId/);
+  const byLocation = { ...initialAccess, compensate: { ...initialAccess.compensate, args: { path: { id: '$step.locationId' } } } };
+  const { result } = await executeWorkflow(t, [byLocation, missingUser], { program: mock =>
+    mock.on('POST /admin/realms/{realm}/clients-initial-access', mock.created(`${mock.realmPath}/clients-initial-access/${createdId}`)) });
+  assert.equal(result.priorStepsCompensated, true);
 });
 
 test('K1 $step.locationId binds the ID from an absolute or a relative Location', async t => {
