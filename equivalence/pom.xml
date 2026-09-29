@@ -28,7 +28,14 @@
 
     <!-- Runtime switches, forwarded to the integration tests and the supplement generator. -->
     <keycloak.image>quay.io/keycloak/keycloak:nightly</keycloak.image>
-    <keycloak.features></keycloak.features>
+    <!-- Features of the Testcontainers server, chosen to exercise the most reference operations (measured against
+         nightly on 2026-09-29): "preview" brings scripts (routes the typed JS policy resource) and oid4vc-vci (the
+         verifiable-credential reads); "client-types" (experimental) opens the client-types locator; and
+         "admin-fine-grained-authz:v1" the management/permissions operations, which answer 501 without it. v1 and v2
+         are versions of one feature, so v1 replaces the default v2; no reference operation needs v2, which changes
+         how permissions are evaluated, not which paths exist. Empty keeps the server defaults. Settings.MAXIMAL_FEATURES
+         holds the same default for runs outside Maven. -->
+    <keycloak.features>preview,client-types,admin-fine-grained-authz:v1</keycloak.features>
     <keycloak.url></keycloak.url>
     <keycloak.admin.user>admin</keycloak.admin.user>
     <keycloak.admin.password>admin</keycloak.admin.password>

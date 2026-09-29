@@ -6,7 +6,8 @@ import java.nio.file.Path;
  * Run configuration, from the system properties the pom forwards (see {@code equivalence/pom.xml}).
  *
  * @param image           Keycloak image started by Testcontainers when {@code url} is blank
- * @param features        value for {@code --features}; blank keeps the server defaults
+ * @param features        value for {@code --features}; blank keeps the server defaults. Defaults to
+ *                        {@link #MAXIMAL_FEATURES}; the pom explains the choice
  * @param url             external Keycloak to attach to instead of starting a container (dev loop)
  * @param adminUser       bootstrap admin of the master realm, used only to provision the service account
  * @param adminPassword   its password
@@ -19,10 +20,13 @@ import java.nio.file.Path;
 public record Settings(String image, String features, String url, String adminUser, String adminPassword,
                        Path keycloakMcpRoot, String catalogVersion, String node, String callbackHost) {
 
+    /** The feature profile that exercises the most reference operations (see {@code keycloak.features} in the pom). */
+    public static final String MAXIMAL_FEATURES = "preview,client-types,admin-fine-grained-authz:v1";
+
     public static Settings fromSystemProperties() {
         return new Settings(
                 property("keycloak.image", "quay.io/keycloak/keycloak:nightly"),
-                property("keycloak.features", ""),
+                property("keycloak.features", MAXIMAL_FEATURES),
                 property("keycloak.url", ""),
                 property("keycloak.admin.user", "admin"),
                 property("keycloak.admin.password", "admin"),

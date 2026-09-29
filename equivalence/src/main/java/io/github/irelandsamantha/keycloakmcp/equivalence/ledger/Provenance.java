@@ -18,6 +18,7 @@ import java.util.concurrent.TimeUnit;
  * @param imageDigest        repository digest of that image, when observable
  * @param serverUrl          where the server was reached
  * @param serverVersion      {@code systemInfo.version} from {@code GET /admin/serverinfo}
+ * @param enabledFeatures    features the server reports enabled; gates, and so ROUTED_ONLY verdicts, depend on them
  * @param adminClientVersion resolved admin-client snapshot, e.g. {@code 999.0.0-20260928.023246-474}
  * @param jarSha256          digest of that jar
  * @param jarScmRevision     keycloak-client commit from the jar manifest
@@ -28,7 +29,8 @@ import java.util.concurrent.TimeUnit;
  * @param catalogSha256      digest keycloak-mcp reports for that source
  */
 public record Provenance(String gitSha, boolean gitDirty, String image, String imageDigest, String serverUrl,
-                         String serverVersion, String adminClientVersion, String jarSha256, String jarScmRevision,
+                         String serverVersion, List<String> enabledFeatures, String adminClientVersion, String jarSha256,
+                         String jarScmRevision,
                          String openapiSource, String openapiSha256, String catalogVersion, String catalogSource,
                          String catalogSha256) {
 

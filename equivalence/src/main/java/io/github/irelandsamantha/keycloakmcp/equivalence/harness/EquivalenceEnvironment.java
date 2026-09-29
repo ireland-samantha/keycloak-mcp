@@ -1,5 +1,6 @@
 package io.github.irelandsamantha.keycloakmcp.equivalence.harness;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import io.github.irelandsamantha.keycloakmcp.equivalence.fixtures.RealmSeeder;
 import io.github.irelandsamantha.keycloakmcp.equivalence.ledger.EquivalenceLedger;
 import io.github.irelandsamantha.keycloakmcp.equivalence.ledger.Provenance;
@@ -15,6 +16,9 @@ import org.keycloak.admin.client.KeycloakBuilder;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;
 
@@ -157,10 +161,17 @@ public final class EquivalenceEnvironment implements AutoCloseable {
         Provenance.GitState git = Provenance.GitState.of(settings.keycloakMcpRoot());
         AdminClientArtifact jar = AdminClientArtifact.inspect(AdminClientSurface.jar());
         McpCatalogSnapshot cat = catalog();
-        String serverVersion = http.send("GET", "/admin/serverinfo", Map.of("Accept", "application/json"), null)
-                .json().path("systemInfo").path("version").asText(null);
+        JsonNode info = http.send("GET", "/admin/serverinfo", Map.of("Accept", "application/json"), null).json();
+        List<String> enabledFeatures = new ArrayList<>();
+        info.path("features").forEach(f -> {
+            if (f.path("enabled").asBoolean()) {
+                enabledFeatures.add(f.path("name").asText());
+            }
+        });
+        Collections.sort(enabledFeatures);
         return new Provenance(git.sha(), git.dirty(), server.image(), server.imageDigest(), server.baseUrl(),
-                serverVersion, jar.resolvedVersion(), jar.sha256(), jar.scmRevision(), headOpenApi().source(),
+                info.path("systemInfo").path("version").asText(null), List.copyOf(enabledFeatures),
+                jar.resolvedVersion(), jar.sha256(), jar.scmRevision(), headOpenApi().source(),
                 headOpenApi().sha256(), cat.version(), cat.source(), cat.sourceSha256());
     }
 
