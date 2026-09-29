@@ -3,6 +3,8 @@
 // unless they name another module. Everything not listed here follows the method-based defaults in
 // classify.js: GET and HEAD read, every other method mutates, and DELETE is irreversible.
 
+const RTM = 'server-spi-private/src/main/java/org/keycloak/models/utils/RepresentationToModel.java';
+
 // Keyed by exact operation key. `mutation` and `irreversible` override the defaults.
 export const OPERATION_OVERRIDES = {
   'GET /admin/realms/{realm}/identity-provider/instances/{alias}/reload-keys': {
@@ -57,6 +59,104 @@ export const OPERATION_OVERRIDES = {
   },
 };
 
+// Routes the Java admin client reaches that no bundled OpenAPI definition lists; the nightly catalog adds
+// them from its admin-client supplement. The supplement derives their path-parameter names, so a rule
+// matches the method and the path with every parameter written {}. A matching rule decides mutation,
+// irreversible and sensitive for its route, whichever document lists it.
+const route = pattern => new RegExp(`^${pattern.replaceAll('{}', '\\{\\}')}$`);
+const AUTHZ = '/admin/realms/{}/clients/{}/authz/resource-server';
+const TYPED_POLICY = '(?:policy/(?:aggregate|client|client-scope|group|js|regex|role|time|user)|permission/(?:resource|scope))';
+const POLICY_BY_ID = `(?:policy|${TYPED_POLICY})/{}`;
+const VC = '/admin/realms/{}/users/{}/vc';
+const VC_SOURCE = 'protocol/oid4vc/resources/admin/UserVerifiableCredentialResource.java';
+const STORAGE_SOURCE = 'model/storage-services/src/main/java/org/keycloak/services/resources/admin';
+export const ADMIN_CLIENT_ROUTES = {
+  'authz-policy-reads': {
+    methods: ['GET'], path: route(`${AUTHZ}/(?:${TYPED_POLICY}(?:/search)?|${POLICY_BY_ID}(?:/(?:associatedPolicies|dependentPolicies|resources|scopes))?)`),
+    mutation: false, irreversible: false, sensitive: false,
+    reason: 'Typed authorization policy and permission reads: a list, a search by name, and one policy\'s representation, associated and dependent policies, resources and scopes. None changes anything.',
+    source: 'authorization/admin/PolicyService.java:95-111, :168-302; PolicyResourceService.java:133-254; PermissionService.java:36-45',
+  },
+  'authz-policy-creates': {
+    methods: ['POST'], path: route(`${AUTHZ}/${TYPED_POLICY}`),
+    mutation: true, irreversible: false, sensitive: false,
+    reason: 'Creates a policy or permission of the type in the path. Keycloak refuses a name already taken with 409 and answers 201 with the new representation, id included, and no Location, so a DELETE of that id bound to $step.responseId undoes it.',
+    source: 'authorization/admin/PolicyService.java:95-166; PolicyTypeService.java:36-86',
+  },
+  'authz-policy-updates': {
+    methods: ['PUT'], path: route(`${AUTHZ}/${POLICY_BY_ID}`),
+    mutation: true, irreversible: false, sensitive: false,
+    reason: 'Replaces a policy\'s name, description, decision strategy, logic, resource type, config and associated resources, scopes and policies with the body; a PUT of the representation read before puts them back.',
+    source: `authorization/admin/PolicyResourceService.java:78-103; ${RTM}:1384-1460`,
+  },
+  'authz-policy-deletes': {
+    methods: ['DELETE'], path: route(`${AUTHZ}/${POLICY_BY_ID}`),
+    mutation: true, irreversible: true, sensitive: false,
+    reason: 'Deletes an existing policy or permission, which a create cannot bring back under its id.',
+    source: 'authorization/admin/PolicyResourceService.java:105-131',
+  },
+  'credential-grant-reads': {
+    methods: ['GET'], path: route(`${VC}/(?:credentials|issued-credentials)`),
+    mutation: false, irreversible: false, sensitive: false,
+    reason: 'Lists the user\'s verifiable-credential grants (credential scope, revision, dates and a snapshot of the user\'s attributes) and the metadata of the credentials issued to the user (id, type, client, issue and expiry times); neither holds credential material.',
+    source: `${VC_SOURCE}:127-144, :225-241; core/src/main/java/org/keycloak/representations/idm/oid4vc/UserVerifiableCredentialRepresentation.java:10-15; IssuedVerifiableCredentialRepresentation.java:7-33`,
+  },
+  'credential-grant-create': {
+    methods: ['POST'], path: route(`${VC}/credentials`),
+    mutation: true, irreversible: false, sensitive: false,
+    reason: 'Grants the user a verifiable credential of one credential scope. Keycloak refuses a grant that exists with 409, so DELETE .../vc/credentials/{credentialScopeName} removes exactly the grant created.',
+    source: `${VC_SOURCE}:83-125, :195-223`,
+  },
+  'credential-grant-refresh': {
+    methods: ['PUT'], path: route(`${VC}/credentials/{}`),
+    mutation: true, irreversible: true, sensitive: false,
+    reason: 'Takes a new snapshot of the user\'s attributes into the grant and increments its revision; the request has no body, so the previous snapshot and revision cannot be written back.',
+    source: `${VC_SOURCE}:146-193`,
+  },
+  'credential-offer': {
+    methods: ['PUT'], path: route(`${VC}/credentials/send-credential-offer`),
+    mutation: true, irreversible: true, sensitive: false,
+    reason: 'Emails the user a link to a credential offer.', source: `${VC_SOURCE}:267-335`,
+  },
+  'credential-revocations': {
+    methods: ['DELETE'], path: route(`${VC}/(?:credentials|issued-credentials)/{}`),
+    mutation: true, irreversible: true, sensitive: false,
+    reason: 'Revokes a verifiable-credential grant or an issued credential; neither comes back with its revision or id.',
+    source: `${VC_SOURCE}:195-223, :243-265`,
+  },
+  'server-info': {
+    methods: ['GET'], path: route('/admin/serverinfo'),
+    mutation: false, irreversible: false, sensitive: false,
+    reason: 'Returns the server\'s version, features, providers, themes and system information to a realm administrator and changes nothing. It names no realm, so it also needs realm administration enabled.',
+    source: 'services/resources/admin/AdminRoot.java:273-298; services/resources/admin/info/ServerInfoAdminResource.java:121-130',
+  },
+  'cache-clears': {
+    methods: ['POST'], path: route('/admin/realms/{}/clear-(?:realm|user|keys|crl)-cache'),
+    mutation: true, irreversible: true, sensitive: false,
+    reason: 'Evicts the realm, user, key or certificate-revocation-list cache; an eviction cannot be reverted.',
+    source: `${STORAGE_SOURCE}/ClearRealmCacheResource.java:50-57; ClearUserCacheResource.java:50-57; ClearKeysCacheResource.java:48-55; ClearCrlCacheResource.java:48-55`,
+  },
+  'ldap-probes': {
+    methods: ['POST'], path: route('/admin/realms/{}/(?:testLDAPConnection|ldap-server-capabilities)'),
+    mutation: true, irreversible: true, sensitive: false,
+    reason: 'Makes Keycloak connect to the LDAP URL in the body and bind with the body\'s credential, or with a component\'s stored one when the URL and bind DN are the component\'s. Keycloak itself does not change, but the connection and bind reach a host the caller chooses and cannot be taken back.',
+    source: 'federation/ldap/src/main/java/org/keycloak/services/resources/admin/TestLdapConnectionResource.java:62-99; LdapServerCapabilitiesResource.java:72-84; ' +
+      'federation/ldap/src/main/java/org/keycloak/services/managers/LDAPServerCapabilitiesManager.java:68-86, :177-202',
+  },
+  'user-storage-syncs': {
+    methods: ['POST'], path: route('/admin/realms/{}/user-storage/{}/(?:sync|mappers/{}/sync)'),
+    mutation: true, irreversible: true, sensitive: false,
+    reason: 'Imports or updates users from a user storage provider, or copies a mapper\'s groups or roles between the directory and Keycloak in the direction the query names (keycloakToFed writes into the directory); what changed is not recorded, so no call undoes it.',
+    source: `${STORAGE_SOURCE}/UserStorageProviderResource.java:130-183, :239-275`,
+  },
+  'user-storage-detach': {
+    methods: ['POST'], path: route('/admin/realms/{}/user-storage/{}/(?:unlink-users|remove-imported-users)'),
+    mutation: true, irreversible: true, sensitive: false,
+    reason: 'Deletes the users imported from a user storage provider, or turns them into local users without their federation link; neither the users nor the links can be restored.',
+    source: `${STORAGE_SOURCE}/UserStorageProviderResource.java:192-230`,
+  },
+};
+
 // Mutations whose effect a later Keycloak call cannot undo. A path matching any pattern is irreversible.
 export const IRREVERSIBLE_PATHS = [
   { pattern: /\/logout/, reason: 'Ends user sessions; ended sessions cannot be restored.',
@@ -80,8 +180,6 @@ export const IRREVERSIBLE_PATHS = [
   { pattern: /\/testSMTPConnection/, reason: 'Sends a test email.', source: 'services/resources/admin/RealmAdminResource.java:1145, :1162' },
   { pattern: /\/impersonation/, reason: 'Opens a user session for the impersonating administrator.',
     source: 'services/resources/admin/UserResource.java:382' },
-  { pattern: /\/clear-/, reason: 'Evicts realm, user or key caches; an eviction cannot be reverted.',
-    source: 'model/storage-services/src/main/java/org/keycloak/services/resources/admin/ClearRealmCacheRealmAdminProvider.java:49; ClearUserCacheRealmAdminProvider.java:49; ClearKeysCacheRealmAdminProvider.java:52' },
   { pattern: /\/members\/invite-/, reason: 'Sends an organization invitation email.',
     source: 'organization/admin/resource/OrganizationMemberResource.java:131, :155' },
   { pattern: /\/identity-provider\/import-config/, reason: 'Fetches identity-provider metadata from a caller-supplied URL.',
@@ -135,7 +233,6 @@ const mayBePositive = value => isSet(value) && !(numberOf(value) <= 0);
 const configHas = (body, keys) => keys.some(key => isSet(body?.config?.[key]));
 const stopsRecording = (body, userEventsOff) => userEventsOff || mayTurn(body?.adminEventsEnabled, false) || mayTurn(body?.adminEventsDetailsEnabled, false) ||
   isSet(body?.eventsListeners) || isSet(body?.enabledEventTypes) || mayBePositive(body?.eventsExpiration);
-const RTM = 'server-spi-private/src/main/java/org/keycloak/models/utils/RepresentationToModel.java';
 const REALM_UPDATE = 'model/storage-private/src/main/java/org/keycloak/storage/datastore/DefaultExportImportManager.java';
 const EVENT_PURGE = 'model/jpa/src/main/java/org/keycloak/events/jpa/JpaEventStoreProvider.java:90-111';
 const ADMIN_EVENT_PURGE = 'model/jpa/src/main/java/org/keycloak/events/jpa/JpaEventStoreProvider.java:242-275; ' +

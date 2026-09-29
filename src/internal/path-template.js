@@ -11,3 +11,8 @@ export function directChildParameter(collectionPath, childPath) {
   return childPath.startsWith(`${collectionPath}/`)
     ? /^\{([^/{}]+)\}$/.exec(childPath.slice(collectionPath.length + 1))?.[1] : null;
 }
+
+// The template with every parameter written {}, which identifies a route whatever its parameters are named.
+export function withoutParameterNames(template) {
+  return template.replace(/\{[^}]+\}/g, '{}');
+}

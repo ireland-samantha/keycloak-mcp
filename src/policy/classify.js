@@ -1,9 +1,10 @@
 import { defaultCatalog, describeOperation } from '../catalog/index.js';
 import { jsonBodyOf, UNREADABLE_JSON } from '../internal/json.js';
 import { isJsonType, requestContentType } from '../internal/media-type.js';
+import { withoutParameterNames } from '../internal/path-template.js';
 import { setsSecret } from './redaction.js';
 import {
-  GENERATED_ID_PARAMETER, IRREVERSIBLE_BODIES, IRREVERSIBLE_PATHS, NAMED_CREATE_TARGETS, OPERATION_OVERRIDES,
+  ADMIN_CLIENT_ROUTES, GENERATED_ID_PARAMETER, IRREVERSIBLE_BODIES, IRREVERSIBLE_PATHS, NAMED_CREATE_TARGETS, OPERATION_OVERRIDES,
   RECEIPT_SENSITIVE_PATH_PARAMETER, SENSITIVE_RESPONSE_PATHS, TOKEN_REFRESH_BEFORE_COMPENSATION, UNREADABLE_BODY, UPSERT_CREATES,
 } from './table.js';
 
@@ -11,10 +12,18 @@ const READ_METHODS = ['GET', 'HEAD'];
 
 const entry = (table, key) => (Object.hasOwn(table, key) ? table[key] : undefined);
 
+// The names of the ADMIN_CLIENT_ROUTES rules that cover a method and path, whatever its parameters are named.
+export function adminClientRouteNames(method, path) {
+  const route = withoutParameterNames(path);
+  return Object.entries(ADMIN_CLIENT_ROUTES).filter(([, rule]) => rule.methods.includes(method) && rule.path.test(route)).map(([name]) => name);
+}
+
+const adminClientRoute = op => entry(ADMIN_CLIENT_ROUTES, adminClientRouteNames(op.method, op.path)[0]);
+
 export function isMutation(key, operationCatalog = defaultCatalog()) {
   const op = describeOperation(key, operationCatalog);
   if (op.extension) return !op.readOnly;
-  return entry(OPERATION_OVERRIDES, key)?.mutation ?? !READ_METHODS.includes(op.method);
+  return adminClientRoute(op)?.mutation ?? entry(OPERATION_OVERRIDES, key)?.mutation ?? !READ_METHODS.includes(op.method);
 }
 
 // Bodyless PUT/DELETE pairs create and remove associations. Repeating PUT
@@ -26,6 +35,8 @@ function isAssociationPut(op, operationCatalog) {
 export function isIrreversible(key, operationCatalog = defaultCatalog()) {
   const op = describeOperation(key, operationCatalog);
   if (!isMutation(key, operationCatalog)) return false;
+  const route = adminClientRoute(op);
+  if (route) return route.irreversible;
   if (op.method === 'DELETE') return true;
   const override = entry(OPERATION_OVERRIDES, key)?.irreversible;
   if (override !== undefined) return override;
@@ -60,7 +71,7 @@ export function irreversibleBodyRules(key, args = {}, config, operationCatalog =
 }
 
 export function isSensitiveEndpoint(op) {
-  return SENSITIVE_RESPONSE_PATHS.some(({ pattern }) => pattern.test(op.path));
+  return adminClientRoute(op)?.sensitive ?? SENSITIVE_RESPONSE_PATHS.some(({ pattern }) => pattern.test(op.path));
 }
 
 export function isSensitiveReceiptParameter(name) {
