@@ -124,6 +124,8 @@ await workflow.plan(); // no network write
 await workflow.run();
 ```
 
+`step(operation, args, compensation, { irreversible: true })` marks a step irreversible, like `irreversible: true` on a `runWorkflow` step; pass `null` as the compensation for a step that has none.
+
 Certificate uploads accept `contentType: 'multipart/form-data'` with a `body` object. Text fields are strings; a file field is `{ filename, contentType, base64 }`. The client builds the boundary and checks the decoded-size budget before allocating a file. For example, use `keystoreFormat: 'Certificate PEM'` and a `file` object for either certificate upload route. State-changing certificate uploads require a workflow with an explicit compensation or irreversible override; the identity-provider upload-certificate converter is read-only, and the private key it reads from an uploaded keystore is redacted like every `privateKey` field.
 
 ## Write safety and actual guarantees

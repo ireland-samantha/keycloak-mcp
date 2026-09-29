@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { KeycloakAdmin, preflight, runWorkflow } from '../../src/api.js';
+import { KeycloakAdmin, preflight, runWorkflow, WorkflowBuilder } from '../../src/api.js';
 import { testConfig } from '../support/config.js';
 import { fakeKeycloak, jsonResponse, routeTable } from '../support/fetch.js';
 
@@ -41,4 +41,12 @@ test('a workflow sends and compensates exactly what preflight validated, whateve
   const result = await run;
   assert.deepEqual(sent, [{ username: 'new-user' }, '/auth/admin/realms/test-realm/users/new-user-id']);
   assert.equal(result.rollback[0].path['user-id'], 'new-user-id');
+});
+
+test('WorkflowBuilder can mark a step irreversible, as runWorkflow steps can', async () => {
+  const admin = new KeycloakAdmin(testConfig({ ...writer, KEYCLOAK_MCP_ALLOW_IRREVERSIBLE: 'true' }));
+  const remove = ['DELETE /admin/realms/{realm}/groups/{group-id}', { path: { 'group-id': 'g' } }];
+  await assert.rejects(() => new WorkflowBuilder(admin).step(...remove).plan(), /irreversible and requires an explicit override/);
+  assert.deepEqual(await new WorkflowBuilder(admin).step(...remove, null, { irreversible: true }).plan(),
+    { status: 'PREFLIGHT_OK', steps: [{ operation: remove[0], compensation: null }] });
 });
