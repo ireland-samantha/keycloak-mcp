@@ -15,12 +15,14 @@ public record CaseOutcome(MutationCase mutationCase, Check compensation, Check e
     public static final String SOUND = "SOUND";
     /**
      * F3: keycloak-mcp accepted the compensation, but the forced-failure frame did not show it restoring the
-     * pre-state: the operation, the failed step, the rollback or the state after it was not what soundness requires.
+     * pre-state: the operation, the failed step, the rollback or the state after it was not what soundness requires,
+     * or the server committed an operation keycloak-mcp reports as failed, with nothing compensated.
      */
     public static final String UNSOUND = "UNSOUND";
     /**
-     * F3: keycloak-mcp accepted the compensation, but the operation itself failed in the frame, so no compensation
-     * ran. Accepted, and proves nothing: an operation needs a {@link #SOUND} case to be sound.
+     * F3: keycloak-mcp accepted the compensation, but the operation itself failed in the frame and left the state as
+     * it was, so no compensation ran. Accepted, and proves nothing: an operation needs a {@link #SOUND} case to be
+     * sound. An operation that failed in keycloak-mcp but changed the state is {@link #UNSOUND}.
      */
     public static final String NOT_EXERCISED = "NOT_EXERCISED";
     /** F3: keycloak-mcp accepts as reversible what the case shows cannot be undone. */

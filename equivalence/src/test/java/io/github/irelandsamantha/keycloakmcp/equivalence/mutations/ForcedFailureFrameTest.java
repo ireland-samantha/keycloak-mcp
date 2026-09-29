@@ -66,6 +66,19 @@ class ForcedFailureFrameTest {
         assertTrue(check.accepted(), "accepted, but never SOUND");
     }
 
+    /**
+     * The shape of the group move keycloak-mcp takes for a create: the server moves the group and answers 204, and
+     * keycloak-mcp then fails the step for want of a Location, reporting nothing completed and nothing to roll back.
+     */
+    @Test
+    void anOperationThatFailedButChangedTheStateIsUnsound() {
+        Result committed = new Result(false, """
+                {"status": "IN_DOUBT", "failedOperation": "%s", "error": "create succeeded without a Location for compensation",
+                 "failedStepMayHaveCommitted": true, "rollback": [], "completed": []}""".formatted(CREATE));
+        assertUnsound(judge(committed, CHANGED), "yet the server committed it: the readbacks differ from the pre-state:"
+                + " [GET /admin/realms/{realm}/groups:");
+    }
+
     @Test
     void aCompletedOperationWithAnEmptyRollbackIsUnsound() {
         Check check = judge(inDoubt(FAILING, CREATED, "[]"), BEFORE);

@@ -14,8 +14,10 @@ import java.util.List;
  * F3's judgement of one forced-failure frame: keycloak-mcp ran the case's operation, with its compensation, and then
  * a step that always fails. The frame proves the compensation sound only when it exercised it: the operation
  * completed with a 2xx, the forced step is the one that failed, exactly the declared compensation ran and succeeded,
- * and the readbacks equal the pre-state. A frame whose operation itself failed exercised nothing; it is accepted, as
- * {@link CaseOutcome#NOT_EXERCISED}, but proves nothing.
+ * and the readbacks equal the pre-state. A frame whose operation itself failed and left the readbacks as they were
+ * exercised nothing; it is accepted, as {@link CaseOutcome#NOT_EXERCISED}, but proves nothing. If the readbacks
+ * changed all the same, the server committed a write that keycloak-mcp neither reported completed nor compensated,
+ * and the frame is {@link CaseOutcome#UNSOUND}.
  */
 final class ForcedFailureFrame {
 
@@ -34,9 +36,9 @@ final class ForcedFailureFrame {
             return new Check(CaseOutcome.UNSOUND, false, "the frame did not end IN_DOUBT: " + run.text());
         }
         List<StepRun> completed = run.completed();
+        List<String> changed = before.differences(after);
         if (completed.isEmpty() && operation.operation().equals(run.failedOperation()) && run.rollback().isEmpty()) {
-            return new Check(CaseOutcome.NOT_EXERCISED, true, "the operation itself failed ("
-                    + run.report().path("error").asText() + "), so no compensation ran: " + run.text());
+            return operationFailed(run, changed);
         }
         List<String> problems = new ArrayList<>();
         if (!(completed.size() == 1 && completed.getFirst().operation().equals(operation.operation())
@@ -53,7 +55,6 @@ final class ForcedFailureFrame {
             problems.add("the rollback is " + run.rollback() + ", not the declared compensation "
                     + operation.compensation().operation() + " " + KeycloakMcpWorkflow.COMPENSATED);
         }
-        List<String> changed = before.differences(after);
         if (!changed.isEmpty()) {
             problems.add("the readbacks differ from the pre-state: " + changed);
         }
@@ -61,5 +62,16 @@ final class ForcedFailureFrame {
                 ? new Check(CaseOutcome.SOUND, true, "keycloak-mcp compensated, and the readbacks equal the pre-state: "
                 + run.text())
                 : new Check(CaseOutcome.UNSOUND, false, String.join("; ", problems) + ". keycloak-mcp answered " + run.text());
+    }
+
+    /** keycloak-mcp reports the operation itself failed, so no compensation ran; {@code changed} says whether it wrote. */
+    private static Check operationFailed(Result run, List<String> changed) {
+        String failure = "the operation itself failed (" + run.report().path("error").asText() + ")";
+        return changed.isEmpty()
+                ? new Check(CaseOutcome.NOT_EXERCISED, true, failure + " and left the readbacks as they were, so no"
+                + " compensation ran: " + run.text())
+                : new Check(CaseOutcome.UNSOUND, false, failure + ", yet the server committed it: the readbacks differ"
+                + " from the pre-state: " + changed + ". keycloak-mcp neither reported it completed nor compensated it: "
+                + run.text());
     }
 }
