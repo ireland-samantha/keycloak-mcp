@@ -7,21 +7,18 @@ import { isDeepStrictEqual } from 'node:util';
 import { directChildParameter } from './internal/path-template.js';
 import { ensurePrivateDirectory } from './internal/private-file.js';
 import { REDACTED } from './internal/redaction.js';
-import { buildRequest, describeOperation, isMutation, isIrreversible } from './keycloak.js';
+import { buildRequest, describeOperation } from './keycloak.js';
+import { isIrreversible, isMutation, isSensitiveReceiptParameter, namedCreateTarget, needsFreshTokenToCompensate } from './policy/classify.js';
+import { REALM_CREATION } from './policy/table.js';
 
 const held = new Set();
 const locationMarker = '$step.locationId';
 const responseIdMarker = '$step.responseId';
 const idMarkers = new Set([locationMarker, responseIdMarker]);
-const namedCreateTargets = new Map([
-  ['POST /admin/realms/{realm}/roles', { child: 'role-name', field: 'name' }],
-  ['POST /admin/realms/{realm}/identity-provider/instances', { child: 'alias', field: 'alias' }],
-]);
 const generatedUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-const sensitivePathName = /secret|token|password|credential/i;
 
 function receiptPath(args = {}) {
-  return Object.fromEntries(Object.entries(args.path ?? {}).map(([name, value]) => [name, sensitivePathName.test(name) ? REDACTED : String(value)]));
+  return Object.fromEntries(Object.entries(args.path ?? {}).map(([name, value]) => [name, isSensitiveReceiptParameter(name) ? REDACTED : String(value)]));
 }
 
 function compensationArgsForValidation(compensate) {
@@ -119,11 +116,11 @@ export function preflight(config, steps, operationCatalog) {
   if (!config.allowWrite && steps.some(step => isMutation(step.operation, operationCatalog))) throw new Error('writes are disabled');
   return steps.map((step, index) => {
     if (!step || typeof step.operation !== 'string') throw new Error(`step ${index + 1} has no operation`);
-    if (step.operation === 'POST /admin/realms') {
+    if (step.operation === REALM_CREATION.operation) {
       if (!step.args?.body || typeof step.args.body !== 'object' || Array.isArray(step.args.body) ||
-        step.args.body.realm !== config.realm)
+        step.args.body[REALM_CREATION.bodyField] !== config.realm)
         throw new Error(`step ${index + 1} realm creation must name the configured realm`);
-      if (step.compensate?.operation !== 'DELETE /admin/realms/{realm}')
+      if (step.compensate?.operation !== REALM_CREATION.compensation)
         throw new Error(`step ${index + 1} realm creation must compensate by deleting that realm`);
     }
     buildRequest(config, step.operation, step.args, operationCatalog);
@@ -164,9 +161,9 @@ export function preflight(config, steps, operationCatalog) {
             !isDeepStrictEqual(step.compensate.args?.path ?? {}, step.args?.path ?? {}) ||
             !isDeepStrictEqual(step.compensate.args?.query ?? {}, step.args?.query ?? {})))
           throw new Error(`step ${index + 1} update compensation must target the same resource`);
-        const matchingRealmCreation = step.operation === 'POST /admin/realms' &&
-          step.compensate.operation === 'DELETE /admin/realms/{realm}';
-        const namedTarget = namedCreateTargets.get(step.operation);
+        const matchingRealmCreation = step.operation === REALM_CREATION.operation &&
+          step.compensate.operation === REALM_CREATION.compensation;
+        const namedTarget = namedCreateTarget(step.operation);
         const matchingNamedCreation = namedTarget && compensation.method === 'DELETE' &&
           childParameter === namedTarget.child && typeof childValue === 'string' &&
           childValue.trim().length > 0 && childValue === step.args?.body?.[namedTarget.field];
@@ -208,10 +205,7 @@ export async function runWorkflow(admin, steps, { dryRun = true } = {}) {
           if (!done.compensate) continue;
           try {
             await lock.assertHeld();
-            // A new realm adds its admin roles after the create response. A
-            // token minted before creation may lack permission to delete it.
-            if (done.step.operation === 'POST /admin/realms' &&
-              done.compensate.operation === 'DELETE /admin/realms/{realm}') admin.invalidateToken();
+            if (needsFreshTokenToCompensate(done.step.operation, done.compensate.operation)) admin.invalidateToken();
             const result = await admin._invoke(done.compensate.operation, done.compensate.args);
             rollback.push({ operation: done.compensate.operation, path: receiptPath(done.compensate.args), status: result.status, outcome: 'COMPENSATED' });
           } catch (compensationError) {

@@ -3,20 +3,14 @@ import { createCatalog, defaultCatalog, describeOperation } from './catalog/inde
 import { DEFAULT_BODY_BYTES } from './config.js';
 import { pathParameterNames } from './internal/path-template.js';
 import { redactKeys, REDACTED_ENDPOINT } from './internal/redaction.js';
+import { assertOperationAllowed } from './policy/access.js';
+import { invalidatesServiceToken, isMutation, isSensitiveEndpoint, isSensitiveField } from './policy/classify.js';
+import { MULTI_SEGMENT_PATH_PARAMETER } from './policy/table.js';
 
 export { configFromEnv } from './config.js';
 export { createCatalog, describeOperation, describeSchema, listOperations } from './catalog/index.js';
+export { isIrreversible, isMutation } from './policy/classify.js';
 
-const sensitive = /secret|password|credential|private.?key|access.?token|refresh.?token|authorization|^token$/i;
-const sideEffectingGets = new Set(['GET /admin/realms/{realm}/identity-provider/instances/{alias}/reload-keys']);
-const readOnlyPosts = new Set([
-  'POST /admin/realms/{realm}/client-description-converter',
-  'POST /admin/realms/{realm}/identity-provider/upload-certificate',
-]);
-const sensitivePaths = /\/client-secret(?:\/|$)|\/clients-initial-access(?:\/|$)|\/credentials(?:\/|$)|\/certificates\/\{attr\}(?:\/|$)|\/installation\/providers\/|\/evaluate-scopes\/generate-example-/;
-const irreversiblePath = /(?:\/logout|\/reset-password|\/send-|\/execute-actions-email|\/client-secret|\/sessions(?:\/|$)|\/brute-force\/users|\/credentials\/|\/disable-credential-types|\/push-revocation|\/testSMTPConnection|\/impersonation|\/clear-|\/members\/invite-|\/identity-provider\/import-config)/;
-const irreversibleInvitationResend = /\/invitations\/\{id\}\/resend$/;
-const irreversibleWorkflowActions = /\/workflows\/(?:migrate$|\{id\}\/(?:activate|deactivate)\/)/;
 async function limitedBody(response, limit) {
   const length = Number(response.headers.get('content-length'));
   if (Number.isFinite(length) && length > limit) {
@@ -40,24 +34,6 @@ async function limitedBody(response, limit) {
     }
   } finally { reader.releaseLock(); }
   return Buffer.concat(chunks, total);
-}
-
-export function isMutation(key, operationCatalog = defaultCatalog()) {
-  const op = describeOperation(key, operationCatalog);
-  return op.extension ? !op.readOnly : (!['GET', 'HEAD'].includes(op.method) && !readOnlyPosts.has(key)) || sideEffectingGets.has(key);
-}
-
-export function isIrreversible(key, operationCatalog = defaultCatalog()) {
-  const op = describeOperation(key, operationCatalog);
-  if (!isMutation(key, operationCatalog)) return false;
-  if (op.method === 'DELETE' || sideEffectingGets.has(key)) return true;
-  if (op.extension) return op.irreversible;
-  // Bodyless PUT/DELETE pairs create and remove associations. Repeating PUT
-  // cannot undo an assignment, and DELETE may remove a pre-existing one.
-  if (op.method === 'PUT' && op.requestTypes.length === 0 && operationCatalog.byKey.has(`DELETE ${op.path}`)) return true;
-  if (irreversiblePath.test(op.path) || irreversibleInvitationResend.test(op.path) ||
-    irreversibleWorkflowActions.test(op.path)) return true;
-  return false;
 }
 
 function decodeBase64Bounded(value, limit, label) {
@@ -99,9 +75,7 @@ function encodeMultipart(fields, limit) {
 
 export function buildRequest(config, key, args = {}, operationCatalog = defaultCatalog()) {
   const op = describeOperation(key, operationCatalog);
-  if (op.extension && !op.serviceAccountSupported) throw new Error('extension operation requires a non-service-account credential');
-  if (isMutation(key, operationCatalog) && !config.allowWrite) throw new Error('writes are disabled');
-  if (!op.path.includes('{realm}') && isMutation(key, operationCatalog) && !config.allowRealmAdmin) throw new Error('realm administration is disabled');
+  assertOperationAllowed(config, op, operationCatalog);
   const inputPath = args.path ?? {};
   const names = pathParameterNames(op.path);
   if (Object.keys(inputPath).some(name => !names.includes(name))) throw new Error('unknown path parameter');
@@ -109,7 +83,7 @@ export function buildRequest(config, key, args = {}, operationCatalog = defaultC
     const value = name === 'realm' ? config.realm : inputPath[name];
     if (value === undefined || value === null || String(value) === '') throw new Error(`missing path parameter: ${name}`);
     if (name === 'realm' && inputPath.realm !== undefined && inputPath.realm !== config.realm) throw new Error('realm cannot be overridden');
-    if (name === 'path') {
+    if (name === MULTI_SEGMENT_PATH_PARAMETER.name) {
       const segments = String(value).replace(/^\//, '').split('/');
       if (segments.some(segment => !segment || ['.', '..'].includes(segment) || segment.includes('\\'))) throw new Error('unsafe group path');
       return segments.map(encodeURIComponent).join('/');
@@ -229,17 +203,14 @@ export class KeycloakAdmin {
       transientRetries += 1;
       await delay(transientRetries === 1 ? 150 : 400);
     }
-    if (key === 'POST /admin/realms/{realm}/logout-all') this.invalidateToken();
+    if (invalidatesServiceToken(key)) this.invalidateToken();
     const bytes = await limitedBody(response, this.config.maxBodyBytes ?? DEFAULT_BODY_BYTES);
     const contentType = response.headers.get('content-type')?.split(';')[0] ?? '';
     let value = null;
-    if (bytes.length && sensitivePaths.test(req.op.path) && !this.config.allowSensitiveReads) value = REDACTED_ENDPOINT;
+    if (bytes.length && isSensitiveEndpoint(req.op) && !this.config.allowSensitiveReads) value = REDACTED_ENDPOINT;
     else if (bytes.length && contentType.includes('json')) {
       try { value = JSON.parse(bytes.toString('utf8')); } catch { throw new Error('Keycloak returned invalid JSON'); }
-      if (!this.config.allowSensitiveReads) {
-        const redactRepresentation = req.op.path === '/admin/realms/{realm}/admin-events';
-        value = redactKeys(value, key => sensitive.test(key) || (redactRepresentation && key === 'representation'));
-      }
+      if (!this.config.allowSensitiveReads) value = redactKeys(value, name => isSensitiveField(req.op, name));
     } else if (bytes.length && (contentType.startsWith('text/') || contentType.includes('xml') || contentType.includes('yaml'))) value = bytes.toString('utf8');
     else if (bytes.length) value = { base64: bytes.toString('base64'), contentType };
     const location = response.headers.get('location');
