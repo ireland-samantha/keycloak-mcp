@@ -355,14 +355,20 @@ class SafetySemanticsIT {
     void aRedactedValueNeverReplacesTheSecret() throws Exception {
         String secret = secret();
         String client = confidentialClient("f4-round-trip", secret);
-        Map<String, String> switches = Map.of(ALLOW_WRITE, "true", SINGLE_WRITER, "true", ALLOW_SENSITIVE_READS, "false");
+        // The irreversible override is granted and used, so irreversible gating (SEC-2 gates a client PUT that sets
+        // the secret) cannot be what keeps the secret: only rejecting or stripping the redaction marker can.
+        Map<String, String> switches = new HashMap<>(OVERRIDABLE);
+        switches.putAll(REDACTED);
         try (RecordingProxy proxy = RecordingProxy.start(env.serverUrl()); KeycloakMcpProcess mcp = start(proxy, switches)) {
             Map<String, String> path = Map.of("client-uuid", client);
             JsonNode asRead = value(mcp, READ_CLIENT, path);
             ObjectNode edited = ((ObjectNode) asRead.deepCopy()).put("description", "edited through a redacted read");
-            Result roundTrip = run(mcp, true, Step.of(UPDATE_CLIENT, args(path, edited))
-                    .compensatedBy(Step.of(UPDATE_CLIENT, args(path, asRead))));
+            Result roundTrip = run(mcp, true, Step.of(UPDATE_CLIENT, args(path, edited)).markedIrreversible());
             assertAll(
+                    () -> assertFalse(asRead.toString().contains(secret), "the read showed the secret, so nothing is round-tripped"),
+                    () -> assertTrue(roundTrip.refused() || KeycloakMcpWorkflow.COMPLETED.equals(roundTrip.status()),
+                            () -> "the round trip was neither refused nor completed, so it shows nothing about the marker: "
+                                    + roundTrip.text()),
                     () -> assertEquals(secret, pinned.get("clients/" + client + "/client-secret").path("value").asText(),
                             () -> "stored secret after the round trip (" + roundTrip.text() + ")"),
                     () -> assertEquals(200, clientCredentialsGrant("f4-round-trip", secret), "a grant with the real secret"));
