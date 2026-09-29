@@ -112,6 +112,18 @@ test('the private key of an uploaded keystore is redacted; its certificate and p
   assert.deepEqual((await readResult(response, { op, config: testConfig() })).value, { ...uploaded, privateKey: MARKER });
 });
 
+test('a private key in Keycloak\'s own form, base64 DER without a PEM header, is redacted whatever field holds it', () => {
+  const ec = generateKeyPairSync('ec', { namedCurve: 'P-256' });
+  const ed25519 = generateKeyPairSync('ed25519');
+  const keys = { rsaPkcs1: headerless(keyPair.privateKey, 'pkcs1'), rsaPkcs8: headerless(keyPair.privateKey, 'pkcs8'),
+    ecSec1: headerless(ec.privateKey, 'sec1'), ecPkcs8: headerless(ec.privateKey, 'pkcs8'), ed25519: headerless(ed25519.privateKey, 'pkcs8'),
+    wrapped: headerless(keyPair.privateKey, 'pkcs8').replace(/.{64}/g, '$&\n') };
+  assert.deepEqual(redact({ attributes: keys }).attributes, Object.fromEntries(Object.keys(keys).map(name => [name, MARKER])));
+  const published = { attributes: { certificate: recordedCertificate, spki: headerless(keyPair.publicKey, 'spki'),
+    rsaPublicKey: headerless(keyPair.publicKey, 'pkcs1'), ecSpki: headerless(ec.publicKey, 'spki'), word: 'MEMBER' } };
+  assert.equal(redact(published), published);
+});
+
 async function survivingSecrets(settings) {
   const survivors = [];
   for (const { name, result } of await recordedReads(settings)) {

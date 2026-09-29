@@ -123,8 +123,18 @@ export const SECRET_FIELDS = [
 export const SECRET_VALUE_SHAPES = {
   pemPrivateKey: {
     pattern: /-----BEGIN [A-Z0-9 ]*PRIVATE KEY-----/,
-    reason: 'PEM private key material, for example pasted into a custom attribute; Keycloak reads and writes keys in this form.',
+    reason: 'PEM private key material, for example pasted into a custom attribute; Keycloak reads keys in this form.',
     source: 'common/src/main/java/org/keycloak/common/util/PemUtils.java:41-44',
+  },
+  // Base64 of one DER SEQUENCE that opens with a one-byte INTEGER version and then the element named by `next`.
+  derPrivateKey: {
+    layouts: [
+      { versions: [0, 1], next: 0x02, name: 'PKCS#1 RSAPrivateKey, two- or multi-prime (RFC 8017 appendix A.1.2)' },
+      { versions: [0, 1], next: 0x30, name: 'PKCS#8 PrivateKeyInfo or OneAsymmetricKey (RFC 5958 section 2)' },
+      { versions: [1], next: 0x04, name: 'SEC1 ECPrivateKey (RFC 5915 section 3)' },
+    ],
+    reason: 'Keycloak writes private keys as base64 DER without the PEM header and footer, so a key in a field this table does not name is recognized by its structure; no certificate or public key opens with a one-byte version.',
+    source: 'crypto/default/src/main/java/org/keycloak/crypto/def/BCPemUtilsProvider.java:48-60; common/src/main/java/org/keycloak/common/crypto/PemUtilsProvider.java:137-143; services/util/CertificateInfoHelper.java:303-305',
   },
   jwkPrivateMembers: {
     members: ['d', 'p', 'q', 'dp', 'dq', 'qi', 'oth', 'k'],

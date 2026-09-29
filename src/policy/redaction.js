@@ -5,6 +5,21 @@ import { CUSTOM_KEY_MAPS, FIELD_REDACTIONS, KEYCLOAK_OWN_MASKS, SECRET_FIELDS, S
 const isObject = value => value !== null && typeof value === 'object' && !Array.isArray(value) && !JSON.isRawJSON(value);
 const isKeptAsSent = text => text === KEYCLOAK_OWN_MASKS.mask || KEYCLOAK_OWN_MASKS.vault.test(text);
 const looksLikeJson = text => /^\s*[[{]/.test(text);
+const looksLikeBase64Der = text => text.startsWith('M') && /^[A-Za-z0-9+/\r\n]+={0,2}$/.test(text);
+
+// Whether `text` is base64 DER that SECRET_VALUE_SHAPES.derPrivateKey describes, with a SEQUENCE
+// length that accounts for every byte.
+function isDerPrivateKey(text) {
+  if (!looksLikeBase64Der(text)) return false;
+  const der = Buffer.from(text, 'base64');
+  const lengthBytes = der[1] & 0x80 ? der[1] & 0x7f : 0;
+  const start = 2 + lengthBytes;
+  if (der[0] !== 0x30 || lengthBytes > 3 || der.length < start + 4) return false;
+  const length = lengthBytes ? der.readUIntBE(2, lengthBytes) : der[1];
+  const [tag, size, version, next] = der.subarray(start, start + 4);
+  return start + length === der.length && tag === 0x02 && size === 1 &&
+    SECRET_VALUE_SHAPES.derPrivateKey.layouts.some(layout => layout.versions.includes(version) && layout.next === next);
+}
 
 function matches(rule, holder, name) {
   return (rule.in === undefined || rule.in === holder) && (rule.field === name || (rule.suffix !== undefined && name.endsWith(rule.suffix)));
@@ -45,7 +60,7 @@ class Redactor {
   }
 
   redactText(text) {
-    if (SECRET_VALUE_SHAPES.pemPrivateKey.pattern.test(text)) return REDACTED;
+    if (SECRET_VALUE_SHAPES.pemPrivateKey.pattern.test(text) || isDerPrivateKey(text)) return REDACTED;
     if (!looksLikeJson(text)) return text;
     let parsed;
     try { parsed = parseLosslessJson(text); } catch { return text; }
