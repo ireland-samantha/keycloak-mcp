@@ -1,7 +1,7 @@
 import { defaultCatalog, describeOperation } from '../catalog/index.js';
 import {
-  FIELD_REDACTIONS, GENERATED_ID_PARAMETER, IRREVERSIBLE_PATHS, NAMED_CREATE_TARGETS, OPERATION_OVERRIDES,
-  RECEIPT_SENSITIVE_PATH_PARAMETER, SENSITIVE_FIELD, SENSITIVE_RESPONSE_PATHS, TOKEN_REFRESH_BEFORE_COMPENSATION,
+  GENERATED_ID_PARAMETER, IRREVERSIBLE_PATHS, NAMED_CREATE_TARGETS, OPERATION_OVERRIDES,
+  RECEIPT_SENSITIVE_PATH_PARAMETER, SENSITIVE_RESPONSE_PATHS, TOKEN_REFRESH_BEFORE_COMPENSATION,
 } from './table.js';
 
 const READ_METHODS = ['GET', 'HEAD'];
@@ -30,10 +30,6 @@ export function isIrreversible(key, operationCatalog = defaultCatalog()) {
 
 export function isSensitiveEndpoint(op) {
   return SENSITIVE_RESPONSE_PATHS.some(({ pattern }) => pattern.test(op.path));
-}
-
-export function isSensitiveField(op, name) {
-  return SENSITIVE_FIELD.pattern.test(name) || (entry(FIELD_REDACTIONS, op.path)?.fields.includes(name) ?? false);
 }
 
 export function isSensitiveReceiptParameter(name) {

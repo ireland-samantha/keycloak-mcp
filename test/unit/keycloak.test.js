@@ -221,13 +221,13 @@ test('GET uses client_credentials, reuses token, and redacts sensitive fields', 
   const fetch = async (url, options) => {
     calls.push({ url, options });
     if (url.endsWith('/token')) return tokenResponse('token-value');
-    return jsonResponse(200, { realm: 'test-realm', clientSecret: 'hidden', nested: { password: 'hidden' } });
+    return jsonResponse(200, { realm: 'test-realm', smtpServer: { password: 'hidden' }, clients: [{ clientId: 'app', secret: 'hidden' }] });
   };
   const admin = new KeycloakAdmin(testConfig(), fetch);
   const first = await admin.invoke('GET /admin/realms/{realm}');
   await admin.invoke('GET /admin/realms/{realm}');
-  assert.equal(first.value.clientSecret, '[REDACTED by keycloak-mcp]');
-  assert.equal(first.value.nested.password, '[REDACTED by keycloak-mcp]');
+  assert.equal(first.value.smtpServer.password, '[REDACTED by keycloak-mcp]');
+  assert.equal(first.value.clients[0].secret, '[REDACTED by keycloak-mcp]');
   assert.equal(calls.filter(call => call.url.endsWith('/token')).length, 1);
   assert.equal(calls[0].options.body.get('grant_type'), 'client_credentials');
   assert.equal(calls[1].url, 'https://id.example.com/auth/admin/realms/test-realm');

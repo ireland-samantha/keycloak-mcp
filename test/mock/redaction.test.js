@@ -13,18 +13,20 @@ const withoutRedactedFields = value => Object.fromEntries(Object.entries(value)
   .filter(([, child]) => isObject(child) || !JSON.stringify(child).includes('[REDACTED by keycloak-mcp'))
   .map(([key, child]) => [key, isObject(child) ? withoutRedactedFields(child) : child]));
 
-test('E1 the default scrub replaces sensitive keys at any depth, in objects and arrays', async t => {
+test('E1 secrets Keycloak sends in clear are redacted; the ones it masks itself keep its mask', async t => {
   const { mock, mcp } = await startScenario(t);
   mock.on('GET /admin/realms/{realm}/clients', withSecret(mock.fixture('clients.list')));
-  const clients = await mcp.call('keycloak_read', { operation: 'GET /admin/realms/{realm}/clients' });
-  assert.deepEqual(clients.value.value.map(client => client.secret), ['[REDACTED by keycloak-mcp]']);
-  assert.equal(clients.text.includes(canary), false);
+  const [client] = (await mcp.call('keycloak_read', { operation: 'GET /admin/realms/{realm}/clients' })).value.value;
+  assert.equal(client.secret, '[REDACTED by keycloak-mcp]');
+  assert.equal(client.attributes['client.secret.rotated'], '[REDACTED by keycloak-mcp]');
+  assert.equal(client.attributes['access.token.lifespan'], '120');
+  assert.equal(JSON.stringify(client).includes(canary), false);
   const realm = await mcp.call('keycloak_read', { operation: 'GET /admin/realms/{realm}' });
-  assert.equal(realm.value.value.smtpServer.password, '[REDACTED by keycloak-mcp]');
-  assert.equal(realm.value.value.smtpServer.host, 'smtp.example.invalid');
+  assert.deepEqual(realm.value.value.smtpServer, mock.fixture('realm.get').json.smtpServer);
+  assert.equal(realm.value.value.smtpServer.password, '**********');
 });
 
-test('E1 non-secret realm settings are returned exactly as Keycloak sent them', { todo: 'BC-02' }, async t => {
+test('E1 non-secret realm settings are returned exactly as Keycloak sent them', async t => {
   const { mock, mcp } = await startScenario(t);
   const { smtpServer: _masked, ...expected } = mock.fixture('realm.get').json;
   const { smtpServer: _redacted, ...actual } = (await mcp.call('keycloak_read', { operation: 'GET /admin/realms/{realm}' })).value.value;

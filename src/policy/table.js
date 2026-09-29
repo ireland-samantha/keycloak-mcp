@@ -78,18 +78,74 @@ export const SENSITIVE_RESPONSE_PATHS = [
     source: 'services/resources/admin/ClientScopeEvaluateResource.java:195-297' },
 ];
 
-// JSON fields redacted at any depth in every response unless sensitive reads are enabled.
-export const SENSITIVE_FIELD = {
-  pattern: /secret|password|credential|private.?key|access.?token|refresh.?token|authorization|^token$/i,
-  reason: 'Field names under which Keycloak representations carry secrets, such as ClientRepresentation.secret, CredentialRepresentation.secretData and ClientInitialAccessPresentation.token.',
-  source: 'core/src/main/java/org/keycloak/representations/idm/ClientRepresentation.java:42; CredentialRepresentation.java:37-38; ClientInitialAccessPresentation.java:27',
+// Fields of Keycloak responses that hold secrets, redacted unless sensitive reads are enabled. The list
+// follows StripSecretsUtils, which Keycloak applies for callers that may not see secrets; a service
+// account that can manage clients gets the client entries in clear, and the rest are masked by Keycloak
+// and listed here in case a server does not. `in` names the key holding the object that carries the
+// field (for a list, the key holding the list); a rule without `in` applies at any depth. `suffix`
+// matches field names ending in it.
+const STRIP_SECRETS = 'server-spi-private/src/main/java/org/keycloak/models/utils/StripSecretsUtils.java';
+export const SECRET_FIELDS = [
+  { field: 'secret', reason: 'ClientRepresentation.secret, the confidential client secret, returned in clear to a caller that can manage the client.',
+    source: `services/resources/admin/ClientResource.java:207-212; ${STRIP_SECRETS}:230-233` },
+  { field: 'registrationAccessToken', reason: 'The client registration access token, returned in clear by POST .../registration-access-token.',
+    source: 'services/resources/admin/ClientResource.java:349-358' },
+  { field: 'client.secret.rotated', in: 'attributes', reason: 'The previous client secret kept during secret rotation, returned in clear to a client manager.',
+    source: `${STRIP_SECRETS}:238; server-spi-private/src/main/java/org/keycloak/models/ClientSecretConstants.java:12` },
+  { suffix: 'private.key', in: 'attributes', reason: 'Client key material stored as <prefix>.private.key, such as saml.signing.private.key, returned in clear to a client manager.',
+    source: `${STRIP_SECRETS}:240-247; server-spi-private/src/main/java/org/keycloak/models/Constants.java:267` },
+  { field: 'password', in: 'smtpServer', reason: 'The SMTP password, which Keycloak masks.', source: `${STRIP_SECRETS}:189-193` },
+  { field: 'authTokenClientSecret', in: 'smtpServer', reason: 'The client secret for SMTP token authentication, which Keycloak masks.', source: `${STRIP_SECRETS}:189-193` },
+  { field: 'clientSecret', in: 'config', reason: 'IdentityProviderRepresentation.config.clientSecret, which Keycloak masks.', source: `${STRIP_SECRETS}:184-187` },
+  { field: 'bindCredential', in: 'config', reason: 'The LDAP bind password, a secret provider property that Keycloak masks.',
+    source: 'federation/ldap/src/main/java/org/keycloak/storage/ldap/LDAPStorageProviderFactory.java:166-169' },
+  { field: 'privateKey', in: 'config', reason: 'An imported RSA key provider\'s private key, a secret provider property that Keycloak masks.',
+    source: 'keys/Attributes.java:47-48' },
+  { field: 'keystorePassword', in: 'config', reason: 'A Java keystore key provider\'s store password, a secret provider property.',
+    source: 'keys/JavaKeystoreKeyProviderFactory.java:75-76' },
+  { field: 'keyPassword', in: 'config', reason: 'A Java keystore key provider\'s key password, a secret provider property.',
+    source: 'keys/JavaKeystoreKeyProviderFactory.java:86-87' },
+  { field: 'loginpassword', in: 'config', reason: 'The Ipatuura user storage password, a secret provider property.',
+    source: 'federation/ipatuura/src/main/java/org/keycloak/ipatuura_user_spi/IpatuuraUserStorageProviderFactory.java:63-66' },
+  { field: 'secret.key', in: 'config', reason: 'The reCAPTCHA secret in authenticator config, a secret property that Keycloak masks.',
+    source: 'authentication/forms/RegistrationRecaptcha.java:50, :136-142' },
+  { field: 'api.key', in: 'config', reason: 'The reCAPTCHA Enterprise API key in authenticator config, a secret property that Keycloak masks.',
+    source: 'authentication/forms/RegistrationRecaptchaEnterprise.java:48, :152-157' },
+  { field: 'value', in: 'credentials', reason: 'A credential value such as a password, which user exports strip.',
+    source: `core/src/main/java/org/keycloak/representations/idm/CredentialRepresentation.java:41; ${STRIP_SECRETS}:104-107` },
+  { field: 'secretData', in: 'credentials', reason: 'A credential\'s secret data, such as an OTP seed or password hash.',
+    source: 'core/src/main/java/org/keycloak/representations/idm/CredentialRepresentation.java:37' },
+];
+
+// Values that are secrets whatever field holds them. A string that is itself JSON, such as a jwks.string
+// client attribute, is redacted as JSON.
+export const SECRET_VALUE_SHAPES = {
+  pemPrivateKey: {
+    pattern: /-----BEGIN [A-Z0-9 ]*PRIVATE KEY-----/,
+    reason: 'PEM private key material, for example pasted into a custom attribute; Keycloak reads and writes keys in this form.',
+    source: 'common/src/main/java/org/keycloak/common/util/PemUtils.java:41-44',
+  },
+  jwkPrivateMembers: {
+    members: ['d', 'p', 'q', 'dp', 'dq', 'qi', 'oth', 'k'],
+    reason: 'The private and symmetric members of a JSON Web Key (RFC 7518 section 6); a jwks.string client attribute is returned in clear with whatever keys were stored in it.',
+    source: 'server-spi-private/src/main/java/org/keycloak/protocol/oidc/OIDCConfigAttributes.java:40',
+  },
+};
+
+// Values Keycloak masked itself or that only reference a vault; they are not secrets and are left as
+// sent, which Keycloak understands on update as "keep the stored value".
+export const KEYCLOAK_OWN_MASKS = {
+  mask: '**********',
+  vault: /^\$\{vault\.(.+?)\}$/,
+  reason: 'Keycloak masks secrets as ComponentRepresentation.SECRET_VALUE and keeps vault references visible.',
+  source: `core/src/main/java/org/keycloak/representations/idm/ComponentRepresentation.java:27; ${STRIP_SECRETS}:59, :95-102`,
 };
 
 // Further fields redacted for one path, keyed by path template.
 export const FIELD_REDACTIONS = {
   '/admin/realms/{realm}/admin-events': {
     fields: ['representation'],
-    reason: 'Each admin event carries the changed entity as a JSON string, whose secrets the key-based redaction cannot see.',
+    reason: 'Each admin event carries the changed entity, of any representation type, as a JSON string; it is withheld whole rather than left to the field rules.',
     source: 'services/resources/admin/RealmAdminResource.java:1001-1012; core/src/main/java/org/keycloak/representations/idm/AdminEventRepresentation.java:34',
   },
 };

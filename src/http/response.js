@@ -1,7 +1,8 @@
 import { DEFAULT_BODY_BYTES } from '../config.js';
 import { parseLosslessJson } from '../internal/json.js';
-import { redactKeys, REDACTED_ENDPOINT } from '../internal/redaction.js';
-import { isSensitiveEndpoint, isSensitiveField } from '../policy/classify.js';
+import { REDACTED_ENDPOINT } from '../internal/redaction.js';
+import { isSensitiveEndpoint } from '../policy/classify.js';
+import { redactResponse } from '../policy/redaction.js';
 import { readLimitedBody } from './body.js';
 import { decodeText, isJsonType, isTextType, mediaTypeOf } from './media-type.js';
 
@@ -11,7 +12,7 @@ function decodeValue(bytes, header, op, config) {
   if (isJsonType(contentType)) {
     let value;
     try { value = parseLosslessJson(decodeText(bytes, header)); } catch { throw new Error('Keycloak returned invalid JSON'); }
-    return config.allowSensitiveReads ? value : redactKeys(value, name => isSensitiveField(op, name));
+    return config.allowSensitiveReads ? value : redactResponse(value, op);
   }
   if (isTextType(contentType)) return decodeText(bytes, header);
   return { base64: bytes.toString('base64'), contentType };

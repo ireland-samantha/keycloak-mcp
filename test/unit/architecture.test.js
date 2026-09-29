@@ -13,7 +13,7 @@ const layers = [
   ['config', 'src/config.js', ['internal']],
   ['meta', 'src/meta.js', []],
   ['catalog', 'src/catalog/', ['internal']],
-  ['policy', 'src/policy/', ['catalog']],
+  ['policy', 'src/policy/', ['internal', 'catalog']],
   ['http', 'src/http/', ['internal', 'config', 'catalog', 'policy']],
   ['keycloak-admin', 'src/keycloak-admin.js', ['internal', 'catalog', 'policy', 'http']],
   // The workflow reaches Keycloak only through the admin object it is handed.

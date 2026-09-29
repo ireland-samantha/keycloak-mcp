@@ -1,6 +1,6 @@
 {
  "readRedact": {
-  "result": {"ok":{"status":200,"contentType":"application/json","value":{"a":1,"clientSecret":"[REDACTED by keycloak-mcp]","nested":[{"password":"[REDACTED by keycloak-mcp]"}]}}},
+  "result": {"ok":{"status":200,"contentType":"application/json","value":{"a":1,"clientSecret":"x","nested":[{"password":"p"}]}}},
   "receipts": []
  },
  "readText": {
