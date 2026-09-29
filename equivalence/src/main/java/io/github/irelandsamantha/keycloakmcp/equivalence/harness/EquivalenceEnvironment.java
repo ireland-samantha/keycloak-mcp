@@ -120,7 +120,13 @@ public final class EquivalenceEnvironment implements AutoCloseable {
     /** Starts keycloak-mcp pinned to {@code realm}, authenticated as the shared service account. */
     public KeycloakMcpProcess startKeycloakMcp(String realm, Map<String, String> env)
             throws IOException, InterruptedException, TimeoutException {
-        return KeycloakMcpProcess.start(settings, server.baseUrl(), serviceAccount, realm, env);
+        return startKeycloakMcp(realm, env, server.baseUrl());
+    }
+
+    /** As {@link #startKeycloakMcp(String, Map)}, but reaching the server through {@code baseUrl}, e.g. a {@link RecordingProxy}. */
+    public KeycloakMcpProcess startKeycloakMcp(String realm, Map<String, String> env, String baseUrl)
+            throws IOException, InterruptedException, TimeoutException {
+        return KeycloakMcpProcess.start(settings, baseUrl, serviceAccount, realm, env);
     }
 
     public synchronized HeadOpenApi.Document headOpenApi() {
