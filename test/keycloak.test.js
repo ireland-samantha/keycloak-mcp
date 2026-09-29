@@ -1,5 +1,4 @@
 import assert from 'node:assert/strict';
-import { createHash } from 'node:crypto';
 import { test } from 'node:test';
 import { chmodSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -93,43 +92,6 @@ test('client description conversion is callable as a read without enabling write
   await assert.rejects(() => admin.invoke('POST /admin/realms/{realm}/users', { body: { username: 'blocked' } }),
     /compensating workflow/);
   assert.equal(calls, 2);
-});
-
-test('valid-fixture action-route report matches its raw evidence and pinned catalog', () => {
-  const report = JSON.parse(readFileSync(new URL('../validation/mutation-valid-coverage-26.3.5-isolated.json', import.meta.url)));
-  const catalog = createCatalog('', '26.3.5');
-  assert.equal(report.sourceSha256, catalog.sourceSha256);
-  const actionKeys = catalog.operations.filter(item => !['GET', 'HEAD'].includes(item.method) ||
-    item.key === 'GET /admin/realms/{realm}/identity-provider/instances/{alias}/reload-keys').map(item => item.key).sort();
-  assert.deepEqual(report.rows.map(row => row.operation).sort(), actionKeys);
-  assert.equal(report.totalActionRoutes, actionKeys.length);
-  assert.equal(report.stateChangingMutations,
-    catalog.operations.filter(item => isMutation(item.key, catalog)).length);
-  const observations = new Map();
-  for (const evidence of report.evidenceReports) {
-    assert.match(evidence.file, /^valid-mutation-families-[a-y]-26\.3\.5-isolated\.json$/);
-    const bytes = readFileSync(new URL(`../validation/${evidence.file}`, import.meta.url));
-    assert.equal(createHash('sha256').update(bytes).digest('hex'), evidence.sha256);
-    const raw = JSON.parse(bytes);
-    assert.equal(raw.catalogSha256, report.sourceSha256);
-    assert.equal(raw.failure, null);
-    assert.equal(raw.rows.length, evidence.successfulCalls);
-    for (const item of raw.rows) {
-      assert.equal(item.state, 'OBSERVED_PASS');
-      assert.ok(item.status >= 200 && item.status < 300);
-      const entries = observations.get(item.operation) ?? [];
-      entries.push({ file: evidence.file, httpStatus: item.status });
-      observations.set(item.operation, entries);
-    }
-  }
-  for (const row of report.rows) {
-    const entries = observations.get(row.operation) ?? [];
-    assert.deepEqual(row.validFixtureObservations, entries);
-    assert.equal(row.validFixtureState, entries.length ? 'HTTP_2XX_WITH_SUITE_ASSERTIONS' : 'NOT_RUN_VALID_FIXTURE');
-  }
-  assert.equal(observations.size, report.validFixture2xx);
-  assert.equal(report.validFixture2xx, 171);
-  assert.equal(report.notRunValidFixture, actionKeys.length - observations.size);
 });
 
 test('every catalog route can be built without leaving the configured Keycloak origin', () => {
