@@ -32,6 +32,12 @@ public final class RawHttp {
         public JsonNode json() {
             return Json.read(body);
         }
+
+        /** First value of a header, looked up case-insensitively; {@code null} when absent. */
+        public String header(String name) {
+            return headers.entrySet().stream().filter(e -> e.getKey().equalsIgnoreCase(name))
+                    .flatMap(e -> e.getValue().stream()).findFirst().orElse(null);
+        }
     }
 
     private static final Duration TIMEOUT = Duration.ofSeconds(60);

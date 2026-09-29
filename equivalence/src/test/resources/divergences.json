@@ -1,5 +1,5 @@
 {
-  "description": "Documented, reasoned disagreements between the sources the structural checks compare. Each entry pins exactly what was observed; an entry that stops matching is stale and fails the build. Server citations are relative to the keycloak/keycloak repository.",
+  "description": "Documented, reasoned disagreements between the sources the checks compare, and operations the running server refuses for lack of a feature or provider (kinds route and read-gate, sources server). Each entry pins exactly what was observed; an entry that stops matching is stale and fails the build, except route and read-gate entries, which a different feature profile legitimately leaves unused. Server citations are relative to the keycloak/keycloak repository.",
   "divergences": [
     {
       "key": "POST /admin/realms/{realm}/clients/{client-uuid}/certificates/{attr}/upload",
@@ -1262,6 +1262,201 @@
       "reason": "The JavaScript policy type only exists with the preview feature \"scripts\" (JSPolicyProviderFactory is unsupported otherwise), so on a default server PolicyService#getResource treats \"js\" as a policy id and PolicyResourceService rejects the unknown policy with a message-less NotFoundException, which is the generic JAX-RS miss. The admin client still exposes the typed js resource. With \"scripts\" enabled the typed resource exists, but these operations address one JS policy, and the admin API refuses to create or import one unless it comes from a deployed provider jar, so no API-seeded fixture can exist and the missing policy again answers the message-less 404.",
       "evidence": "authz/policy/common/src/main/java/org/keycloak/authorization/policy/provider/js/JSPolicyProviderFactory.java:137-139; services/src/main/java/org/keycloak/authorization/admin/PolicyService.java:96-111; services/src/main/java/org/keycloak/authorization/admin/PolicyResourceService.java:68-69; authz/policy/common/src/main/java/org/keycloak/authorization/policy/provider/js/JSPolicyProviderFactory.java:62-63,131-134 (create/import refused unless deployed); nightly 999.0.0-SNAPSHOT answered 404 {\"error\":\"HTTP 404 Not Found\"} with default features and with --features=scripts (2026-09-29)",
       "since": "2026-09-28"
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{client-uuid}/management/permissions",
+      "kind": "read-gate",
+      "sources": "server",
+      "observed": {
+        "server": [
+          "501 {\"error\":\"Feature not enabled\",\"error_description\":\"For more on this error consult the server log.\"}"
+        ]
+      },
+      "reason": "Version 1 of fine-grained admin permissions only. admin-fine-grained-authz:v1 and :v2 are two versions of one feature, so at most one is enabled; v2 is the default and v1 is deprecated, and these reads refuse unless v1 is on. A server started with --features=admin-fine-grained-authz:v1 answers 200.",
+      "evidence": "services/src/main/java/org/keycloak/services/resources/admin/ClientResource.java:746 (ProfileHelper.requireFeature(ADMIN_FINE_GRAINED_AUTHZ)); common/src/main/java/org/keycloak/common/Profile.java:68-70; services/src/main/java/org/keycloak/utils/ProfileHelper.java:32 (501 \"Feature not enabled\")",
+      "since": "2026-09-29"
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{client-uuid}/roles/{role-name}/management/permissions",
+      "kind": "read-gate",
+      "sources": "server",
+      "observed": {
+        "server": [
+          "501 {\"error\":\"Feature not enabled\",\"error_description\":\"For more on this error consult the server log.\"}"
+        ]
+      },
+      "reason": "Version 1 of fine-grained admin permissions only. admin-fine-grained-authz:v1 and :v2 are two versions of one feature, so at most one is enabled; v2 is the default and v1 is deprecated, and these reads refuse unless v1 is on. A server started with --features=admin-fine-grained-authz:v1 answers 200.",
+      "evidence": "services/src/main/java/org/keycloak/services/resources/admin/RoleContainerResource.java:522 (ProfileHelper.requireFeature(ADMIN_FINE_GRAINED_AUTHZ)); common/src/main/java/org/keycloak/common/Profile.java:68-70; services/src/main/java/org/keycloak/utils/ProfileHelper.java:32 (501 \"Feature not enabled\")",
+      "since": "2026-09-29"
+    },
+    {
+      "key": "GET /admin/realms/{realm}/groups/{group-id}/management/permissions",
+      "kind": "read-gate",
+      "sources": "server",
+      "observed": {
+        "server": [
+          "501 {\"error\":\"Feature not enabled\",\"error_description\":\"For more on this error consult the server log.\"}"
+        ]
+      },
+      "reason": "Version 1 of fine-grained admin permissions only. admin-fine-grained-authz:v1 and :v2 are two versions of one feature, so at most one is enabled; v2 is the default and v1 is deprecated, and these reads refuse unless v1 is on. A server started with --features=admin-fine-grained-authz:v1 answers 200.",
+      "evidence": "services/src/main/java/org/keycloak/services/resources/admin/GroupResource.java:373 (ProfileHelper.requireFeature(ADMIN_FINE_GRAINED_AUTHZ)); common/src/main/java/org/keycloak/common/Profile.java:68-70; services/src/main/java/org/keycloak/utils/ProfileHelper.java:32 (501 \"Feature not enabled\")",
+      "since": "2026-09-29"
+    },
+    {
+      "key": "GET /admin/realms/{realm}/identity-provider/instances/{alias}/management/permissions",
+      "kind": "read-gate",
+      "sources": "server",
+      "observed": {
+        "server": [
+          "501 {\"error\":\"Feature not enabled\",\"error_description\":\"For more on this error consult the server log.\"}"
+        ]
+      },
+      "reason": "Version 1 of fine-grained admin permissions only. admin-fine-grained-authz:v1 and :v2 are two versions of one feature, so at most one is enabled; v2 is the default and v1 is deprecated, and these reads refuse unless v1 is on. A server started with --features=admin-fine-grained-authz:v1 answers 200.",
+      "evidence": "services/src/main/java/org/keycloak/services/resources/admin/IdentityProviderResource.java:449 (ProfileHelper.requireFeature(ADMIN_FINE_GRAINED_AUTHZ)); common/src/main/java/org/keycloak/common/Profile.java:68-70; services/src/main/java/org/keycloak/utils/ProfileHelper.java:32 (501 \"Feature not enabled\")",
+      "since": "2026-09-29"
+    },
+    {
+      "key": "GET /admin/realms/{realm}/roles-by-id/{role-id}/management/permissions",
+      "kind": "read-gate",
+      "sources": "server",
+      "observed": {
+        "server": [
+          "501 {\"error\":\"Feature not enabled\",\"error_description\":\"For more on this error consult the server log.\"}"
+        ]
+      },
+      "reason": "Version 1 of fine-grained admin permissions only. admin-fine-grained-authz:v1 and :v2 are two versions of one feature, so at most one is enabled; v2 is the default and v1 is deprecated, and these reads refuse unless v1 is on. A server started with --features=admin-fine-grained-authz:v1 answers 200.",
+      "evidence": "services/src/main/java/org/keycloak/services/resources/admin/RoleByIdResource.java:339 (ProfileHelper.requireFeature(ADMIN_FINE_GRAINED_AUTHZ)); common/src/main/java/org/keycloak/common/Profile.java:68-70; services/src/main/java/org/keycloak/utils/ProfileHelper.java:32 (501 \"Feature not enabled\")",
+      "since": "2026-09-29"
+    },
+    {
+      "key": "GET /admin/realms/{realm}/roles/{role-name}/management/permissions",
+      "kind": "read-gate",
+      "sources": "server",
+      "observed": {
+        "server": [
+          "501 {\"error\":\"Feature not enabled\",\"error_description\":\"For more on this error consult the server log.\"}"
+        ]
+      },
+      "reason": "Version 1 of fine-grained admin permissions only. admin-fine-grained-authz:v1 and :v2 are two versions of one feature, so at most one is enabled; v2 is the default and v1 is deprecated, and these reads refuse unless v1 is on. A server started with --features=admin-fine-grained-authz:v1 answers 200.",
+      "evidence": "services/src/main/java/org/keycloak/services/resources/admin/RoleContainerResource.java:522 (ProfileHelper.requireFeature(ADMIN_FINE_GRAINED_AUTHZ)); common/src/main/java/org/keycloak/common/Profile.java:68-70; services/src/main/java/org/keycloak/utils/ProfileHelper.java:32 (501 \"Feature not enabled\")",
+      "since": "2026-09-29"
+    },
+    {
+      "key": "GET /admin/realms/{realm}/users-management-permissions",
+      "kind": "read-gate",
+      "sources": "server",
+      "observed": {
+        "server": [
+          "501 {\"error\":\"Feature not enabled\",\"error_description\":\"For more on this error consult the server log.\"}"
+        ]
+      },
+      "reason": "Version 1 of fine-grained admin permissions only. admin-fine-grained-authz:v1 and :v2 are two versions of one feature, so at most one is enabled; v2 is the default and v1 is deprecated, and these reads refuse unless v1 is on. A server started with --features=admin-fine-grained-authz:v1 answers 200.",
+      "evidence": "services/src/main/java/org/keycloak/services/resources/admin/RealmAdminResource.java:609 (ProfileHelper.requireFeature(ADMIN_FINE_GRAINED_AUTHZ)); common/src/main/java/org/keycloak/common/Profile.java:68-70; services/src/main/java/org/keycloak/utils/ProfileHelper.java:32 (501 \"Feature not enabled\")",
+      "since": "2026-09-29"
+    },
+    {
+      "key": "GET /admin/realms/{realm}/client-types",
+      "kind": "read-gate",
+      "sources": "server",
+      "observed": {
+        "server": [
+          "501 {\"error\":\"Feature not enabled\",\"error_description\":\"For more on this error consult the server log.\"}"
+        ]
+      },
+      "reason": "The client-types locator requires the experimental feature \"client-types\", which is off by default; with --features=client-types the read answers 200.",
+      "evidence": "services/src/main/java/org/keycloak/services/resources/admin/RealmAdminResource.java:1466-1469; common/src/main/java/org/keycloak/common/Profile.java:142",
+      "since": "2026-09-29"
+    },
+    {
+      "key": "GET /admin/realms/{realm}/users/{id}/vc/credentials",
+      "kind": "read-gate",
+      "sources": "server",
+      "observed": {
+        "server": [
+          "400 {\"errorMessage\":\"Feature oid4vc-vci not enabled\"}"
+        ]
+      },
+      "reason": "Verifiable credentials need the preview feature \"oid4vc-vci\" (and a realm with verifiable credentials enabled, which the seeder sets); without the feature every read answers 400.",
+      "evidence": "services/src/main/java/org/keycloak/protocol/oid4vc/resources/admin/UserVerifiableCredentialResource.java:336-343",
+      "since": "2026-09-29"
+    },
+    {
+      "key": "GET /admin/realms/{realm}/users/{id}/vc/issued-credentials",
+      "kind": "read-gate",
+      "sources": "server",
+      "observed": {
+        "server": [
+          "400 {\"errorMessage\":\"Feature oid4vc-vci not enabled\"}"
+        ]
+      },
+      "reason": "Verifiable credentials need the preview feature \"oid4vc-vci\" (and a realm with verifiable credentials enabled, which the seeder sets); without the feature every read answers 400.",
+      "evidence": "services/src/main/java/org/keycloak/protocol/oid4vc/resources/admin/UserVerifiableCredentialResource.java:336-343",
+      "since": "2026-09-29"
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{id}/authz/resource-server/policy/js/search",
+      "kind": "read-gate",
+      "sources": "server",
+      "observed": {
+        "server": [
+          "404 {\"error\":\"HTTP 404 Not Found\"}"
+        ]
+      },
+      "reason": "The JavaScript policy type only exists with the preview feature \"scripts\"; without it PolicyService treats \"js\" as a policy id and the unknown policy is the message-less 404. With \"scripts\" the typed resource exists, but a JS policy can only come from a deployed provider jar, so no seeded one can exist and reading one answers the same 404; the search finds none.",
+      "evidence": "authz/policy/common/src/main/java/org/keycloak/authorization/policy/provider/js/JSPolicyProviderFactory.java:62-63,131-134; the route entries for the same operations",
+      "since": "2026-09-29"
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{id}/authz/resource-server/policy/js/{id}",
+      "kind": "read-gate",
+      "sources": "server",
+      "observed": {
+        "server": [
+          "404 {\"error\":\"HTTP 404 Not Found\"}"
+        ]
+      },
+      "reason": "The JavaScript policy type only exists with the preview feature \"scripts\"; without it PolicyService treats \"js\" as a policy id and the unknown policy is the message-less 404. With \"scripts\" the typed resource exists, but a JS policy can only come from a deployed provider jar, so no seeded one can exist and reading one answers the same 404; the search finds none.",
+      "evidence": "authz/policy/common/src/main/java/org/keycloak/authorization/policy/provider/js/JSPolicyProviderFactory.java:62-63,131-134; the route entries for the same operations",
+      "since": "2026-09-29"
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{id}/authz/resource-server/policy/js/{id}/associatedPolicies",
+      "kind": "read-gate",
+      "sources": "server",
+      "observed": {
+        "server": [
+          "404 {\"error\":\"HTTP 404 Not Found\"}"
+        ]
+      },
+      "reason": "The JavaScript policy type only exists with the preview feature \"scripts\"; without it PolicyService treats \"js\" as a policy id and the unknown policy is the message-less 404. With \"scripts\" the typed resource exists, but a JS policy can only come from a deployed provider jar, so no seeded one can exist and reading one answers the same 404; the search finds none.",
+      "evidence": "authz/policy/common/src/main/java/org/keycloak/authorization/policy/provider/js/JSPolicyProviderFactory.java:62-63,131-134; the route entries for the same operations",
+      "since": "2026-09-29"
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{id}/authz/resource-server/policy/js/{id}/dependentPolicies",
+      "kind": "read-gate",
+      "sources": "server",
+      "observed": {
+        "server": [
+          "404 {\"error\":\"HTTP 404 Not Found\"}"
+        ]
+      },
+      "reason": "The JavaScript policy type only exists with the preview feature \"scripts\"; without it PolicyService treats \"js\" as a policy id and the unknown policy is the message-less 404. With \"scripts\" the typed resource exists, but a JS policy can only come from a deployed provider jar, so no seeded one can exist and reading one answers the same 404; the search finds none.",
+      "evidence": "authz/policy/common/src/main/java/org/keycloak/authorization/policy/provider/js/JSPolicyProviderFactory.java:62-63,131-134; the route entries for the same operations",
+      "since": "2026-09-29"
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{id}/authz/resource-server/policy/js/{id}/resources",
+      "kind": "read-gate",
+      "sources": "server",
+      "observed": {
+        "server": [
+          "404 {\"error\":\"HTTP 404 Not Found\"}"
+        ]
+      },
+      "reason": "The JavaScript policy type only exists with the preview feature \"scripts\"; without it PolicyService treats \"js\" as a policy id and the unknown policy is the message-less 404. With \"scripts\" the typed resource exists, but a JS policy can only come from a deployed provider jar, so no seeded one can exist and reading one answers the same 404; the search finds none.",
+      "evidence": "authz/policy/common/src/main/java/org/keycloak/authorization/policy/provider/js/JSPolicyProviderFactory.java:62-63,131-134; the route entries for the same operations",
+      "since": "2026-09-29"
     }
   ]
 }
