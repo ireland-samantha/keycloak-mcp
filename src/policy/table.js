@@ -70,6 +70,7 @@ const TYPED_POLICY = '(?:policy/(?:aggregate|client|client-scope|group|js|regex|
 const POLICY_BY_ID = `(?:policy|${TYPED_POLICY})/{}`;
 const VC = '/admin/realms/{}/users/{}/vc';
 const VC_SOURCE = 'protocol/oid4vc/resources/admin/UserVerifiableCredentialResource.java';
+const VC_SNAPSHOT = 'model/jpa/src/main/java/org/keycloak/models/jpa/JpaUserProvider.java:416-429, :496-502';
 const STORAGE_SOURCE = 'model/storage-services/src/main/java/org/keycloak/services/resources/admin';
 export const ADMIN_CLIENT_ROUTES = {
   'authz-policy-reads': {
@@ -99,20 +100,20 @@ export const ADMIN_CLIENT_ROUTES = {
   'credential-grant-reads': {
     methods: ['GET'], path: route(`${VC}/(?:credentials|issued-credentials)`),
     mutation: false, irreversible: false, sensitive: false,
-    reason: 'Lists the user\'s verifiable-credential grants (credential scope, revision, dates and a snapshot of the user\'s attributes) and the metadata of the credentials issued to the user (id, type, client, issue and expiry times); neither holds credential material.',
-    source: `${VC_SOURCE}:127-144, :225-241; core/src/main/java/org/keycloak/representations/idm/oid4vc/UserVerifiableCredentialRepresentation.java:10-15; IssuedVerifiableCredentialRepresentation.java:7-33`,
+    reason: 'Lists the user\'s verifiable-credential grants (credential scope, revision, dates and a snapshot of the user\'s attributes) and the metadata of the credentials issued to the user (id, type, client, issue and expiry times); neither holds credential material, and the attribute snapshot is redacted as the user\'s own attributes are (CUSTOM_KEY_MAPS).',
+    source: `${VC_SOURCE}:127-144, :225-241; core/src/main/java/org/keycloak/representations/idm/oid4vc/UserVerifiableCredentialRepresentation.java:10-15; IssuedVerifiableCredentialRepresentation.java:7-33; ${VC_SNAPSHOT}`,
   },
   'credential-grant-create': {
     methods: ['POST'], path: route(`${VC}/credentials`),
     mutation: true, irreversible: false, sensitive: false,
-    reason: 'Grants the user a verifiable credential of one credential scope. Keycloak refuses a grant that exists with 409, so DELETE .../vc/credentials/{credentialScopeName} removes exactly the grant created.',
-    source: `${VC_SOURCE}:83-125, :195-223`,
+    reason: 'Grants the user a verifiable credential of one credential scope. Keycloak refuses a grant that exists with 409, so DELETE .../vc/credentials/{credentialScopeName} removes exactly the grant created. The grant it returns carries an attribute snapshot, redacted as the user\'s own attributes are (CUSTOM_KEY_MAPS).',
+    source: `${VC_SOURCE}:83-125, :195-223; ${VC_SNAPSHOT}`,
   },
   'credential-grant-refresh': {
     methods: ['PUT'], path: route(`${VC}/credentials/{}`),
     mutation: true, irreversible: true, sensitive: false,
-    reason: 'Takes a new snapshot of the user\'s attributes into the grant and increments its revision; the request has no body, so the previous snapshot and revision cannot be written back.',
-    source: `${VC_SOURCE}:146-193`,
+    reason: 'Takes a new snapshot of the user\'s attributes into the grant and increments its revision; the request has no body, so the previous snapshot and revision cannot be written back. The grant it returns is redacted as the user\'s own attributes are (CUSTOM_KEY_MAPS).',
+    source: `${VC_SOURCE}:146-193; ${VC_SNAPSHOT}`,
   },
   'credential-offer': {
     methods: ['PUT'], path: route(`${VC}/credentials/send-credential-offer`),
@@ -490,9 +491,10 @@ export const SECRET_VALUE_SHAPES = {
 // Maps whose keys a deployment chooses. Keycloak cannot tell which of them hold secrets and returns them
 // in clear, so an operator names such keys in KEYCLOAK_MCP_SECRET_ATTRIBUTES.
 export const CUSTOM_KEY_MAPS = {
-  holders: ['attributes', 'config'],
-  reason: 'Realm, client, user and group attributes and component and identity-provider config accept any key.',
-  source: 'core/src/main/java/org/keycloak/representations/idm/RealmRepresentation.java:219; ClientRepresentation.java:61; AbstractUserRepresentation.java:46; ComponentRepresentation.java:35; IdentityProviderRepresentation.java:66',
+  holders: ['attributes', 'config', 'userAttributes'],
+  reason: 'Realm, client, user and group attributes and component and identity-provider config accept any key. A user\'s verifiable-credential grant stores userAttributes, a snapshot of the attributes an administrator can read on that user, or the attributes the create request sent, and returns it in clear.',
+  source: 'core/src/main/java/org/keycloak/representations/idm/RealmRepresentation.java:219; ClientRepresentation.java:61; AbstractUserRepresentation.java:46; ComponentRepresentation.java:35; IdentityProviderRepresentation.java:66; ' +
+    `oid4vc/UserVerifiableCredentialRepresentation.java:15; ${VC_SNAPSHOT}; ${RTM}:1117`,
 };
 
 // Values Keycloak masked itself or that only reference a vault; they are not secrets and are left as

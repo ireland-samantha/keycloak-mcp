@@ -48,6 +48,48 @@
       ]
     },
     {
+      "key": "GET /admin/realms/{realm}/users/{user-id}/vc/credentials",
+      "method": "GET",
+      "path": "/admin/realms/{realm}/users/{user-id}/vc/credentials",
+      "summary": "User verifiable credential: get credentials",
+      "description": "Reachable through the Java admin client (UserVerifiableCredentialResource#getCredentials); absent from the Keycloak OpenAPI definition.",
+      "tags": [
+        "Users"
+      ],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "user-id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [],
+      "responseTypes": [
+        "application/json"
+      ],
+      "requestSchema": null,
+      "responseSchema": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/UserVerifiableCredentialRepresentation"
+        }
+      },
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#users()",
+        "UsersResource#get(String)",
+        "UserResource#verifiableCredentials()",
+        "UserVerifiableCredentialResource#getCredentials()"
+      ]
+    },
+    {
       "key": "GET /admin/serverinfo",
       "method": "GET",
       "path": "/admin/serverinfo",

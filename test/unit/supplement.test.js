@@ -5,10 +5,11 @@ import { createCatalog, describeOperation, describeSchema, listOperations, prefl
 import { openApiCatalog } from '../../src/catalog/index.js';
 import { withSupplement } from '../../src/catalog/supplement.js';
 import { buildRequest } from '../../src/http/request.js';
+import { readResult } from '../../src/http/response.js';
 import { isIrreversible, isMutation, isSensitiveEndpoint } from '../../src/policy/classify.js';
 import { testConfig } from '../support/config.js';
 
-// Six operations of the supplement the Java module generated (wip/java 92e4716), in its exact format,
+// Seven operations of the supplement the Java module generated (wip/java 92e4716), in its exact format,
 // with three of its schemas shortened.
 const fixture = JSON.parse(readFileSync(new URL('fixtures/admin-client-supplement.json', import.meta.url), 'utf8'));
 const openApiOnly = () => openApiCatalog('nightly');
@@ -17,6 +18,7 @@ const ROLE_POLICIES = 'POST /admin/realms/{realm}/clients/{client-uuid}/authz/re
 const SYNC = 'POST /admin/realms/{realm}/user-storage/{componentId}/sync';
 const REFRESH = 'PUT /admin/realms/{realm}/users/{user-id}/vc/credentials/{credentialScopeName}';
 const GRANT = 'POST /admin/realms/{realm}/users/{user-id}/vc/credentials';
+const GRANTS = 'GET /admin/realms/{realm}/users/{user-id}/vc/credentials';
 const withOperations = operations => ({ ...fixture, operations });
 const variant = (key, changes) => withOperations([{ ...fixture.operations.find(op => op.key === key), ...changes }]);
 
@@ -62,12 +64,27 @@ test('supplement operations take their classification from the admin-client rout
     isSensitiveEndpoint(describeOperation(key, catalog))]]));
   assert.deepEqual(rows, {
     'DELETE /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/role/{id}': [true, true, false],
+    [GRANTS]: [false, false, false],
     'GET /admin/serverinfo': [false, false, false],
     [ROLE_POLICIES]: [true, false, false],
     [SYNC]: [true, true, false],
     [GRANT]: [true, false, false],
     [REFRESH]: [true, true, false],
   });
+});
+
+// A grant carries userAttributes, a snapshot of the user's attributes (JpaUserProvider.java:416-429,
+// :496-502), so the attributes the operator declares secret stay hidden there as on the user itself.
+test('verifiable-credential grants are returned with the operator\'s secret attributes redacted from their snapshot', async () => {
+  const grant = { credentialScopeName: 'employee', revision: 'r1', userAttributes: { ssn: ['123-45-6789'], email: ['jane@example.com'] } };
+  const redacted = { ...grant, userAttributes: { ssn: ['[REDACTED by keycloak-mcp]'], email: ['jane@example.com'] } };
+  const read = async (key, value, settings = {}) => (await readResult(
+    new Response(JSON.stringify(value), { status: 200, headers: { 'content-type': 'application/json' } }),
+    { op: describeOperation(key, catalog), config: testConfig({ KEYCLOAK_MCP_SECRET_ATTRIBUTES: 'ssn', ...settings }) })).value;
+  assert.deepEqual(await read(GRANTS, [grant]), [redacted]);
+  assert.deepEqual(await read(GRANT, grant), redacted);
+  assert.deepEqual(await read(REFRESH, grant), redacted);
+  assert.deepEqual(await read(GRANTS, [grant], { KEYCLOAK_MCP_ALLOW_SENSITIVE_READS: 'true' }), [grant]);
 });
 
 test('a supplement operation no route rule covers is an irreversible mutation with a withheld response', () => {
