@@ -20,6 +20,36 @@ export const OPERATION_OVERRIDES = {
     reason: 'Parses the uploaded certificate or key and returns it; no identity provider is changed.',
     source: 'services/resources/admin/IdentityProvidersResource.java:146-171',
   },
+  'GET /admin/realms/{realm}/clients/{client-uuid}/test-nodes-available': {
+    mutation: true, irreversible: true,
+    reason: 'A GET that needs configure permission, makes Keycloak POST a token signed with the realm key to the management URL of every registered cluster node, and records an ACTION admin event; the calls it made cannot be taken back.',
+    source: 'services/resources/admin/ClientResource.java:711-724; services/managers/ResourceAdminManager.java:392-428',
+  },
+  'POST /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/evaluate': {
+    mutation: false,
+    reason: 'Evaluates the policies for a supplied identity with view-authorization permission; the temporary user session it creates is removed before it answers.',
+    source: 'authorization/admin/PolicyService.java:347-354; PolicyEvaluationService.java:109-147, :275-290',
+  },
+  'POST /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/permission/evaluate': {
+    mutation: false,
+    reason: 'The permission route reaches the same evaluator as policy/evaluate, which stores nothing.',
+    source: 'authorization/admin/PermissionService.java:37; PolicyService.java:347-354; PolicyEvaluationService.java:109-147, :275-290',
+  },
+  'POST /admin/realms/{realm}/clients/{client-uuid}/certificates/{attr}/download': {
+    mutation: false,
+    reason: 'Builds a keystore around the stored certificate with view permission and stores nothing; the keystore stays withheld as a sensitive response.',
+    source: 'services/resources/admin/ClientAttributeCertificateResource.java:219-247',
+  },
+  'POST /admin/realms/{realm}/partial-export': {
+    mutation: false,
+    reason: 'Exports the realm, with groups, roles and clients on request, without changing it; Keycloak masks client secrets in the export.',
+    source: 'services/resources/admin/RealmAdminResource.java:1386-1425',
+  },
+  'PUT /admin/realms/{realm}/users/{user-id}/credentials/{credentialId}/userLabel': {
+    irreversible: false,
+    reason: 'Changes only the label of a stored credential, which a PUT of the previous label restores; the credential itself is untouched.',
+    source: 'services/resources/admin/UserResource.java:906-928',
+  },
   'POST /admin/realms/{realm}/logout-all': {
     invalidatesServiceToken: true,
     reason: 'Moves the realm not-before to now, so every token issued earlier in that realm, the service account\'s included when it authenticates there, is rejected afterwards.',
@@ -58,6 +88,14 @@ export const IRREVERSIBLE_PATHS = [
     source: 'services/resources/admin/IdentityProvidersResource.java:129, :181' },
   { pattern: /\/invitations\/\{id\}\/resend$/, reason: 'Resends an invitation email and invalidates the original invitation ID.',
     source: 'organization/admin/resource/OrganizationInvitationResource.java:408-415' },
+  { pattern: /\/certificates\/\{attr\}\/(?:generate|upload)/, reason: 'Generating or uploading a client key or certificate replaces the stored certificate and removes the stored private key and jwks.string, which Keycloak never returns again.',
+    source: 'services/resources/admin/ClientAttributeCertificateResource.java:116-135, :147-205, :262-300; services/util/CertificateInfoHelper.java:131-154' },
+  { pattern: /\/registration-access-token$/, reason: 'Issues the client a new registration access token, which invalidates the previous one.',
+    source: 'services/resources/admin/ClientResource.java:344-360' },
+  { pattern: /\/partialImport$/, reason: 'Imports many resources in one call, and with ifResourceExists OVERWRITE first deletes the existing users and clients it replaces; no single compensation undoes that.',
+    source: 'services/resources/admin/RealmAdminResource.java:1326-1345; partialimport/AbstractPartialImport.java:60-61; UsersPartialImport.java:99-109; ClientsPartialImport.java:100-113' },
+  { pattern: /\/authz\/resource-server\/import$/, reason: 'Imports authorization settings, updating the scopes, resources and policies it matches by ID or name and creating the rest; no single compensation undoes that.',
+    source: 'authorization/admin/ResourceServerService.java:132-146; server-spi-private/src/main/java/org/keycloak/models/utils/RepresentationToModel.java:1269-1380' },
   { pattern: /\/workflows\/(?:migrate$|\{id\}\/(?:activate|deactivate)\/)/, reason: 'Schedules, cancels or migrates workflow executions for existing resources.',
     source: 'workflow/admin/resource/WorkflowsResource.java:164; WorkflowResource.java:147, :201' },
 ];

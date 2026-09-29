@@ -12,7 +12,7 @@ import { jsonResponse, tokenResponse } from '../support/fetch.js';
 import { privateTempDir, writePrivateJson } from '../support/temp.js';
 
 test('every official mutation requires compensation or an irreversible override before network', () => {
-  const expected = { latest: 202, '26.3.5': 184 };
+  const expected = { latest: 199, '26.3.5': 181 };
   for (const version of Object.keys(expected)) {
     const catalog = createCatalog('', version);
     const config = testConfig({ KEYCLOAK_MCP_CATALOG_VERSION: version,

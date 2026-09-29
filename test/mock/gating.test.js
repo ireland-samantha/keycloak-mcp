@@ -26,6 +26,12 @@ const refusals = [
     /^step 1 is read-only and cannot be marked irreversible$/],
   ['G6 a read-only step cannot carry a compensation', WRITER, workflow({ ...readRealm,
     compensate: { operation: 'PUT /admin/realms/{realm}', args: { body: {} } } }), /^step 1 is read-only and needs no compensation$/],
+  ['G8 test-nodes-available contacts registered nodes, so it is not a read', {},
+    ['keycloak_read', { operation: 'GET /admin/realms/{realm}/clients/{client-uuid}/test-nodes-available', args: { path: { 'client-uuid': 'client-1' } } }],
+    /^mutations require a compensating workflow$/],
+  ['G8 test-nodes-available cannot be undone, so it needs the irreversible override', WRITER,
+    workflow({ operation: 'GET /admin/realms/{realm}/clients/{client-uuid}/test-nodes-available', args: { path: { 'client-uuid': 'client-1' } } }),
+    /^step 1 is irreversible and requires an explicit override$/],
 ];
 
 const unguardedHazards = [
@@ -34,9 +40,6 @@ const unguardedHazards = [
       { credentials: [{ type: 'password', value: 'Chosen-Password-1', temporary: false }] })), /irreversible/],
   ['G7 a client secret set through the client representation needs the irreversible override', 'SEC-2', WRITER,
     workflow(sameResourceUpdate('PUT /admin/realms/{realm}/clients/{client-uuid}', { 'client-uuid': 'client-1' }, { secret: 'chosen-secret' })), /irreversible/],
-  ['G8 test-nodes-available contacts registered nodes, so it is not a read', 'SEC-4', {},
-    ['keycloak_read', { operation: 'GET /admin/realms/{realm}/clients/{client-uuid}/test-nodes-available', args: { path: { 'client-uuid': 'client-1' } } }],
-    /compensating workflow/],
   ['G9 turning off event auditing needs the irreversible override', 'SEC-7', WRITER,
     workflow(sameResourceUpdate('PUT /admin/realms/{realm}/events/config', {}, { adminEventsEnabled: false, eventsEnabled: false },
       { adminEventsEnabled: true, eventsEnabled: true })), /irreversible/],

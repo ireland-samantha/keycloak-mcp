@@ -23,7 +23,9 @@ function isAssociationPut(op, operationCatalog) {
 export function isIrreversible(key, operationCatalog = defaultCatalog()) {
   const op = describeOperation(key, operationCatalog);
   if (!isMutation(key, operationCatalog)) return false;
-  if (op.method === 'DELETE' || entry(OPERATION_OVERRIDES, key)?.irreversible === true) return true;
+  if (op.method === 'DELETE') return true;
+  const override = entry(OPERATION_OVERRIDES, key)?.irreversible;
+  if (override !== undefined) return override;
   if (op.extension) return op.irreversible;
   return isAssociationPut(op, operationCatalog) || IRREVERSIBLE_PATHS.some(({ pattern }) => pattern.test(op.path));
 }

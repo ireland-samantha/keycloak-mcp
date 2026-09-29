@@ -91,7 +91,7 @@ test('E3 sensitive endpoints return only a marker for JSON, text and binary bodi
   }
 });
 
-test('E3 a certificate download is readable as an export and still redacted', { todo: 'classification: certificate download is read-only' }, async t => {
+test('E3 a certificate download is readable as an export and still redacted', async t => {
   const { mock, mcp } = await startScenario(t);
   mock.on('POST /admin/realms/{realm}/clients/{client-uuid}/certificates/{attr}/download',
     { headers: { 'content-type': 'application/octet-stream' }, body: Buffer.from(canary) });

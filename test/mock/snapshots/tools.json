@@ -19,7 +19,7 @@
  },
  "keycloak_read": {
   "name": "keycloak_read",
-  "description": "Call a read-only catalog operation in the configured realm with a service-account token. This includes GET and the client-description converter POST. Sensitive JSON fields are redacted by default.",
+  "description": "Call a read-only catalog operation in the configured realm with a service-account token. This includes GET and read-only POSTs such as the client-description converter and authorization policy evaluation. Sensitive JSON fields are redacted by default.",
   "inputSchema": {"type":"object","$schema":"https://json-schema.org/draft/2020-12/schema","properties":{"operation":{"type":"string"},"args":{"type":"object","properties":{"path":{"type":"object","propertyNames":{"type":"string"},"additionalProperties":{"type":["string","number"]}},"query":{"type":"object","propertyNames":{"type":"string"},"additionalProperties":{"anyOf":[{"type":["string","number","boolean"]},{"type":"array","items":{"type":["string","number","boolean"]}}]}},"body":{},"bodyBase64":{"type":"string"},"contentType":{"type":"string"},"accept":{"type":"string"}}}},"required":["operation"]},
   "annotations": {"readOnlyHint":true}
  },

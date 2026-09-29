@@ -46,7 +46,7 @@ export const tools = [
   },
   {
     name: 'keycloak_read',
-    description: 'Call a read-only catalog operation in the configured realm with a service-account token. This includes GET and the client-description converter POST. Sensitive JSON fields are redacted by default.',
+    description: 'Call a read-only catalog operation in the configured realm with a service-account token. This includes GET and read-only POSTs such as the client-description converter and authorization policy evaluation. Sensitive JSON fields are redacted by default.',
     readOnly: true,
     input: z.object({ operation: z.string(), args: operationArgs.optional() }),
     run: (admin, input) => admin.invoke(input.operation, input.args),
