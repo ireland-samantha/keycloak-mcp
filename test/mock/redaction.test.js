@@ -61,7 +61,8 @@ async function readSensitive(t, settings) {
 
 test('E3 sensitive endpoints return only a marker for JSON, text and binary bodies', async t => {
   for (const { operation, providerId, result } of await readSensitive(t)) {
-    assert.deepEqual(result.value, { status: 200, value: '[REDACTED: sensitive endpoint]' }, `${operation} ${providerId ?? ''}`);
+    assert.equal(result.value.status, 200);
+    assert.equal(result.value.value, '[REDACTED: sensitive endpoint]', `${operation} ${providerId ?? ''}`);
   }
 });
 
@@ -71,7 +72,7 @@ test('E3 a certificate download is readable as an export and still redacted', { 
     { headers: { 'content-type': 'application/octet-stream' }, body: Buffer.from(canary) });
   const result = await mcp.call('keycloak_read', { operation: 'POST /admin/realms/{realm}/clients/{client-uuid}/certificates/{attr}/download',
     args: { path: { 'client-uuid': 'client-1', attr: 'jwt.credential' }, body: { format: 'JKS', keyAlias: 'a', keyPassword: 'b', storePassword: 'c' } } });
-  assert.deepEqual(result.value, { status: 200, value: '[REDACTED: sensitive endpoint]' });
+  assert.deepEqual(result.value, { status: 200, contentType: 'application/octet-stream', value: '[REDACTED: sensitive endpoint]' });
 });
 
 test('E4 KEYCLOAK_MCP_ALLOW_SENSITIVE_READS passes sensitive bodies through', async t => {

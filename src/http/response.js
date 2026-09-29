@@ -5,7 +5,6 @@ import { readLimitedBody } from './body.js';
 import { decodeText, isJsonType, isTextType, mediaTypeOf } from './media-type.js';
 
 function decodeValue(bytes, header, op, config) {
-  if (!bytes.length) return null;
   if (isSensitiveEndpoint(op) && !config.allowSensitiveReads) return REDACTED_ENDPOINT;
   const contentType = mediaTypeOf(header);
   if (isJsonType(contentType)) {
@@ -17,11 +16,14 @@ function decodeValue(bytes, header, op, config) {
   return { base64: bytes.toString('base64'), contentType };
 }
 
-// Reads a successful response as { status, attempts?, location?, value }; JSON is parsed, text kept as
-// text, anything else returned as base64, and sensitive content redacted unless sensitive reads are allowed.
+// Reads a successful response as { status, attempts?, location?, contentType?, value? }. A body is reported
+// with its media type and its value: JSON parsed, text kept as text, anything else as base64, and sensitive
+// content redacted unless sensitive reads are allowed. An empty body has neither, so it cannot be mistaken
+// for a JSON null.
 export async function readResult(response, { op, attempts, config }) {
   const bytes = await readLimitedBody(response, config.maxBodyBytes ?? DEFAULT_BODY_BYTES);
-  const value = decodeValue(bytes, response.headers.get('content-type'), op, config);
+  const header = response.headers.get('content-type');
   const location = response.headers.get('location');
-  return { status: response.status, ...(attempts > 1 ? { attempts } : {}), ...(location ? { location } : {}), value };
+  return { status: response.status, ...(attempts > 1 ? { attempts } : {}), ...(location ? { location } : {}),
+    ...(bytes.length ? { contentType: mediaTypeOf(header), value: decodeValue(bytes, header, op, config) } : {}) };
 }

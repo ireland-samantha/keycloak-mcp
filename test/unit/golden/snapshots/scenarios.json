@@ -1,18 +1,18 @@
 {
  "readRedact": {
-  "result": {"ok":{"status":200,"value":{"a":1,"clientSecret":"[REDACTED]","nested":[{"password":"[REDACTED]"}]}}},
+  "result": {"ok":{"status":200,"contentType":"application/json","value":{"a":1,"clientSecret":"[REDACTED]","nested":[{"password":"[REDACTED]"}]}}},
   "receipts": []
  },
  "readText": {
-  "result": {"ok":{"status":200,"value":"hello"}},
+  "result": {"ok":{"status":200,"contentType":"text/plain","value":"hello"}},
   "receipts": []
  },
  "readBinary": {
-  "result": {"ok":{"status":200,"value":{"base64":"AQID","contentType":"application/octet-stream"}}},
+  "result": {"ok":{"status":200,"contentType":"application/octet-stream","value":{"base64":"AQID","contentType":"application/octet-stream"}}},
   "receipts": []
  },
  "sensitive": {
-  "result": {"ok":{"status":200,"value":"[REDACTED: sensitive endpoint]"}},
+  "result": {"ok":{"status":200,"contentType":"application/json","value":"[REDACTED: sensitive endpoint]"}},
   "receipts": []
  },
  "saga": {

@@ -11,9 +11,9 @@ async function readWith(t, response, call = readRealm) {
   return { mock, result: await mcp.call('keycloak_read', call) };
 }
 
-test('O1 JSON is parsed and an empty 204 becomes null', async t => {
-  assert.equal((await readWith(t, { json: { realm: 'test-realm' } })).result.value.value.realm, 'test-realm');
-  assert.deepEqual((await readWith(t, { status: 204 })).result.value, { status: 204, value: null });
+test('O1 JSON is parsed and reported with its media type; an empty 204 has no value', async t => {
+  assert.deepEqual((await readWith(t, { json: { realm: 'test-realm' } })).result.value, { status: 200, contentType: 'application/json', value: { realm: 'test-realm' } });
+  assert.deepEqual((await readWith(t, { status: 204 })).result.value, { status: 204 });
 });
 
 test('O2 text, XML and YAML bodies are returned as strings', async t => {
@@ -87,8 +87,9 @@ test('O9 a failed read carries the error Keycloak sent', { todo: 'MCPLIVE-05' },
   assert.match(result.text, /User not found/);
 });
 
-test('O10 an empty body and a JSON null are distinguishable', { todo: 'MCPLIVE-10' }, async t => {
-  const empty = (await readWith(t, { status: 200, headers: { 'content-type': 'application/json' } })).result.text;
-  const nothing = (await readWith(t, { json: 'null' })).result.text;
-  assert.notEqual(empty, nothing);
+test('O10 an empty body and a JSON null are distinguishable', async t => {
+  const empty = (await readWith(t, { status: 200, headers: { 'content-type': 'application/json' } })).result;
+  const nothing = (await readWith(t, { json: 'null' })).result;
+  assert.notEqual(empty.text, nothing.text);
+  assert.deepEqual([empty.value, nothing.value], [{ status: 200 }, { status: 200, contentType: 'application/json', value: null }]);
 });
