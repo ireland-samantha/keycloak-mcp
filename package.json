@@ -19,8 +19,8 @@
     "test": "node --test \"test/unit/**/*.test.js\" \"test/mock/**/*.test.js\"",
     "test:unit": "node --test \"test/unit/**/*.test.js\"",
     "test:mock": "node --test \"test/mock/**/*.test.js\"",
+    "test:equivalence": "mvn -f equivalence/pom.xml verify",
     "live:soak": "node scripts/live-soak.mjs",
-    "live:coverage": "node scripts/live-coverage.mjs",
     "live:openclaw": "node scripts/live-openclaw.mjs",
     "check": "node scripts/check-syntax.mjs && npm test",
     "catalog:update": "node scripts/update-catalog.mjs"
