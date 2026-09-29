@@ -1,27 +1,16 @@
-import { readFileSync } from 'node:fs';
 import { setTimeout as delay } from 'node:timers/promises';
+import { createCatalog, defaultCatalog, describeOperation } from './catalog/index.js';
 import { DEFAULT_BODY_BYTES } from './config.js';
 import { pathParameterNames } from './internal/path-template.js';
-import { readPrivateJson } from './internal/private-file.js';
 import { redactKeys, REDACTED_ENDPOINT } from './internal/redaction.js';
 
 export { configFromEnv } from './config.js';
+export { createCatalog, describeOperation, describeSchema, listOperations } from './catalog/index.js';
 
-const catalog = JSON.parse(readFileSync(new URL('../data/operations.json', import.meta.url), 'utf8'));
-const openapi = JSON.parse(readFileSync(new URL('../data/openapi.json', import.meta.url), 'utf8'));
-const catalog2635 = JSON.parse(readFileSync(new URL('../data/operations-26.3.5.json', import.meta.url), 'utf8'));
-const openapi2635 = JSON.parse(readFileSync(new URL('../data/openapi-26.3.5.json', import.meta.url), 'utf8'));
-const baseCatalogs = { latest: [catalog, openapi], '26.3.5': [catalog2635, openapi2635] };
 const sensitive = /secret|password|credential|private.?key|access.?token|refresh.?token|authorization|^token$/i;
 const sideEffectingGets = new Set(['GET /admin/realms/{realm}/identity-provider/instances/{alias}/reload-keys']);
 const readOnlyPosts = new Set([
   'POST /admin/realms/{realm}/client-description-converter',
-  'POST /admin/realms/{realm}/identity-provider/upload-certificate',
-]);
-const federatedIdentityCreate = 'POST /admin/realms/{realm}/users/{user-id}/federated-identity/{provider}';
-const certificateUploads = new Set([
-  'POST /admin/realms/{realm}/clients/{client-uuid}/certificates/{attr}/upload',
-  'POST /admin/realms/{realm}/clients/{client-uuid}/certificates/{attr}/upload-certificate',
   'POST /admin/realms/{realm}/identity-provider/upload-certificate',
 ]);
 const sensitivePaths = /\/client-secret(?:\/|$)|\/clients-initial-access(?:\/|$)|\/credentials(?:\/|$)|\/certificates\/\{attr\}(?:\/|$)|\/installation\/providers\/|\/evaluate-scopes\/generate-example-/;
@@ -53,51 +42,12 @@ async function limitedBody(response, limit) {
   return Buffer.concat(chunks, total);
 }
 
-export function createCatalog(extensionPath = '', version = 'latest') {
-  const pair = baseCatalogs[version];
-  if (!pair) throw new Error('unsupported KEYCLOAK_MCP_CATALOG_VERSION');
-  const [base, spec] = pair;
-  const byKey = new Map(base.operations.map(op => [op.key, op]));
-  if (!extensionPath) return { operations: base.operations, byKey, source: base.source, sourceSha256: base.sourceSha256, openapi: spec, version };
-  const extension = readPrivateJson(extensionPath, 'KEYCLOAK_MCP_EXTENSION_CATALOG');
-  if (!extension || !Array.isArray(extension.operations) || typeof extension.source !== 'string') throw new Error('invalid extension catalog');
-  const extra = extension.operations.map(item => {
-    if (!item || !['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD'].includes(item.method) ||
-      typeof item.path !== 'string' || !/^\/(?:admin\/)?realms\/\{realm\}(?:\/|$)/.test(item.path) ||
-      /[?#\\%:]/.test(item.path) || /\/\.{1,2}(?:\/|$)/.test(item.path) || item.path.includes('//')) throw new Error('invalid extension operation');
-    const names = pathParameterNames(item.path);
-    if (names.some(name => !/^[A-Za-z][A-Za-z0-9_-]*$/.test(name))) throw new Error('invalid extension path parameter');
-    if (item.method === 'GET' && item.readOnly !== true && item.readOnly !== false) throw new Error('extension GET must declare readOnly');
-    if (typeof item.serviceAccountSupported !== 'boolean') throw new Error('extension operation must declare serviceAccountSupported');
-    if (!Array.isArray(item.query ?? []) || (item.query ?? []).some(name => typeof name !== 'string' || !/^[A-Za-z][A-Za-z0-9_-]*$/.test(name))) throw new Error('invalid extension query');
-    if (!Array.isArray(item.tags ?? []) || (item.tags ?? []).some(value => typeof value !== 'string')) throw new Error('invalid extension tags');
-    const parameters = [
-      ...names.map(name => ({ name, in: 'path', required: true, type: 'string' })),
-      ...(item.query ?? []).map(name => ({ name, in: 'query', required: false, type: 'string' })),
-    ];
-    for (const field of ['requestTypes', 'responseTypes']) if (!Array.isArray(item[field] ?? []) || (item[field] ?? []).some(value => typeof value !== 'string' || !/^[\w.+-]+\/[\w.+-]+$/.test(value))) throw new Error(`invalid extension ${field}`);
-    return { key: `${item.method} ${item.path}`, method: item.method, path: item.path,
-      summary: item.summary ?? '', description: item.description ?? '', tags: item.tags ?? ['Extension'],
-      parameters, requestTypes: item.requestTypes ?? [], responseTypes: item.responseTypes ?? [],
-      requestBody: null, responses: {}, extension: true, readOnly: item.readOnly === true,
-      irreversible: item.irreversible !== false, serviceAccountSupported: item.serviceAccountSupported };
-  });
-  const combined = new Map(byKey);
-  for (const op of extra) {
-    if (combined.has(op.key)) throw new Error(`duplicate extension operation: ${op.key}`);
-    combined.set(op.key, op);
-  }
-  return { operations: [...combined.values()].sort((a, b) => a.key.localeCompare(b.key)), byKey: combined,
-    source: `${base.source}; ${extension.source}`, sourceSha256: base.sourceSha256, openapi: spec, version,
-    extensionSource: extension.source, extensionCount: extra.length };
-}
-
-export function isMutation(key, operationCatalog = createCatalog()) {
+export function isMutation(key, operationCatalog = defaultCatalog()) {
   const op = describeOperation(key, operationCatalog);
   return op.extension ? !op.readOnly : (!['GET', 'HEAD'].includes(op.method) && !readOnlyPosts.has(key)) || sideEffectingGets.has(key);
 }
 
-export function isIrreversible(key, operationCatalog = createCatalog()) {
+export function isIrreversible(key, operationCatalog = defaultCatalog()) {
   const op = describeOperation(key, operationCatalog);
   if (!isMutation(key, operationCatalog)) return false;
   if (op.method === 'DELETE' || sideEffectingGets.has(key)) return true;
@@ -108,47 +58,6 @@ export function isIrreversible(key, operationCatalog = createCatalog()) {
   if (irreversiblePath.test(op.path) || irreversibleInvitationResend.test(op.path) ||
     irreversibleWorkflowActions.test(op.path)) return true;
   return false;
-}
-
-export function listOperations({ search = '', tag = '', method = '', offset = 0, limit = 25 } = {}, operationCatalog = createCatalog()) {
-  const needle = search.toLowerCase();
-  const filtered = operationCatalog.operations.filter(op => (!needle || `${op.key} ${op.summary}`.toLowerCase().includes(needle)) && (!tag || op.tags.includes(tag)) && (!method || op.method === method.toUpperCase()));
-  return { source: operationCatalog.source, sourceSha256: operationCatalog.sourceSha256, extensionCount: operationCatalog.extensionCount ?? 0, total: filtered.length, operations: filtered.slice(offset, offset + Math.min(limit, 100)).map(({ key, summary, tags }) => ({ key, summary, tags })) };
-}
-
-export function describeOperation(key, operationCatalog = createCatalog()) {
-  const op = operationCatalog.byKey.get(key);
-  if (!op) throw new Error('operation is not in the pinned Keycloak catalog');
-  if (op.extension) return op;
-  const path = operationCatalog.openapi.paths[op.path];
-  const detail = path?.[op.method.toLowerCase()];
-  if (!detail) throw new Error('operation is absent from the bundled OpenAPI definition');
-  // The 26.3.5 OpenAPI omits the JSON body consumed by UserResource.addFederatedIdentity.
-  const correctedBody = operationCatalog.version === '26.3.5' && key === federatedIdentityCreate && !detail.requestBody
-    ? { required: true, content: { 'application/json': { schema: { $ref: '#/components/schemas/FederatedIdentityRepresentation' } } } }
-    : null;
-  // The bundled OpenAPI definitions omit the multipart bodies consumed by these certificate routes.
-  const multipartBody = certificateUploads.has(key) && !detail.requestBody
-    ? { required: true, content: { 'multipart/form-data': { schema: { type: 'object',
-      required: ['keystoreFormat', 'file'], properties: {
-        keystoreFormat: { type: 'string' }, file: { type: 'string', format: 'binary' },
-        keyAlias: { type: 'string' }, keyPassword: { type: 'string' }, storePassword: { type: 'string' },
-      } } } } }
-    : null;
-  return {
-    ...op,
-    parameters: [...(path.parameters ?? []), ...(detail.parameters ?? [])],
-    requestTypes: correctedBody ? ['application/json'] : multipartBody ? ['multipart/form-data'] : op.requestTypes,
-    requestBody: detail.requestBody ?? correctedBody ?? multipartBody,
-    responses: detail.responses ?? {},
-  };
-}
-
-export function describeSchema(name, operationCatalog = createCatalog()) {
-  if (typeof name !== 'string' || !/^[A-Za-z0-9._-]{1,128}$/.test(name)) throw new Error('invalid schema name');
-  const schema = operationCatalog.openapi.components?.schemas?.[name];
-  if (!schema) throw new Error('schema is not in the pinned Keycloak definition');
-  return { name, schema };
 }
 
 function decodeBase64Bounded(value, limit, label) {
@@ -188,7 +97,7 @@ function encodeMultipart(fields, limit) {
   return form;
 }
 
-export function buildRequest(config, key, args = {}, operationCatalog = createCatalog()) {
+export function buildRequest(config, key, args = {}, operationCatalog = defaultCatalog()) {
   const op = describeOperation(key, operationCatalog);
   if (op.extension && !op.serviceAccountSupported) throw new Error('extension operation requires a non-service-account credential');
   if (isMutation(key, operationCatalog) && !config.allowWrite) throw new Error('writes are disabled');
