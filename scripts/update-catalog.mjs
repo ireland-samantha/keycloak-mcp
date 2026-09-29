@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto';
 import { writeFile } from 'node:fs/promises';
 import { operationParameters } from '../src/catalog/corrections.js';
 const methods = new Set(['get', 'post', 'put', 'patch', 'delete', 'head', 'options', 'trace']);
-for (const [version, suffix] of [['latest', ''], ['26.3.5', '-26.3.5']]) {
+for (const [version, suffix] of [['latest', ''], ['26.3.5', '-26.3.5'], ['nightly', '-nightly']]) {
   const source = `https://www.keycloak.org/docs-api/${version}/rest-api/openapi.json`;
   const response = await fetch(source);
   if (!response.ok) throw new Error(`catalog download failed: ${source} HTTP ${response.status}`);

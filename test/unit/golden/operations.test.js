@@ -2,11 +2,14 @@ import { test } from 'node:test';
 import { createCatalog, describeOperation, listOperations, preflight } from '../../../src/api.js';
 import { buildRequest } from '../../../src/http/request.js';
 import { isIrreversible, isMutation } from '../../../src/policy/classify.js';
-import { catalogVersions, samplePathArgs } from '../../support/catalog.js';
+import { samplePathArgs } from '../../support/catalog.js';
 import { testConfig } from '../../support/config.js';
 import { assertSnapshot } from '../../support/snapshot.js';
 
 const snapshot = new URL('snapshots/operations.json', import.meta.url);
+// The two catalogs the master was recorded against. nightly follows Keycloak HEAD and changes with every
+// catalog update; its per-operation contract is its classification fixture.
+const versions = ['latest', '26.3.5'];
 const configs = {
   ro: {},
   write: { KEYCLOAK_MCP_ALLOW_WRITE: 'true' },
@@ -40,7 +43,7 @@ function operationRow(catalog, config, key) {
 
 test('every operation describes, classifies, builds and preflights as the golden master records', () => {
   const golden = {};
-  for (const version of catalogVersions) {
+  for (const version of versions) {
     const catalog = createCatalog('', version);
     const config = Object.fromEntries(Object.entries(configs).map(([name, overrides]) =>
       [name, testConfig({ ...overrides, KEYCLOAK_MCP_CATALOG_VERSION: version })]));

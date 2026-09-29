@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 const files = {
   latest: { catalog: 'operations.json', openapi: 'openapi.json' },
   '26.3.5': { catalog: 'operations-26.3.5.json', openapi: 'openapi-26.3.5.json' },
+  nightly: { catalog: 'operations-nightly.json', openapi: 'openapi-nightly.json' },
 };
 const loaded = new Map();
 

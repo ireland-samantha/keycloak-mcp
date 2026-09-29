@@ -2,7 +2,15 @@
 
 A standalone Keycloak Admin REST interface for Claude Code, Codex, OpenClaw, and JavaScript callers. It uses **OAuth 2.0 client credentials only**. No user password, browser login, or operator token is accepted by the runtime.
 
-The pinned `latest` catalog represents all **413 method/path operations across 273 paths** in the [official Keycloak Admin REST OpenAPI definition](https://www.keycloak.org/docs-api/latest/rest-api/index.html) downloaded on 2026-09-26. A second bundled catalog covers the [Keycloak 26.3.5 Admin REST definition](https://www.keycloak.org/docs-api/26.3.5/rest-api/openapi.json) with 374 operations. Set `KEYCLOAK_MCP_CATALOG_VERSION=26.3.5` for a 26.3.5 server; the default is `latest`. Search and describe tools make the selected surface usable without placing hundreds of tools in an LLM context. `npm run catalog:update` regenerates both catalogs from upstream; review their diffs and rerun checks before release. Installed SPI routes can be added through a private, deployment-specific catalog; they are not part of Keycloak's official Admin REST specification.
+The runtime serves one pinned catalog of Keycloak Admin REST operations, generated from an official OpenAPI definition. Search and describe tools make the selected surface usable without placing hundreds of tools in an LLM context. Set `KEYCLOAK_MCP_CATALOG_VERSION` to the catalog that matches your server:
+
+| Version | Generated from | Use for |
+| --- | --- | --- |
+| `latest` (default) | [the current release's definition](https://www.keycloak.org/docs-api/latest/rest-api/openapi.json), downloaded on 2026-09-26 (26.7.x) | a server on that release |
+| `26.3.5` | [the Keycloak 26.3.5 definition](https://www.keycloak.org/docs-api/26.3.5/rest-api/openapi.json) | a 26.3.5 server |
+| `nightly` | [the Keycloak HEAD definition](https://www.keycloak.org/docs-api/nightly/rest-api/openapi.json) | a server built from Keycloak's main branch, such as `quay.io/keycloak/keycloak:nightly` |
+
+Each catalog records the SHA-256 of the definition it was built from, and `keycloak_search_operations` reports it. `npm run catalog:update` regenerates all three from upstream; review their diffs and rerun checks before release. The `nightly` catalog moves with Keycloak HEAD, so regenerate it before relying on it against a newer build. Installed SPI routes can be added through a private, deployment-specific catalog; they are not part of Keycloak's official Admin REST specification.
 
 ## Install and configure
 

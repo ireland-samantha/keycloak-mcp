@@ -1,4 +1,4 @@
-export const catalogVersions = ['latest', '26.3.5'];
+export const catalogVersions = ['latest', '26.3.5', 'nightly'];
 
 export function samplePathArgs(operation, value = 'safe-value') {
   return Object.fromEntries(operation.parameters.filter(parameter => parameter.in === 'path' && parameter.name !== 'realm')
