@@ -144,13 +144,6 @@ public final class McpStdioClient implements AutoCloseable {
         }
     }
 
-    /** Lines that were not a response to one of our requests (notifications, unparseable output). */
-    public List<Line> unsolicited() {
-        synchronized (unsolicited) {
-            return List.copyOf(unsolicited);
-        }
-    }
-
     /** Closes stdin (the MCP stdio shutdown signal) and waits for exit; returns the exit code. */
     public int shutdown(Duration grace) throws InterruptedException {
         try {
@@ -226,10 +219,16 @@ public final class McpStdioClient implements AutoCloseable {
         }
     }
 
+    /** Process state plus the last stderr lines and unsolicited stdout lines, for failure messages. */
     private String diagnostics() {
-        List<String> tail = stderr().stream().map(Line::text).toList();
-        tail = tail.subList(Math.max(0, tail.size() - 20), tail.size());
         return " [alive=" + process.isAlive() + (process.isAlive() ? "" : ", exit=" + process.exitValue())
-                + ", stderr tail=" + tail + "]";
+                + ", stderr tail=" + tail(stderr) + ", unsolicited stdout tail=" + tail(unsolicited) + "]";
+    }
+
+    private static List<String> tail(List<Line> lines) {
+        synchronized (lines) {
+            List<String> texts = lines.stream().map(Line::text).toList();
+            return texts.subList(Math.max(0, texts.size() - 20), texts.size());
+        }
     }
 }
