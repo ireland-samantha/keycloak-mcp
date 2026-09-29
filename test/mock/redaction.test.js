@@ -41,6 +41,17 @@ test('E1 attribute names the operator declares secret are redacted too', async t
   assert.equal(realm.attributes.customApiKey, '[REDACTED by keycloak-mcp]');
 });
 
+test('E1 the private key of an uploaded keystore is redacted; its certificate and public key are not', async t => {
+  const { mock, mcp } = await startScenario(t);
+  const operation = 'POST /admin/realms/{realm}/identity-provider/upload-certificate';
+  const recorded = mock.fixture('idp.uploadCertificate');
+  mock.on(operation, { ...recorded, json: { ...recorded.json, privateKey: canary } });
+  const keystore = { keystoreFormat: 'PKCS12', keyAlias: 'k', keyPassword: 'p', storePassword: 'p',
+    file: { filename: 'store.p12', contentType: 'application/x-pkcs12', base64: Buffer.from('keystore').toString('base64') } };
+  const result = await mcp.call('keycloak_read', { operation, args: { body: keystore } });
+  assert.deepEqual(result.value.value, { ...recorded.json, privateKey: '[REDACTED by keycloak-mcp]' });
+});
+
 test('E2 admin-event representations are redacted, the event itself is not', async t => {
   const { mock, mcp } = await startScenario(t);
   const events = (await mcp.call('keycloak_read', { operation: 'GET /admin/realms/{realm}/admin-events' })).value.value;

@@ -20,7 +20,10 @@ const planted = {
   rotatedSecret: 'fixture-rotated-secret-7d1e', samlPrivateKey: 'fixture-saml-private-key-7d1e', jwkPrivate: 'fixture-jwk-private-7d1e',
   pemPrivateKey: 'fixture-pem-private-key-7d1e', ldapBindCredential: 'fixture-ldap-bind-7d1e',
   realmAttribute: 'fixture-realm-attribute-7d1e', clientAttribute: 'fixture-client-attribute-7d1e',
+  keystorePassword: 'fixture-keystore-password-7d1e',
 };
+// Secrets Keycloak generates and returns in clear; scrubbed like the planted ones.
+const generated = [];
 // A real key, because Keycloak parses an imported one; it masks it in every response.
 const importedKey = generateKeyPairSync('rsa', { modulusLength: 2048 }).privateKey.export({ type: 'pkcs8', format: 'pem' });
 const jwks = JSON.stringify({ keys: [
@@ -48,6 +51,16 @@ async function call(method, url, { json, form, headers = {}, token = adminToken 
   };
 }
 
+// A PKCS12 keystore holding a key pair that Keycloak generates for the client.
+async function generatedKeystore(clientId) {
+  const response = await fetch(`${admin}/clients/${clientId}/certificates/jwt.credential/generate-and-download`, {
+    method: 'POST', headers: { authorization: `Bearer ${adminToken}`, 'content-type': 'application/json' },
+    body: JSON.stringify({ format: 'PKCS12', keyAlias: 'fixture-key', keyPassword: planted.keystorePassword, storePassword: planted.keystorePassword, realmCertificate: false }),
+  });
+  if (!response.ok) throw new Error(`keystore generation failed with HTTP ${response.status}`);
+  return Buffer.from(await response.arrayBuffer());
+}
+
 async function record(name, operation, method, path, options) {
   const response = await call(method, path.startsWith('http') ? path : `${admin}${path}`, options);
   responses[name] = { operation, ...response };
@@ -59,7 +72,7 @@ const createdId = response => response.headers.location.split('/').at(-1);
 function scrub(value) {
   if (typeof value === 'string') {
     let text = value.replace(jwt, '<scrubbed-jwt>');
-    for (const secret of Object.values(planted)) text = text.replaceAll(secret, '<scrubbed-secret>');
+    for (const secret of [...Object.values(planted), ...generated]) text = text.replaceAll(secret, '<scrubbed-secret>');
     return text.replaceAll(origin, '{origin}').replaceAll(realm, '{realm}');
   }
   if (Array.isArray(value)) return value.map(scrub);
@@ -131,6 +144,14 @@ async function recordAll() {
     },
   } });
   await record('idp.get', 'GET /admin/realms/{realm}/identity-provider/instances/{alias}', 'GET', '/identity-provider/instances/fixture-idp');
+  // The converter returns the private key of an uploaded keystore in clear (CertificateInfoHelper.java:303-305).
+  const keystore = new FormData();
+  for (const [name, value] of Object.entries({ keystoreFormat: 'PKCS12', keyAlias: 'fixture-key', keyPassword: planted.keystorePassword, storePassword: planted.keystorePassword }))
+    keystore.append(name, value);
+  keystore.append('file', new Blob([await generatedKeystore(clientId)], { type: 'application/x-pkcs12' }), 'fixture.p12');
+  const uploaded = await record('idp.uploadCertificate', 'POST /admin/realms/{realm}/identity-provider/upload-certificate', 'POST',
+    '/identity-provider/upload-certificate', { form: keystore });
+  if (typeof uploaded.body?.privateKey === 'string') generated.push(uploaded.body.privateKey);
 
   const realmId = (await call('GET', admin)).body.id;
   await call('POST', `${admin}/components`, { json: { name: 'fixture-ldap', providerId: 'ldap', providerType: 'org.keycloak.storage.UserStorageProvider', parentId: realmId,
@@ -181,7 +202,7 @@ try {
     responses,
   });
   const text = `${JSON.stringify(fixtures, null, 1)}\n`;
-  if (text.search(jwt) !== -1 || [...Object.values(planted), importedKey].some(secret => text.includes(secret))) throw new Error('a secret survived scrubbing');
+  if (text.search(jwt) !== -1 || [...Object.values(planted), ...generated, importedKey].some(secret => text.includes(secret))) throw new Error('a secret survived scrubbing');
   writeFileSync(output, text);
   console.log(JSON.stringify({ serverVersion: version, responses: Object.keys(responses).length }));
 } finally {
