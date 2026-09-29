@@ -31,6 +31,8 @@ public record Verdict(Outcome outcome, String detail) {
     public static final String F1_READ = "F1:read";
     public static final String F1_ADAPTER = "F1:adapter";
     public static final String F2_MUTATION = "F2:mutation";
+    /** Soundness of keycloak-mcp's compensation for an operation F2 exercises; not a verdict of its own. */
+    public static final String F3_COMPENSATION = "F3:compensation";
 
     /** Checks whose outcome is a verdict; between them they must cover every reference operation. */
     public static final List<String> FUNCTIONAL = List.of(F1_READ, F2_MUTATION);

@@ -252,14 +252,14 @@ class ReadEquivalenceIT {
         Endpoint e = binding.get();
         Object body = request.body() == null ? null : request.body().adapterValue(
                 e.params(ParamSpec.Source.BODY).getFirst().javaType());
-        AdminClientOracle.Answer first = adapter.read(e, request.pathValues(), request.query(), body);
+        AdminClientOracle.Answer first = adapter.call(e, request.pathValues(), request.query(), body);
         if (first.request() == null) {
             return new Check(ReadJudge.DIVERGENT, false, "the admin client sent no request: " + first.observation().error());
         }
         AdminClientOracle.Request sent = first.request();
         return judge.adapter(read.key(), e.javaChain(), ReadComparison.run(
                 () -> replay(sent, request.rawBody()),
-                () -> adapter.read(e, request.pathValues(), request.query(), body).observation(), mask, ATTEMPTS),
+                () -> adapter.call(e, request.pathValues(), request.query(), body).observation(), mask, ATTEMPTS),
                 path -> AdminClientOracle.unorderedInModel(e, path));
     }
 

@@ -44,7 +44,7 @@ public final class AdminClientOracle implements AutoCloseable {
     public record Request(String method, String pathAndQuery, String accept, String contentType) {
     }
 
-    /** The adapter's reading of one call and the request it sent; {@code request} is null if none was sent. */
+    /** The adapter's reading of one call's answer and the request it sent; {@code request} is null if none was sent. */
     public record Answer(Observation observation, Request request) {
     }
 
@@ -104,7 +104,8 @@ public final class AdminClientOracle implements AutoCloseable {
         return type != null && type.isCollectionLikeType() && Set.class.isAssignableFrom(type.getRawClass());
     }
 
-    public Answer read(Endpoint endpoint, List<String> pathValues, Map<String, String> query, Object body) {
+    /** Calls the binding with these values; a read or a mutation alike, recording what was sent and answered. */
+    public Answer call(Endpoint endpoint, List<String> pathValues, Map<String, String> query, Object body) {
         recorder.reset();
         Observation observation;
         try {
