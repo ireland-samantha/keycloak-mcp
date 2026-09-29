@@ -78,11 +78,16 @@ public final class KeycloakMcpReads {
         call.set("args", args);
         McpStdioClient.ToolResult result = mcp.callTool("keycloak_read", call);
         if (result.isError()) {
-            Matcher status = HTTP_STATUS.matcher(result.text());
-            return Observation.failure(status.find() ? Integer.parseInt(status.group(1)) : 0, result.text());
+            return Observation.failure(httpStatus(result.text()), result.text());
         }
         JsonNode answer = result.json();
         JsonNode value = answer.get("value");
         return new Observation(answer.path("status").asInt(), value == null ? NullNode.getInstance() : value, null);
+    }
+
+    /** The HTTP status a keycloak-mcp error message names ({@code ... HTTP 404 ...}), 0 when it names none. */
+    static int httpStatus(String message) {
+        Matcher status = HTTP_STATUS.matcher(message);
+        return status.find() ? Integer.parseInt(status.group(1)) : 0;
     }
 }

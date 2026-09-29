@@ -25,10 +25,12 @@ public final class KeycloakMcpProcess implements AutoCloseable {
     private static final Duration REQUEST_TIMEOUT = Duration.ofSeconds(60);
 
     private final Path workDir;
+    private final Path journalDir;
     private final McpStdioClient client;
 
-    private KeycloakMcpProcess(Path workDir, McpStdioClient client) {
+    private KeycloakMcpProcess(Path workDir, Path journalDir, McpStdioClient client) {
         this.workDir = workDir;
+        this.journalDir = journalDir;
         this.client = client;
     }
 
@@ -61,7 +63,7 @@ public final class KeycloakMcpProcess implements AutoCloseable {
                 client.close();
                 throw e;
             }
-            return new KeycloakMcpProcess(workDir, client);
+            return new KeycloakMcpProcess(workDir, journal, client);
         } catch (IOException | TimeoutException | RuntimeException e) {
             deleteRecursively(workDir);
             throw e;
@@ -72,10 +74,18 @@ public final class KeycloakMcpProcess implements AutoCloseable {
         return client;
     }
 
+    /** {@code KEYCLOAK_MCP_JOURNAL_DIR}: where workflow receipts land; removed with the process. */
+    public Path journalDir() {
+        return journalDir;
+    }
+
+    /** Ends the process; an interrupt while waiting for it is kept on the thread, not thrown. */
     @Override
-    public void close() throws InterruptedException {
+    public void close() {
         try {
             client.close();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         } finally {
             deleteRecursively(workDir);
         }
