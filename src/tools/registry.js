@@ -2,9 +2,11 @@ import * as z from 'zod/v4';
 import { describeOperation, describeSchema, listOperations } from '../catalog/index.js';
 import { runWorkflow } from '../workflow/runner.js';
 
+const queryValue = z.union([z.string(), z.number(), z.boolean()]);
+
 const operationArgs = z.object({
   path: z.record(z.string(), z.union([z.string(), z.number()])).optional(),
-  query: z.record(z.string(), z.unknown()).optional(),
+  query: z.record(z.string(), z.union([queryValue, z.array(queryValue)])).optional(),
   body: z.unknown().optional(),
   bodyBase64: z.string().optional(),
   contentType: z.string().optional(),

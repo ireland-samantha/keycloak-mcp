@@ -69,7 +69,7 @@ test('F4 unknown path and query parameters are refused; query arrays repeat the 
   assert.deepEqual([...request.query], [['briefRepresentation', 'true'], ['search', 'alpha'], ['search', 'beta']]);
 });
 
-test('F4 an object-valued query parameter is refused instead of sent as [object Object]', { todo: 'BC-04' }, async t => {
+test('F4 an object-valued query parameter is refused instead of sent as [object Object]', async t => {
   const { mock, mcp } = await startScenario(t);
   const result = await mcp.call('keycloak_read', { operation: 'GET /admin/realms/{realm}/users', args: { query: { q: { dept: 'eng' } } } });
   assert.equal(result.isError, true, result.text);

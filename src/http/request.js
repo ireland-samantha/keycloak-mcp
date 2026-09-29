@@ -20,6 +20,7 @@ function expandPath(config, template, inputPath) {
   return expandPathTemplate(template, name => {
     const value = name === 'realm' ? config.realm : inputPath[name];
     if (value === undefined || value === null || String(value) === '') throw new Error(`missing path parameter: ${name}`);
+    if (typeof value !== 'string' && !Number.isFinite(value)) throw new Error(`path parameter ${name} must be a string or number`);
     if (name === 'realm' && inputPath.realm !== undefined && inputPath.realm !== config.realm) throw new Error('realm cannot be overridden');
     if (name === MULTI_SEGMENT_PATH_PARAMETER.name) return encodeSegments(value);
     if (isDotSegment(String(value)) || /[\\/]/.test(String(value))) throw new Error(`unsafe path parameter: ${name}`);
@@ -27,11 +28,19 @@ function expandPath(config, template, inputPath) {
   });
 }
 
+const isQueryScalar = value => typeof value === 'string' || typeof value === 'boolean' || Number.isFinite(value);
+
+// A list repeats the parameter; null and undefined leave it out. Anything else would reach Keycloak as
+// '[object Object]', which it ignores as a filter or rejects as a bad number.
 function appendQuery(url, op, query) {
   const allowed = new Set(op.parameters.filter(parameter => parameter.in === 'query').map(parameter => parameter.name));
   for (const [name, value] of Object.entries(query)) {
     if (!allowed.has(name)) throw new Error(`unknown query parameter: ${name}`);
-    for (const item of Array.isArray(value) ? value : [value]) if (item !== null && item !== undefined) url.searchParams.append(name, String(item));
+    for (const item of Array.isArray(value) ? value : [value]) {
+      if (item === null || item === undefined) continue;
+      if (!isQueryScalar(item)) throw new Error(`query parameter ${name} must be a string, number or boolean, or a list of them`);
+      url.searchParams.append(name, String(item));
+    }
   }
 }
 
