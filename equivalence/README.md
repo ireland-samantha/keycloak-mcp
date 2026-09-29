@@ -1,0 +1,126 @@
+# keycloak-mcp equivalence suite
+
+Java 21 / Maven module that checks keycloak-mcp against Keycloak HEAD. It uses three oracles, listed from most to least authoritative:
+
+1. **The live server** (`quay.io/keycloak/keycloak:nightly`), reached over raw HTTP with the same service-account token keycloak-mcp uses.
+2. **The Java admin client** `org.keycloak:keycloak-admin-client:999.0.0-SNAPSHOT`. Its JAX-RS surface is walked by reflection.
+3. **The HEAD OpenAPI definition** (`https://www.keycloak.org/docs-api/nightly/rest-api/openapi.json`). If that URL is unreachable, the suite falls back to `../data/openapi-nightly.json` and logs a warning.
+
+keycloak-mcp itself is only observed through MCP stdio: `node ../src/index.js`, started with a private config file and journal directory.
+
+## Checks
+
+| IT | Check | Obligation |
+|---|---|---|
+| `StructuralEquivalenceIT` | S1 | The catalog, read through `keycloak_search_operations` and `keycloak_describe_operation`, lists exactly HEAD OpenAPI ∪ admin-client operations. It describes each one as its source does. |
+| | S2 | Each catalog operation declares every path variable once. OpenAPI and the admin client agree on query parameters, form fields and media types. |
+| | S3 | The live server routes every catalog and reference operation in a seeded, disposable realm. A 2xx proves routing. A specific error proves it only if the same request one segment deeper does not get the same answer; if it does, a sub-resource locator on the path answered (`INCONCLUSIVE`), and the operation needs a seeded entity or a documented gate. |
+| `ReadEquivalenceIT` | F1 | Every read (each GET, and each operation keycloak-mcp itself classifies as read-only) answers the same through `keycloak_read` as over raw HTTP with the same token and `Accept`: status, content class, value; only key order may differ and numbers must match exactly. Where the admin client has the operation, its typed result matches raw HTTP too, up to the dated known-lag list. One dynamic test per read. |
+| `MutationEquivalenceIT` | F2 | Every mutation case (see [Mutation families](#mutation-families)) runs through `keycloak_workflow` in one realm and through the reference in its twin: the admin client's typed binding when it has one, else raw HTTP. Both must answer in the same status class and leave the same state, read back raw and compared with generated ids replaced by natural keys. Only a case that both sides performed (2xx) shows the operation `EQUIVALENT`. A case that both sides rejected alike is `REJECTED_ALIKE`: it is accepted but proves nothing, and an operation with no performed case is `ROUTED_ONLY`. |
+| | F3 | When keycloak-mcp accepts a case's compensation as reversible, a third twin runs the operation followed by a step that always fails. The frame is `SOUND` only when all of these hold: the operation completed with a 2xx, the forced step is the one that failed, the rollback holds exactly the declared compensation as `COMPENSATED`, or keycloak-mcp's documented rewrite of it, and the state equals the state before. The one rewrite keycloak-mcp documents (README, "Write safety and actual guarantees") is a role create's: it reads the created role for its id and compensates with `DELETE .../roles-by-id/{role-id}` instead of the declared `DELETE .../roles/{role-name}`, because a role can be renamed. `CompensationRewrites` holds that table; an identity-provider create keeps its declared compensation. A frame whose operation itself failed and left the state as it was is `NOT_EXERCISED`: it is accepted but proves nothing, and an operation is `SOUND` only with an exercised frame. If that failed operation changed the state anyway, the server committed a write that keycloak-mcp neither reported completed nor compensated, and the frame is `UNSOUND`. A case the family marks irreversible must be refused without the override, with its compensation. The same plan is then dry-run with the override, and the case is `IRREVERSIBLE` only if keycloak-mcp accepts it: the override is then the only difference, so the refusal is the classification's. keycloak-mcp refuses every mutation step without a compensation, and some compensations whether or not the step is overridden. A refusal the override does not lift, or a refusal of a case that offers no compensation, is therefore `AMBIGUOUS_REFUSAL`: it is accepted but proves nothing, and an operation is `IRREVERSIBLE` only with a case that is. Accepting the plan without the override is a misclassification (`MISCLASSIFIED`), and the frame's result is its counterexample. |
+| `SafetySemanticsIT` | F4 | keycloak-mcp's own guarantees against the live server: realm pinning (a `path.realm` override, encoded traversal, reads without `{realm}`), write gating, irreversible gating (also for secrets set through a representation PUT), redaction on and off against raw HTTP (on both as keycloak-mcp ships it, with `KEYCLOAK_MCP_ALLOW_SENSITIVE_READS` unset, and with the switch set to `false`), a redacted value PUT back with the irreversible override in use (so only rejecting or stripping the redaction marker can keep the secret), compensation after a failed step with `IN_DOUBT` and `failedStepMayHaveCommitted`, `$step.locationId` and `$step.responseId` binding, journal receipts, and a clean exit. keycloak-mcp reaches the server through a recording proxy, so every refusal is shown to send nothing, and the realm's admin events show that nothing changed. |
+| `ExternalSystemsIT` | harness | The server reaches a container and a port of this JVM that the harness gives it, so a family can exercise an operation that needs such a system (see [Systems the server reaches](#systems-the-server-reaches)). |
+| `LedgerCompletenessIT` | ledger | Runs last. Every reference operation ends in one verdict: `EQUIVALENT`, `ROUTED_ONLY` (with the reason) or `DIVERGENT_DOCUMENTED` (with the entries). It fails on any operation a check refused, grouped by cause. When a functional check was not selected for the run, it is aborted and names the missing check. |
+
+F1 reads one realm seeded with at least one entity of every kind the admin API reads: clients of every access type, composite roles, groups, a user with credentials, consents and sessions, identity providers and mappers, components (keys, a disabled LDAP), a configured flow, an organization with an invitation, client policies, localization, events, a workflow, and a policy of every type the admin client can create. Path variables are bound by position (`PathValues`); searches and read-only POSTs get their arguments from `ReadRequests`. Policy and permission evaluation ask for the seeded user against the seeded resource (without a user HEAD answers 500). An operation can be read with several entities: the keystore download is read once as JKS and once as PKCS12, each compared on its own, and the operation gets the least any of them proved. Keycloak builds every keystore anew, with salts and entry dates, so no two downloads share their bytes: a keystore is compared by content instead (`KeystoreContent`), opened with the passwords the request chose, by type, aliases, entry kinds, certificate chains and key encodings. keycloak-mcp's read/mutation classification is taken from a dry-run `keycloak_workflow`, which never sends a request. Because every read is also sent raw with a master-admin token, the classification fails closed. A catalog operation is a read only when the dry run, given the read's own arguments, answers `PREFLIGHT_OK`. It is a mutation, left to F2, only when the dry run refuses it with `writes are disabled`. Any other answer fails that operation as `CLASSIFICATION_UNKNOWN`, and nothing is sent for it. F1 sends nothing at all unless `DELETE /admin/realms/{realm}` still classifies as a mutation and `GET /admin/realms/{realm}` as a read. A GET or HEAD the catalog lacks is a read by its method.
+
+keycloak-mcp refuses every operation whose path has no `{realm}` (`GET /admin/realms`, `GET /admin/serverinfo`) with `realm administration is disabled` unless `KEYCLOAK_MCP_ALLOW_REALM_ADMIN=true`; `SafetySemanticsIT` proves that refusal. F1 and F2 therefore run a second keycloak-mcp process with that switch and use it for exactly those operations: when the pinned process answers with that refusal for a path without `{realm}`, the second process classifies the operation, and F1 reads it through that process. The same refusal for a path with `{realm}`, or from the second process, is `CLASSIFICATION_UNKNOWN`.
+
+Each read is judged against a reference that held still: raw HTTP is read immediately before and after the subject, and a reference that changed is read again. Values that legitimately change between identical reads are listed per operation in `src/test/resources/read-volatility.json` and masked on every side.
+
+Every verdict and the run's provenance go to `target/equivalence-ledger.json`. Provenance covers:
+
+- the git SHA and the image digest
+- the server version and its enabled features
+- the resolved admin-client snapshot, with its jar SHA-256 and `Scm-Revision`
+- the OpenAPI SHA-256 and the catalog version
+
+## Mutation families
+
+F2 owns every reference operation keycloak-mcp classifies as a mutation (a dry run with writes off refuses it with `writes are disabled`), and every non-GET operation its catalog lacks. An operation gets its `F2:mutation` verdict from its cases, and its `F3:compensation` outcome with it. An operation without a case is `ROUTED_ONLY` ("no mutation case") until a family covers it. `target/mutation-coverage.json` lists those operations, the operations each family covers, the documented mutation gates, and any case for an operation F2 does not own.
+
+Some mutations cannot be performed in this environment at all, because the server would need a system the harness does not provide. Prefer providing it (see [Systems the server reaches](#systems-the-server-reaches)); where that is not possible, document the operation in `divergences.json` as a mutation gate, and the ledger reports it `ROUTED_ONLY` with the gate's reason:
+
+```json
+{
+  "key": "POST /admin/realms/{realm}/...",
+  "kind": "mutation-gate",
+  "sources": "environment",
+  "reason": "what the server needs and why the harness cannot provide it",
+  "evidence": "server source file:line, or the observed failure",
+  "since": "2026-09-29"
+}
+```
+
+A gate observes nothing, so it takes no `observed`, and `reason` and `evidence` are required. A gate whose operation F2 does not own (not a reference operation, or one keycloak-mcp classifies as a read) fails `every mutation gate names a mutation`. A gate whose operation a case now exercises is stale: the cases decide the verdict, and the log line `documented mutation gates now exercised` names the gate to remove, as S3 does for `route` entries.
+
+Cases live in `src/main/java/.../mutations/*Family.java`. Each case runs in fresh twin realms (`equivalence-f2-<family>-<run>-<n>-a`, `-b`, and `-c` for the F3 frame), which are deleted afterwards. keycloak-mcp runs them with `KEYCLOAK_MCP_ALLOW_WRITE`, `KEYCLOAK_MCP_SINGLE_WRITER` and `KEYCLOAK_MCP_ALLOW_IRREVERSIBLE`, and with `KEYCLOAK_MCP_ALLOW_REALM_ADMIN` only for a case whose operation has no `{realm}`.
+
+To add a family:
+
+1. Implement `MutationFamily`. `name()` becomes part of realm names (`[a-z0-9-]+`). `seed(realm)` creates the baseline every twin starts from, through `CaseContext.create`, `send` and `get`, which are raw JSON requests below `/admin/realms/{realm}/`.
+2. Write one `MutationCase` per operation and body shape. Use `MutationCase.of(operation, name)`, where `operation` is the reference key with the OpenAPI variable names, and then:
+   - `setup(realm)`: extra state the case needs on top of the seed.
+   - `args(realm)`: `CaseArgs.path(realm.realm(), ...)` gives the path values by position, the realm's included, then `withQuery` and `withBody`. Address entities by natural key (`realm.id(NaturalKeys.group("/a/b"))`), never by an id seen in another realm.
+   - `compensatedBy(realm)`: the undo a client would offer, resolved before the mutation. It may use `$step.locationId` or `$step.responseId`. A reversible case must name one, and an irreversible case should too: without one it can only end `AMBIGUOUS_REFUSAL`. Give the undo the shape keycloak-mcp's compensation rules take for the method, so that only the classification can refuse it:
+     - a create: a DELETE of what it created
+     - an update: a PUT to the same path, with the state read before
+     - a delete, or a removed association: the request that puts it back
+
+     Leave the compensation out only when the API has no such request.
+   - `readback(...)`: GETs that observe what the operation changes. They are resolved before the mutation and read raw. Use `Readback.unordered` only when the server returns a set, and cite the server source that leaves it unordered.
+   - `volatileField(readback, path, reason)`: a value that legitimately differs between twins in the same state, with a reason.
+   - `reversible(why)` or `irreversible(why)`: what keycloak-mcp must do with it, with a server `file:line`. An irreversible case must be refused unless the irreversible override is used, and accepted with it. If its compensation is refused even with the override, or it has none, the case is `AMBIGUOUS_REFUSAL`. A reversible case that keycloak-mcp accepts must restore the pre-state after a forced failure. A reversible case keycloak-mcp will not compensate is accepted as `NOT_COMPENSABLE` and runs with the override. Give every operation at least one case that the server performs. A case the server rejects (a name conflict, a bad body, wrong arguments) ends `REJECTED_ALIKE` and `NOT_EXERCISED`, so on its own it leaves the operation `ROUTED_ONLY`.
+   - `requires("<finding id>")`: add this only when the correct behavior needs a keycloak-mcp fix that is not in yet. Such cases run in the `requires-node-fixes` factory and fail until the fix lands.
+3. Add the family to `MutationFamilies.all()`.
+4. `NaturalKeys.index` maps ids to natural keys for the realm itself, realm roles, clients, client roles, users and groups. If a readback shows ids of another kind, index that kind there, or the twins will differ.
+5. Run `mvn -B test` (it includes `MutationFamiliesTest`), then `mvn -B verify -Dit.test=MutationEquivalenceIT -Dequivalence.families=<name>`. The coverage count in the log goes up.
+
+## Systems the server reaches
+
+Some operations make the server contact another system: an LDAP directory, a URL it fetches, a back-channel endpoint, a mail server. `EquivalenceEnvironment.systems()` (in a family: `CaseContext.systems()`) provides them, addressed as the server sees them:
+
+- `jvmPort(port)`: a port this JVM listens on (bind all interfaces), such as `com.sun.net.httpserver.HttpServer` for a back-channel call. The SMTP sink is reached this way.
+- `container(alias, port, definition)`: a Testcontainers container, started once per run under `alias` and stopped with the environment. Its `fromServer()` address is what to put into the realm's configuration; this JVM reaches the same port at `container().getHost()` and `container().getMappedPort(port)`. Leave the network out of the definition.
+
+With a Testcontainers server, Keycloak shares a Docker network with every container started this way and reaches it by its alias; it reaches this JVM as `host.testcontainers.internal`. With `keycloak.url`, the server reaches everything through `keycloak.callback.host`: this JVM's ports directly and a container through the port it publishes. For a server container started with `-p` on Docker's default bridge that is the gateway `172.17.0.1`, the default. `ExternalSystemsIT` checks both kinds in whichever mode runs, through the identity-provider `import-config`, which makes the server fetch a URL and only parse it.
+
+## Checks awaiting keycloak-mcp fixes
+
+Some checks assert behavior that keycloak-mcp gets right only once a verified finding (for example `SEC-1`) is fixed. They carry `@RequiresNodeFixes({...})`, or run in `MutationEquivalenceIT#casesAwaitingNodeFixes`; both carry the JUnit tag `requires-node-fixes`. They are never disabled: against a keycloak-mcp without the fixes they fail and name the finding. `-DexcludedGroups=requires-node-fixes` leaves them out of a run. Leaving them out also leaves the operations they cover without a complete F2 verdict, so those operations are reported as unaccounted.
+
+## Documented divergences
+
+Sources may disagree only through `src/test/resources/divergences.json`. Each entry pins the exact observation and carries a reason, evidence (a server source `file:line` where possible) and a `since` date.
+
+- **Undocumented observations** fail the check. The failure message prints a ready-to-complete entry.
+- **Entries that no longer match anything** are stale and also fail. The exceptions are `route` and `read-gate` entries (sources `server`): the server refuses the operation for lack of a feature or provider, and a different feature profile legitimately lifts the gate. F1 reports a documented `read-gate` as `ROUTED_ONLY` with its reason.
+- **`mutation-gate` entries** (sources `environment`) record a mutation this environment cannot exercise; F2 reports the operation `ROUTED_ONLY` with the reason (see [Mutation families](#mutation-families)).
+
+The admin client trails HEAD, so its typed reads may differ from raw HTTP only as `src/test/resources/admin-client-known-lag.json` records: one entry per operation, JSON path and difference kind, with a reason, evidence and the date it was first seen. Array order is not compared where the adapter's own model holds the array in a `Set`. Known-lag and volatility entries that explain nothing in a full run are stale and fail.
+
+## Running
+
+```sh
+mvn -B test                                    # unit tests, no Docker
+mvn -B verify                                  # + ITs on a Testcontainers Keycloak (Docker required)
+mvn -B verify -Dkeycloak.url=http://127.0.0.1:18080   # + ITs against a running server (dev loop)
+mvn -B verify -Dit.test='ReadEquivalenceIT,LedgerCompletenessIT'   # F1 and the ledger check only
+mvn -B verify -Dit.test='SafetySemanticsIT,MutationEquivalenceIT'   # F4, F2 and F3 only
+mvn -B verify -Dit.test=MutationEquivalenceIT -Dequivalence.families=groups,realm-roles   # F2 and F3 of two families
+mvn -f equivalence/pom.xml -Psupplement        # regenerate ../data/admin-client-supplement-nightly.json
+```
+
+| Property | Default | Meaning |
+|---|---|---|
+| `keycloak.image` | `quay.io/keycloak/keycloak:nightly` | Image started by Testcontainers |
+| `keycloak.features` | `preview,client-types,admin-fine-grained-authz:v1` | `--features` for that container; empty keeps the server defaults. The default reaches the most reference operations (see the pom). `admin-fine-grained-authz:v1` replaces the default v2: they are versions of one feature, and only v1 serves the `management/permissions` operations. |
+| `keycloak.url` | unset | Attach to this server instead of starting a container; its features are whatever it runs, and the ledger records them |
+| `keycloak.callback.host` | `172.17.0.1` | Where a `keycloak.url` server reaches this JVM (the SMTP sink) and the containers started for it (see [Systems the server reaches](#systems-the-server-reaches)); Docker's bridge gateway suits a server started with `-p`. A Testcontainers server uses Testcontainers' host alias and a shared network instead |
+| `keycloak.admin.user` / `keycloak.admin.password` | `admin` / `admin` | Bootstrap admin, used only to create the service account |
+| `keycloakmcp.root` | `..` | keycloak-mcp checkout to spawn |
+| `keycloakmcp.catalog` | `nightly` | `KEYCLOAK_MCP_CATALOG_VERSION` under test |
+| `node.executable` | `node` | Node.js binary |
+| `equivalence.families` | empty | Comma-separated `MutationFamily.name()`s that `MutationEquivalenceIT` runs; empty runs every family. A name no family has fails the run. An operation that another family covers is recorded `NOT_SELECTED` and has no verdict, so `LedgerCompletenessIT` reports the ledger incomplete |
+
+Each run creates a confidential service-account client in `master` (`equivalence-<hex>`) and realms for the live checks: `equivalence-s3-<millis>`, `equivalence-f1-<millis>`, `equivalence-f4-<millis>` (and `-other`), and twin realms per mutation case. All of them are removed when their check ends. Seeded realms send mail to an SMTP sink in the test JVM, which accepts and discards it: an organization invitation only exists once its mail went out.

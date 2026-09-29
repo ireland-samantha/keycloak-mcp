@@ -2,12 +2,34 @@ name: CI
 on:
   push:
   pull_request:
+  # Keycloak HEAD moves daily; re-prove equivalence against the newest nightly image and admin-client snapshot.
+  schedule:
+    - cron: '23 5 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
 jobs:
   check:
+    name: Node ${{ matrix.node }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
         node: [22, 24]
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: locks
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      # Runs the PostgreSQL advisory-lock scenarios (M2-M4) that are skipped without a database.
+      KEYCLOAK_MCP_TEST_DATABASE_URL: postgres://postgres:postgres@127.0.0.1:5432/locks
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -17,3 +39,32 @@ jobs:
       - run: npm ci --ignore-scripts
       - run: npm run check
       - run: npm audit --omit=dev --audit-level=high
+
+  equivalence:
+    name: Equivalence with Keycloak HEAD
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: maven
+      # -U re-resolves org.keycloak:keycloak-admin-client:999.0.0-SNAPSHOT; Testcontainers pulls
+      # quay.io/keycloak/keycloak:nightly. Provenance of both lands in the ledger.
+      - run: mvn -B -U -f equivalence/pom.xml verify
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: equivalence-ledger
+          path: |
+            equivalence/target/equivalence-ledger.json
+            equivalence/target/mutation-coverage.json
+            equivalence/target/failsafe-reports/
+          if-no-files-found: warn

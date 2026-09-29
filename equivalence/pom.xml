@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>io.github.irelandsamantha.keycloakmcp</groupId>
+  <artifactId>keycloak-mcp-equivalence</artifactId>
+  <version>0.1.0-SNAPSHOT</version>
+  <name>keycloak-mcp equivalence suite</name>
+  <description>
+    Proves keycloak-mcp equivalent to Keycloak HEAD: the live server (raw HTTP), the Maven-published Java admin
+    client and the HEAD OpenAPI definition are the oracles; keycloak-mcp is driven over MCP stdio.
+  </description>
+
+  <properties>
+    <maven.compiler.release>21</maven.compiler.release>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <!-- Test-only module: never installed or deployed. -->
+    <maven.install.skip>true</maven.install.skip>
+    <maven.deploy.skip>true</maven.deploy.skip>
+
+    <!-- Floating snapshot built from github.com/keycloak/keycloak-client; pin a timestamped version
+         (e.g. 999.0.0-20260928.023246-474) to reproduce a run. The ledger records what was resolved. -->
+    <keycloak.admin-client.version>999.0.0-SNAPSHOT</keycloak.admin-client.version>
+    <testcontainers.version>2.0.5</testcontainers.version>
+    <junit.version>6.1.3</junit.version>
+
+    <!-- Runtime switches, forwarded to the integration tests and the supplement generator. -->
+    <keycloak.image>quay.io/keycloak/keycloak:nightly</keycloak.image>
+    <!-- Features of the Testcontainers server, chosen to exercise the most reference operations (measured against
+         nightly on 2026-09-29): "preview" brings scripts (routes the typed JS policy resource) and oid4vc-vci (the
+         verifiable-credential reads); "client-types" (experimental) opens the client-types locator; and
+         "admin-fine-grained-authz:v1" the management/permissions operations, which answer 501 without it. v1 and v2
+         are versions of one feature, so v1 replaces the default v2; no reference operation needs v2, which changes
+         how permissions are evaluated, not which paths exist. Empty keeps the server defaults. Settings.MAXIMAL_FEATURES
+         holds the same default for runs outside Maven. -->
+    <keycloak.features>preview,client-types,admin-fine-grained-authz:v1</keycloak.features>
+    <keycloak.url></keycloak.url>
+    <keycloak.admin.user>admin</keycloak.admin.user>
+    <keycloak.admin.password>admin</keycloak.admin.password>
+    <keycloakmcp.root>${project.basedir}/..</keycloakmcp.root>
+    <keycloakmcp.catalog>nightly</keycloakmcp.catalog>
+    <node.executable>node</node.executable>
+    <!-- Comma-separated MutationFamily names MutationEquivalenceIT runs; empty runs every family. -->
+    <equivalence.families></equivalence.families>
+  </properties>
+
+  <repositories>
+    <repository>
+      <id>central-snapshots</id>
+      <url>https://central.sonatype.com/repository/maven-snapshots/</url>
+      <releases><enabled>false</enabled></releases>
+      <snapshots><enabled>true</enabled></snapshots>
+    </repository>
+  </repositories>
+
+  <dependencyManagement>
+    <dependencies>
+      <!-- Testcontainers' commons-compress 1.28.0 needs commons-io 2.20.0 (FileTimes) to copy a file into a container;
+           nearest-wins would pick the admin client's 2.11.0 (through resteasy-multipart-provider), and the copy then
+           fails in a background thread while the container starts without the file. -->
+      <dependency>
+        <groupId>commons-io</groupId>
+        <artifactId>commons-io</artifactId>
+        <version>2.20.0</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <dependencies>
+    <!-- The oracle adapter; also brings the Jackson and Jakarta REST versions the suite uses. -->
+    <dependency>
+      <groupId>org.keycloak</groupId>
+      <artifactId>keycloak-admin-client</artifactId>
+      <version>${keycloak.admin-client.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>testcontainers</artifactId>
+      <version>${testcontainers.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <version>${junit.version}</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.13.0</version>
+        <configuration>
+          <compilerArgs><arg>-Xlint:all,-processing,-serial</arg></compilerArgs>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>3.6.0</version>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <version>3.6.0</version>
+        <configuration>
+          <!-- Name dynamic tests (one per operation) by their display name in the XML reports, not by index. -->
+          <statelessTestsetReporter implementation="org.apache.maven.plugin.surefire.extensions.junit5.JUnit5Xml30StatelessReporter">
+            <usePhrasedTestCaseMethodName>true</usePhrasedTestCaseMethodName>
+          </statelessTestsetReporter>
+          <systemPropertyVariables>
+            <keycloak.image>${keycloak.image}</keycloak.image>
+            <keycloak.features>${keycloak.features}</keycloak.features>
+            <keycloak.url>${keycloak.url}</keycloak.url>
+            <keycloak.admin.user>${keycloak.admin.user}</keycloak.admin.user>
+            <keycloak.admin.password>${keycloak.admin.password}</keycloak.admin.password>
+            <keycloakmcp.root>${keycloakmcp.root}</keycloakmcp.root>
+            <keycloakmcp.catalog>${keycloakmcp.catalog}</keycloakmcp.catalog>
+            <node.executable>${node.executable}</node.executable>
+            <equivalence.families>${equivalence.families}</equivalence.families>
+          </systemPropertyVariables>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>integration-test</goal>
+              <goal>verify</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+  <profiles>
+    <!-- mvn -f equivalence/pom.xml -Psupplement : regenerate ../data/admin-client-supplement-nightly.json -->
+    <profile>
+      <id>supplement</id>
+      <build>
+        <defaultGoal>process-classes exec:java</defaultGoal>
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>exec-maven-plugin</artifactId>
+            <version>3.6.4</version>
+            <configuration>
+              <mainClass>io.github.irelandsamantha.keycloakmcp.equivalence.supplement.SupplementGenerator</mainClass>
+              <arguments>
+                <argument>${keycloakmcp.root}/data/admin-client-supplement-nightly.json</argument>
+              </arguments>
+              <systemProperties>
+                <systemProperty>
+                  <key>keycloakmcp.root</key>
+                  <value>${keycloakmcp.root}</value>
+                </systemProperty>
+              </systemProperties>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+</project>

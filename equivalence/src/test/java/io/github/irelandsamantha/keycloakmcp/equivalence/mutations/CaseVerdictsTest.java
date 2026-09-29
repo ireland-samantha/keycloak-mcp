@@ -1,0 +1,92 @@
+package io.github.irelandsamantha.keycloakmcp.equivalence.mutations;
+
+import io.github.irelandsamantha.keycloakmcp.equivalence.harness.KeycloakMcpWorkflow.Result;
+import io.github.irelandsamantha.keycloakmcp.equivalence.ledger.EquivalenceLedger.Check;
+import org.junit.jupiter.api.Test;
+
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+class CaseVerdictsTest {
+
+    /** An irreversible case that offers no compensation. */
+    private static MutationCase uncompensated(String name) {
+        return MutationCase.of("PUT /admin/realms/{realm}/roles/{role-name}", name)
+                .args(r -> CaseArgs.path(r.realm(), "writer"))
+                .readback(Readback.of("GET /admin/realms/{realm}/roles", r -> CaseArgs.path(r.realm())))
+                .irreversible("test")
+                .build();
+    }
+
+    private static CaseOutcome outcome(String name, Check compensation, Check equivalence) {
+        return new CaseOutcome(uncompensated(name), compensation, equivalence);
+    }
+
+    private static Check ok(String outcome) {
+        return new Check(outcome, true, "fine");
+    }
+
+    @Test
+    void acceptedCasesThatShowEquivalenceMakeTheOperationEquivalent() {
+        List<CaseOutcome> cases = List.of(outcome("update", ok(CaseOutcome.SOUND), ok(CaseOutcome.EQUIVALENT)),
+                outcome("refused", ok(CaseOutcome.IRREVERSIBLE), ok(CaseOutcome.REFUSED)));
+        assertEquals(new Check(CaseOutcome.EQUIVALENT, true, "update: EQUIVALENT (fine); refused: REFUSED (fine)"),
+                CaseVerdicts.mutation(cases));
+        assertEquals(CaseOutcome.SOUND, CaseVerdicts.compensation(cases).outcome());
+    }
+
+    @Test
+    void anOperationKeycloakMcpRefusesAsExpectedIsRoutedOnly() {
+        Check verdict = CaseVerdicts.mutation(List.of(outcome("rename", ok(CaseOutcome.IRREVERSIBLE), ok(CaseOutcome.REFUSED))));
+        assertEquals("ROUTED_ONLY", verdict.outcome());
+        assertTrue(verdict.accepted());
+    }
+
+    @Test
+    void onlyAPerformedMutationMakesTheOperationEquivalent() {
+        CaseOutcome created = outcome("create", ok(CaseOutcome.SOUND), ok(CaseOutcome.EQUIVALENT));
+        CaseOutcome conflict = outcome("taken", ok(CaseOutcome.NOT_EXERCISED), ok(CaseOutcome.REJECTED_ALIKE));
+        assertEquals(CaseOutcome.EQUIVALENT, CaseVerdicts.mutation(List.of(created, conflict)).outcome());
+        Check rejectedOnly = CaseVerdicts.mutation(List.of(conflict));
+        assertEquals("ROUTED_ONLY", rejectedOnly.outcome());
+        assertTrue(rejectedOnly.accepted());
+        assertTrue(rejectedOnly.detail().contains("REJECTED_ALIKE"), rejectedOnly::detail);
+    }
+
+    @Test
+    void onlyAnExercisedFrameMakesTheOperationSound() {
+        CaseOutcome created = outcome("create", ok(CaseOutcome.SOUND), ok(CaseOutcome.EQUIVALENT));
+        CaseOutcome conflict = outcome("taken", ok(CaseOutcome.NOT_EXERCISED), ok(CaseOutcome.REJECTED_ALIKE));
+        CaseOutcome refused = outcome("move", ok(CaseOutcome.IRREVERSIBLE), ok(CaseOutcome.REFUSED));
+        assertEquals(CaseOutcome.SOUND, CaseVerdicts.compensation(List.of(conflict, created)).outcome());
+        Check unexercised = CaseVerdicts.compensation(List.of(refused, conflict));
+        assertEquals(CaseOutcome.NOT_EXERCISED, unexercised.outcome(), "keycloak-mcp accepts a compensation nothing exercised");
+        assertTrue(unexercised.accepted());
+        assertEquals(CaseOutcome.IRREVERSIBLE, CaseVerdicts.compensation(List.of(refused)).outcome());
+    }
+
+    @Test
+    void anUncompensatedCaseAloneNeverMakesTheOperationIrreversible() {
+        MutationCase bare = uncompensated("bare");
+        Check refused = PlanRefusal.judge(bare, new Result(true, "step 1 is irreversible and requires an explicit override"), null);
+        CaseOutcome ambiguous = new CaseOutcome(bare, refused, ok(CaseOutcome.EQUIVALENT));
+        Check alone = CaseVerdicts.compensation(List.of(ambiguous));
+        assertEquals(CaseOutcome.AMBIGUOUS_REFUSAL, alone.outcome(), alone.detail());
+        assertTrue(alone.accepted(), "accepted, but it proves nothing");
+        CaseOutcome classified = outcome("undone", ok(CaseOutcome.IRREVERSIBLE), ok(CaseOutcome.EQUIVALENT));
+        assertEquals(CaseOutcome.IRREVERSIBLE, CaseVerdicts.compensation(List.of(ambiguous, classified)).outcome());
+    }
+
+    @Test
+    void oneFailingCaseLeavesTheOperationUnaccounted() {
+        List<CaseOutcome> cases = List.of(outcome("update", ok(CaseOutcome.SOUND), ok(CaseOutcome.EQUIVALENT)),
+                outcome("rename", new Check(CaseOutcome.MISCLASSIFIED, false, "counterexample"), ok(CaseOutcome.EQUIVALENT)));
+        Check compensation = CaseVerdicts.compensation(cases);
+        assertEquals(new Check(CaseOutcome.MISCLASSIFIED, false, "rename: MISCLASSIFIED (counterexample)"), compensation);
+        assertTrue(CaseVerdicts.mutation(cases).accepted(), "F2 and F3 are judged separately");
+        assertFalse(outcome("x", compensation, ok(CaseOutcome.EQUIVALENT)).accepted());
+    }
+}
