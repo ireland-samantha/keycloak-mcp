@@ -1,137 +1,15 @@
 import { setTimeout as delay } from 'node:timers/promises';
-import { createCatalog, defaultCatalog, describeOperation } from './catalog/index.js';
+import { createCatalog } from './catalog/index.js';
 import { DEFAULT_BODY_BYTES } from './config.js';
-import { pathParameterNames } from './internal/path-template.js';
+import { discardBody, readLimitedBody } from './http/body.js';
+import { buildRequest } from './http/request.js';
 import { redactKeys, REDACTED_ENDPOINT } from './internal/redaction.js';
-import { assertOperationAllowed } from './policy/access.js';
 import { invalidatesServiceToken, isMutation, isSensitiveEndpoint, isSensitiveField } from './policy/classify.js';
-import { MULTI_SEGMENT_PATH_PARAMETER } from './policy/table.js';
 
 export { configFromEnv } from './config.js';
 export { createCatalog, describeOperation, describeSchema, listOperations } from './catalog/index.js';
 export { isIrreversible, isMutation } from './policy/classify.js';
-
-async function limitedBody(response, limit) {
-  const length = Number(response.headers.get('content-length'));
-  if (Number.isFinite(length) && length > limit) {
-    try { await response.body?.cancel(); } catch { /* the limit error remains authoritative */ }
-    throw new Error(`response exceeds configured limit (HTTP ${response.status})`);
-  }
-  if (!response.body) return Buffer.alloc(0);
-  const reader = response.body.getReader();
-  const chunks = [];
-  let total = 0;
-  try {
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      total += value.byteLength;
-      if (total > limit) {
-        try { await reader.cancel(); } catch { /* the limit error remains authoritative */ }
-        throw new Error(`response exceeds configured limit (HTTP ${response.status})`);
-      }
-      chunks.push(Buffer.from(value));
-    }
-  } finally { reader.releaseLock(); }
-  return Buffer.concat(chunks, total);
-}
-
-function decodeBase64Bounded(value, limit, label) {
-  if (typeof value !== 'string') throw new Error(`invalid ${label}`);
-  const padding = value.endsWith('==') ? 2 : value.endsWith('=') ? 1 : 0;
-  if (Math.floor(value.length / 4) * 3 - padding > limit) throw new Error('request body exceeds configured limit');
-  if (!/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(value)) throw new Error(`invalid ${label}`);
-  return Buffer.from(value, 'base64');
-}
-
-function encodeMultipart(fields, limit) {
-  if (!fields || typeof fields !== 'object' || Array.isArray(fields) || Object.keys(fields).length > 32)
-    throw new Error('multipart body must be an object with at most 32 fields');
-  const form = new FormData();
-  let bytes = 1024;
-  for (const [name, value] of Object.entries(fields)) {
-    if (!/^[A-Za-z][A-Za-z0-9_-]{0,63}$/.test(name)) throw new Error('invalid multipart field name');
-    bytes += 1024 + Buffer.byteLength(name);
-    if (bytes > limit) throw new Error('request body exceeds configured limit');
-    if (typeof value === 'string') {
-      bytes += Buffer.byteLength(value);
-      if (bytes > limit) throw new Error('request body exceeds configured limit');
-      form.append(name, value);
-    } else if (value && typeof value === 'object' && !Array.isArray(value)) {
-      const { filename, contentType, base64 } = value;
-      if (Object.keys(value).some(key => !['filename', 'contentType', 'base64'].includes(key)) ||
-        typeof filename !== 'string' || !/^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/.test(filename)) throw new Error('invalid multipart filename');
-      if (typeof contentType !== 'string' || !/^[\w.+-]+\/[\w.+-]+$/.test(contentType)) throw new Error('invalid multipart content type');
-      bytes += Buffer.byteLength(filename) + Buffer.byteLength(contentType);
-      if (bytes > limit) throw new Error('request body exceeds configured limit');
-      const file = decodeBase64Bounded(base64, limit - bytes, 'multipart base64');
-      bytes += file.length;
-      form.append(name, new Blob([file], { type: contentType }), filename);
-    } else throw new Error('multipart fields must be text or a base64 file');
-    if (bytes > limit) throw new Error('request body exceeds configured limit');
-  }
-  return form;
-}
-
-export function buildRequest(config, key, args = {}, operationCatalog = defaultCatalog()) {
-  const op = describeOperation(key, operationCatalog);
-  assertOperationAllowed(config, op, operationCatalog);
-  const inputPath = args.path ?? {};
-  const names = pathParameterNames(op.path);
-  if (Object.keys(inputPath).some(name => !names.includes(name))) throw new Error('unknown path parameter');
-  const path = op.path.replace(/\{([^}]+)\}/g, (_match, name) => {
-    const value = name === 'realm' ? config.realm : inputPath[name];
-    if (value === undefined || value === null || String(value) === '') throw new Error(`missing path parameter: ${name}`);
-    if (name === 'realm' && inputPath.realm !== undefined && inputPath.realm !== config.realm) throw new Error('realm cannot be overridden');
-    if (name === MULTI_SEGMENT_PATH_PARAMETER.name) {
-      const segments = String(value).replace(/^\//, '').split('/');
-      if (segments.some(segment => !segment || ['.', '..'].includes(segment) || segment.includes('\\'))) throw new Error('unsafe group path');
-      return segments.map(encodeURIComponent).join('/');
-    }
-    if (['.', '..'].includes(String(value)) || /[\\/]/.test(String(value))) throw new Error(`unsafe path parameter: ${name}`);
-    return encodeURIComponent(String(value));
-  });
-  const url = new URL(`${config.baseUrl}${path}`);
-  const allowedQuery = new Set(op.parameters.filter(p => p.in === 'query').map(p => p.name));
-  for (const [name, value] of Object.entries(args.query ?? {})) {
-    if (!allowedQuery.has(name)) throw new Error(`unknown query parameter: ${name}`);
-    for (const item of Array.isArray(value) ? value : [value]) if (item !== null && item !== undefined) url.searchParams.append(name, String(item));
-  }
-  let body;
-  const headers = {};
-  if (args.body !== undefined || args.bodyBase64 !== undefined) {
-    if (!op.requestTypes.length) throw new Error('operation does not declare a request body');
-    const contentType = args.contentType ?? op.requestTypes[0];
-    if (!op.requestTypes.includes(contentType)) throw new Error('content type is not declared for this operation');
-    if (args.body !== undefined && args.bodyBase64 !== undefined) throw new Error('choose body or bodyBase64');
-    if (contentType === 'multipart/form-data') {
-      if (args.bodyBase64 !== undefined) throw new Error('multipart requires structured fields');
-      body = encodeMultipart(args.body, config.maxBodyBytes ?? DEFAULT_BODY_BYTES);
-    } else if (args.bodyBase64 !== undefined) {
-      body = decodeBase64Bounded(args.bodyBase64, config.maxBodyBytes ?? DEFAULT_BODY_BYTES, 'base64 body');
-    } else if (contentType === 'application/json') body = JSON.stringify(args.body);
-    else if (contentType === 'application/x-www-form-urlencoded') {
-      if (!args.body || typeof args.body !== 'object' || Array.isArray(args.body)) throw new Error('form body must be an object');
-      const form = new URLSearchParams();
-      for (const [name, value] of Object.entries(args.body)) {
-        for (const item of Array.isArray(value) ? value : [value]) {
-          if (!['string', 'number', 'boolean'].includes(typeof item)) throw new Error('form values must be scalar');
-          form.append(name, String(item));
-        }
-      }
-      body = form.toString();
-    }
-    else if (typeof args.body === 'string') body = args.body;
-    else throw new Error('non-JSON bodies require text or bodyBase64');
-    if (!(body instanceof FormData) && Buffer.byteLength(body) > (config.maxBodyBytes ?? DEFAULT_BODY_BYTES)) throw new Error('request body exceeds configured limit');
-    if (!(body instanceof FormData)) headers['content-type'] = contentType;
-  }
-  if (args.accept) {
-    if (!op.responseTypes.includes(args.accept)) throw new Error('accept type is not declared for this operation');
-    headers.accept = args.accept;
-  }
-  return { op, url: url.toString(), body, headers };
-}
+export { buildRequest } from './http/request.js';
 
 export class KeycloakAdmin {
   constructor(config, fetchImpl = globalThis.fetch) {
@@ -156,10 +34,10 @@ export class KeycloakAdmin {
       body: new URLSearchParams({ grant_type: 'client_credentials' }), redirect: 'error', signal: AbortSignal.timeout(15_000),
     });
     if (!response.ok) {
-      try { await response.body?.cancel(); } catch { /* report the HTTP failure */ }
+      await discardBody(response);
       throw new Error(`Keycloak service-account token request failed (HTTP ${response.status})`);
     }
-    const tokenBytes = await limitedBody(response, 64 * 1024);
+    const tokenBytes = await readLimitedBody(response, 64 * 1024);
     let data;
     try { data = JSON.parse(tokenBytes.toString('utf8')); }
     catch { throw new Error('Keycloak token response is invalid JSON'); }
@@ -189,7 +67,7 @@ export class KeycloakAdmin {
         ...(req.body === undefined ? {} : { body: req.body }), redirect: 'error', signal: AbortSignal.timeout(30_000),
       });
       if (response.ok) break;
-      try { await response.body?.cancel(); } catch { /* report the HTTP failure */ }
+      await discardBody(response);
       if (response.status === 401) {
         if (this.accessToken === token) this.invalidateToken();
         if (safeRead && req.op.method === 'GET' && !authRefreshed) {
@@ -204,7 +82,7 @@ export class KeycloakAdmin {
       await delay(transientRetries === 1 ? 150 : 400);
     }
     if (invalidatesServiceToken(key)) this.invalidateToken();
-    const bytes = await limitedBody(response, this.config.maxBodyBytes ?? DEFAULT_BODY_BYTES);
+    const bytes = await readLimitedBody(response, this.config.maxBodyBytes ?? DEFAULT_BODY_BYTES);
     const contentType = response.headers.get('content-type')?.split(';')[0] ?? '';
     let value = null;
     if (bytes.length && isSensitiveEndpoint(req.op) && !this.config.allowSensitiveReads) value = REDACTED_ENDPOINT;
