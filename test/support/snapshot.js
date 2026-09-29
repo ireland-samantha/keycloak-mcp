@@ -6,7 +6,7 @@ const present = ([, value]) => value !== undefined;
 
 // Objects are written one key per line down to `depth`; anything deeper is one compact JSON line,
 // so a behaviour change shows up as a small line diff in review.
-export function formatSnapshot(value, depth, indent = '') {
+function formatSnapshot(value, depth, indent = '') {
   if (depth === 0 || !isObject(value)) return JSON.stringify(value);
   const entries = Object.entries(value).filter(present);
   if (!entries.length) return '{}';
