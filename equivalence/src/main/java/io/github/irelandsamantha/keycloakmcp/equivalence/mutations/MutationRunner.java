@@ -20,10 +20,11 @@ import java.util.concurrent.atomic.AtomicInteger;
  * <ol>
  *   <li>Twin realms A and B get the family's seed and the case's setup.</li>
  *   <li>A dry run in A shows whether keycloak-mcp accepts the operation as reversible with the case's
- *       compensation.</li>
- *   <li>F3: if it does, a third twin C runs the operation followed by a step that always fails; keycloak-mcp must
- *       compensate, and C's readbacks must equal those taken before ({@link ForcedFailureFrame} says when a frame
- *       proves that). A case that expects the operation to be irreversible makes that acceptance a
+ *       compensation. When it refuses, a second dry run with the irreversible override shows whether the refusal is
+ *       its classification's ({@link PlanRefusal}).</li>
+ *   <li>F3: if keycloak-mcp accepts it, a third twin C runs the operation followed by a step that always fails;
+ *       keycloak-mcp must compensate, and C's readbacks must equal those taken before ({@link ForcedFailureFrame} says
+ *       when a frame proves that). A case that expects the operation to be irreversible makes that acceptance a
  *       misclassification, and the frame its counterexample.</li>
  *   <li>F2: keycloak-mcp runs the operation in A (with the compensation it accepts, else with the irreversible
  *       override); the reference performs it in B. Both must answer in the same status class, and A's and B's
@@ -64,9 +65,10 @@ public final class MutationRunner {
              CaseRealm b = CaseRealm.create(env, realms + "-b", family, mutation);
              KeycloakMcpProcess mcp = env.startKeycloakMcp(a.name(), WRITER)) {
             Step reversible = reversibleStep(mutation, a.context());
-            Result plan = KeycloakMcpWorkflow.call(mcp.client(), List.of(reversible), false);
+            Result plan = dryRun(mcp, reversible);
             boolean acceptedAsReversible = KeycloakMcpWorkflow.PREFLIGHT_OK.equals(plan.status());
-            Check compensation = compensation(family, mutation, plan, realms + "-c");
+            Check compensation = acceptedAsReversible ? forcedFailure(family, mutation, realms + "-c")
+                    : refusal(mcp, mutation, reversible, plan);
             Step step = acceptedAsReversible ? reversible : steps.step(mutation.request(a.context())).markedIrreversible();
             return new CaseOutcome(mutation, compensation, equivalence(mutation, a, b, mcp, step));
         } catch (McpSteps.NotInCatalog e) {
@@ -85,26 +87,23 @@ public final class MutationRunner {
         return mutation.compensation() == null ? step : step.compensatedBy(steps.step(mutation.compensation().apply(realm)));
     }
 
-    private Check compensation(MutationFamily family, MutationCase mutation, Result plan, String realm) throws Exception {
-        if (!plan.refused() && !KeycloakMcpWorkflow.PREFLIGHT_OK.equals(plan.status())) {
-            return new Check(CaseOutcome.ERROR, false, "keycloak-mcp's dry run neither accepted nor refused it: " + plan.text());
-        }
-        if (plan.refused()) {
-            return mutation.expectedIrreversible()
-                    ? new Check(CaseOutcome.IRREVERSIBLE, true, "keycloak-mcp refuses it without the override: " + plan.text())
-                    : new Check(CaseOutcome.NOT_COMPENSABLE, true, "keycloak-mcp accepts no compensation for it ("
-                    + plan.text() + "), so F2 runs it with the irreversible override");
-        }
-        Check frame = forcedFailure(family, mutation, realm);
-        if (mutation.expectedIrreversible()) {
-            return new Check(CaseOutcome.MISCLASSIFIED, false, "keycloak-mcp accepts it as reversible, but "
-                    + mutation.expectation() + ". Forced-failure frame, " + frame.outcome() + ": " + frame.detail());
-        }
-        return frame;
+    private static Result dryRun(KeycloakMcpProcess mcp, Step step) throws Exception {
+        return KeycloakMcpWorkflow.call(mcp.client(), List.of(step), false);
     }
 
-    /** Runs the operation and then a failing step in a fresh twin; keycloak-mcp must restore the pre-state. */
+    /** keycloak-mcp did not accept the plan; the same plan with the override shows whether its classification refused it. */
+    private static Check refusal(KeycloakMcpProcess mcp, MutationCase mutation, Step reversible, Result plan) throws Exception {
+        Result overridden = mutation.compensation() == null ? null : dryRun(mcp, reversible.markedIrreversible());
+        return PlanRefusal.judge(mutation, plan, overridden);
+    }
+
+    /**
+     * Runs the operation, which keycloak-mcp accepts as reversible, and then a failing step in a fresh twin;
+     * keycloak-mcp must restore the pre-state. For a case that expects the operation to be irreversible, the
+     * acceptance is already the finding, and the frame shows what it costs.
+     */
     private Check forcedFailure(MutationFamily family, MutationCase mutation, String name) throws Exception {
+        Check frame;
         try (CaseRealm c = CaseRealm.create(env, name, family, mutation);
              KeycloakMcpProcess mcp = env.startKeycloakMcp(c.name(), WRITER)) {
             Readbacks readbacks = Readbacks.resolve(mutation, c.context());
@@ -112,8 +111,12 @@ public final class MutationRunner {
             Step failing = steps.step(new CaseRequest(FORCED_FAILURE, CaseArgs.path(c.name(), ABSENT_GROUP)));
             State before = readbacks.read();
             Result run = KeycloakMcpWorkflow.call(mcp.client(), List.of(operation, failing), true);
-            return ForcedFailureFrame.judge(operation, failing, run, before, readbacks.read());
+            frame = ForcedFailureFrame.judge(operation, failing, run, before, readbacks.read());
         }
+        return mutation.expectedIrreversible()
+                ? new Check(CaseOutcome.MISCLASSIFIED, false, "keycloak-mcp accepts it as reversible, but "
+                + mutation.expectation() + ". Forced-failure frame, " + frame.outcome() + ": " + frame.detail())
+                : frame;
     }
 
     private Check equivalence(MutationCase mutation, CaseRealm a, CaseRealm b, KeycloakMcpProcess mcp, Step step) throws Exception {

@@ -15,8 +15,9 @@ import java.util.function.Function;
  * @param name                 what this case does with the operation; one operation can have several cases
  * @param setup                state the case needs on top of its family's seed, applied to every twin
  * @param args                 the mutation's arguments in a realm
- * @param compensation         the undo keycloak-mcp should accept for it, resolved before the mutation; may use
- *                             {@code $step.locationId} or {@code $step.responseId}; {@code null} for none
+ * @param compensation         the undo a client would offer for it, resolved before the mutation; may use
+ *                             {@code $step.locationId} or {@code $step.responseId}; {@code null} for none, which
+ *                             only an irreversible case may leave out, and then its refusal proves nothing
  * @param readbacks            reads that observe the state the mutation changes
  * @param volatileFields       readback values that legitimately differ between the twins
  * @param expectedIrreversible whether keycloak-mcp must refuse the operation without the irreversible override
@@ -79,6 +80,11 @@ public record MutationCase(String operation, String name, Consumer<CaseContext> 
             return this;
         }
 
+        /**
+         * The undo a client would offer. For an irreversible case it is what keycloak-mcp must refuse without the
+         * override while accepting it with the override; without one, the case can only end
+         * {@link CaseOutcome#AMBIGUOUS_REFUSAL}.
+         */
         public Builder compensatedBy(Function<CaseContext, CaseRequest> value) {
             compensation = value;
             return this;

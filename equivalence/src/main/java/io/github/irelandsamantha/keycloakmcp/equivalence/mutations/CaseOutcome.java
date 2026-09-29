@@ -27,9 +27,19 @@ public record CaseOutcome(MutationCase mutationCase, Check compensation, Check e
     public static final String NOT_EXERCISED = "NOT_EXERCISED";
     /** F3: keycloak-mcp accepts as reversible what the case shows cannot be undone. */
     public static final String MISCLASSIFIED = "MISCLASSIFIED";
-    /** F3: keycloak-mcp refuses it without the irreversible override, as expected. */
+    /**
+     * F3: keycloak-mcp refuses the case's plan without the irreversible override and accepts the same plan with it:
+     * it classifies the operation irreversible, as expected.
+     */
     public static final String IRREVERSIBLE = "IRREVERSIBLE";
-    /** F3: reversible, but keycloak-mcp accepts no compensation for it; safe, so accepted. */
+    /**
+     * F3: keycloak-mcp refuses the case's plan without the override, but the refusal does not show that it classifies
+     * the operation irreversible: the case offers no compensation, and keycloak-mcp refuses every mutation without
+     * one, or keycloak-mcp refuses the offered compensation even with the override. Accepted, and proves nothing: an
+     * operation needs an {@link #IRREVERSIBLE} case to be irreversible.
+     */
+    public static final String AMBIGUOUS_REFUSAL = "AMBIGUOUS_REFUSAL";
+    /** F3: reversible, but keycloak-mcp classifies it irreversible or refuses its compensation; safe, so accepted. */
     public static final String NOT_COMPENSABLE = "NOT_COMPENSABLE";
 
     /** F2: both sides performed the mutation (2xx) and left the twins in the same state. */

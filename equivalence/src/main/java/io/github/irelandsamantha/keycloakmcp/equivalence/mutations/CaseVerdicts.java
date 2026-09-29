@@ -25,12 +25,15 @@ public final class CaseVerdicts {
     /**
      * F3: {@code SOUND} when every case is accepted and a frame exercised the compensation and restored the state;
      * {@code NOT_EXERCISED} when keycloak-mcp accepts a compensation no frame exercised; otherwise the first case's
-     * outcome (e.g. {@code IRREVERSIBLE}), or the first failing case's outcome, not accepted.
+     * outcome that shows how keycloak-mcp classifies the operation (e.g. {@code IRREVERSIBLE}), else
+     * {@code AMBIGUOUS_REFUSAL}; or the first failing case's outcome, not accepted.
      */
     public static Check compensation(List<CaseOutcome> outcomes) {
-        boolean unexercised = outcomes.stream().anyMatch(o -> o.compensation().outcome().equals(CaseOutcome.NOT_EXERCISED));
-        return combine(outcomes, CaseOutcome::compensation, CaseOutcome.SOUND, unexercised ? CaseOutcome.NOT_EXERCISED
-                : outcomes.isEmpty() ? null : outcomes.getFirst().compensation().outcome());
+        List<String> seen = outcomes.stream().map(o -> o.compensation().outcome()).toList();
+        String otherwise = seen.contains(CaseOutcome.NOT_EXERCISED) ? CaseOutcome.NOT_EXERCISED
+                : seen.stream().filter(o -> !o.equals(CaseOutcome.AMBIGUOUS_REFUSAL)).findFirst()
+                .orElse(CaseOutcome.AMBIGUOUS_REFUSAL);
+        return combine(outcomes, CaseOutcome::compensation, CaseOutcome.SOUND, otherwise);
     }
 
     private static Check combine(List<CaseOutcome> outcomes, Function<CaseOutcome, Check> check, String proven,

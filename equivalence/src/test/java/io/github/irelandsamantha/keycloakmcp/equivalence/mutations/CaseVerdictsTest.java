@@ -1,5 +1,6 @@
 package io.github.irelandsamantha.keycloakmcp.equivalence.mutations;
 
+import io.github.irelandsamantha.keycloakmcp.equivalence.harness.KeycloakMcpWorkflow.Result;
 import io.github.irelandsamantha.keycloakmcp.equivalence.ledger.EquivalenceLedger.Check;
 import org.junit.jupiter.api.Test;
 
@@ -11,13 +12,17 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class CaseVerdictsTest {
 
-    private static CaseOutcome outcome(String name, Check compensation, Check equivalence) {
-        MutationCase c = MutationCase.of("PUT /admin/realms/{realm}/roles/{role-name}", name)
+    /** An irreversible case that offers no compensation. */
+    private static MutationCase uncompensated(String name) {
+        return MutationCase.of("PUT /admin/realms/{realm}/roles/{role-name}", name)
                 .args(r -> CaseArgs.path(r.realm(), "writer"))
                 .readback(Readback.of("GET /admin/realms/{realm}/roles", r -> CaseArgs.path(r.realm())))
                 .irreversible("test")
                 .build();
-        return new CaseOutcome(c, compensation, equivalence);
+    }
+
+    private static CaseOutcome outcome(String name, Check compensation, Check equivalence) {
+        return new CaseOutcome(uncompensated(name), compensation, equivalence);
     }
 
     private static Check ok(String outcome) {
@@ -61,6 +66,18 @@ class CaseVerdictsTest {
         assertEquals(CaseOutcome.NOT_EXERCISED, unexercised.outcome(), "keycloak-mcp accepts a compensation nothing exercised");
         assertTrue(unexercised.accepted());
         assertEquals(CaseOutcome.IRREVERSIBLE, CaseVerdicts.compensation(List.of(refused)).outcome());
+    }
+
+    @Test
+    void anUncompensatedCaseAloneNeverMakesTheOperationIrreversible() {
+        MutationCase bare = uncompensated("bare");
+        Check refused = PlanRefusal.judge(bare, new Result(true, "step 1 is irreversible and requires an explicit override"), null);
+        CaseOutcome ambiguous = new CaseOutcome(bare, refused, ok(CaseOutcome.EQUIVALENT));
+        Check alone = CaseVerdicts.compensation(List.of(ambiguous));
+        assertEquals(CaseOutcome.AMBIGUOUS_REFUSAL, alone.outcome(), alone.detail());
+        assertTrue(alone.accepted(), "accepted, but it proves nothing");
+        CaseOutcome classified = outcome("undone", ok(CaseOutcome.IRREVERSIBLE), ok(CaseOutcome.EQUIVALENT));
+        assertEquals(CaseOutcome.IRREVERSIBLE, CaseVerdicts.compensation(List.of(ambiguous, classified)).outcome());
     }
 
     @Test
