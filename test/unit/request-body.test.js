@@ -31,3 +31,13 @@ test('a body the preferred types cannot carry falls back to the first declared t
   assert.equal(built(workflows, { bodyBase64: Buffer.from('name: wf').toString('base64') }).headers['content-type'], 'application/yaml');
   assert.throws(() => built(invite, { path: { 'org-id': 'o' }, body: 'email=a' }), { message: 'form body must be an object' });
 });
+
+test('a base64 body of many megabytes is validated without exhausting the stack', () => {
+  const size = 12 * 1024 * 1024;
+  const config = testConfig({ KEYCLOAK_MCP_ALLOW_WRITE: 'true', KEYCLOAK_MCP_MAX_BODY_BYTES: String(size) });
+  const request = buildRequest(config, converter, { contentType: 'application/json', bodyBase64: Buffer.alloc(size, 0x20).toString('base64') });
+  assert.equal(request.body.length, size);
+  for (const bodyBase64 of ['QQ=', 'Q===', 'QQ=Q', 'QU I=', 'QUJ-']) {
+    assert.throws(() => buildRequest(config, converter, { contentType: 'application/json', bodyBase64 }), { message: 'invalid base64 body' }, bodyBase64);
+  }
+});

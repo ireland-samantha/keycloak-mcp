@@ -34,12 +34,14 @@ export async function readLimitedBody(response, limit) {
   return Buffer.concat(chunks, total);
 }
 
-// Checks the decoded size before decoding, so an oversized value is never allocated.
+// Checks the decoded size before decoding, so an oversized value is never allocated. The syntax check
+// is a length test and one flat character class: a regex that repeats a four-character group recurses
+// per group in V8 and overflows the stack on megabytes of input.
 function decodeBase64Bounded(value, limit, label) {
   if (typeof value !== 'string') throw new Error(`invalid ${label}`);
   const padding = value.endsWith('==') ? 2 : value.endsWith('=') ? 1 : 0;
   if (Math.floor(value.length / 4) * 3 - padding > limit) throw limitExceeded();
-  if (!/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(value)) throw new Error(`invalid ${label}`);
+  if (value.length % 4 !== 0 || !/^[A-Za-z0-9+/]*={0,2}$/.test(value)) throw new Error(`invalid ${label}`);
   return Buffer.from(value, 'base64');
 }
 
