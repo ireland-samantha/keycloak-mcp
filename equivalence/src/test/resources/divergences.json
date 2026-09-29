@@ -1,0 +1,1251 @@
+{
+  "description": "Documented, reasoned disagreements between the sources the structural checks compare. Each entry pins exactly what was observed; an entry that stops matching is stale and fails the build. Server citations are relative to the keycloak/keycloak repository.",
+  "divergences": [
+    {
+      "key": "POST /admin/realms/{realm}/clients/{client-uuid}/certificates/{attr}/upload",
+      "kind": "consumes",
+      "sources": "catalog~openapi",
+      "observed": {
+        "catalog": [
+          "multipart/form-data"
+        ],
+        "openapi": []
+      },
+      "reason": "keycloak-mcp corrects an OpenAPI omission: the server consumes multipart/form-data but reads the parts from the request context instead of an entity parameter, so the generated OpenAPI declares no request body. Without the correction the operation could not be called with its required file part.",
+      "evidence": "services/src/main/java/org/keycloak/services/resources/admin/ClientAttributeCertificateResource.java:149,153 (@Consumes(MULTIPART_FORM_DATA), no entity parameter); admin client: ClientAttributeCertificateResource#uploadJks(Object)",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "POST /admin/realms/{realm}/clients/{client-uuid}/certificates/{attr}/upload-certificate",
+      "kind": "consumes",
+      "sources": "catalog~openapi",
+      "observed": {
+        "catalog": [
+          "multipart/form-data"
+        ],
+        "openapi": []
+      },
+      "reason": "keycloak-mcp corrects an OpenAPI omission: the server consumes multipart/form-data but reads the parts from the request context instead of an entity parameter, so the generated OpenAPI declares no request body. Without the correction the operation could not be called with its required file part.",
+      "evidence": "services/src/main/java/org/keycloak/services/resources/admin/ClientAttributeCertificateResource.java:175,179 (@Consumes(MULTIPART_FORM_DATA), no entity parameter); admin client: ClientAttributeCertificateResource#uploadJksCertificate(Object)",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "POST /admin/realms/{realm}/identity-provider/upload-certificate",
+      "kind": "consumes",
+      "sources": "catalog~openapi",
+      "observed": {
+        "catalog": [
+          "multipart/form-data"
+        ],
+        "openapi": []
+      },
+      "reason": "keycloak-mcp corrects an OpenAPI omission: the server consumes multipart/form-data but reads the parts from the request context instead of an entity parameter, so the generated OpenAPI declares no request body. Without the correction the operation could not be called with its required file part.",
+      "evidence": "services/src/main/java/org/keycloak/services/resources/admin/IdentityProvidersResource.java:147,152 (@Consumes(MULTIPART_FORM_DATA), no entity parameter); admin client: no binding (OpenAPI-only operation)",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "POST /admin/realms/{realm}/client-description-converter",
+      "kind": "consumes",
+      "sources": "openapi~admin-client",
+      "observed": {
+        "admin-client": [
+          "application/json"
+        ],
+        "openapi": [
+          "application/json",
+          "application/xml",
+          "text/plain"
+        ]
+      },
+      "reason": "The server converts JSON, XML (SAML metadata) and plain-text client descriptions; the admin client only declares JSON.",
+      "evidence": "server: services/src/main/java/org/keycloak/services/resources/admin/RealmAdminResource.java:168-169; admin client: RealmResource#convertClientDescription(String)",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "POST /admin/realms/{realm}/clients/{client-uuid}/certificates/{attr}/upload",
+      "kind": "consumes",
+      "sources": "openapi~admin-client",
+      "observed": {
+        "admin-client": [
+          "multipart/form-data"
+        ],
+        "openapi": []
+      },
+      "reason": "The server consumes multipart/form-data but reads the parts from the request context instead of an entity parameter, so the generated OpenAPI declares no request body; the admin client declares multipart.",
+      "evidence": "server: services/src/main/java/org/keycloak/services/resources/admin/ClientAttributeCertificateResource.java:149,153; admin client: ClientAttributeCertificateResource#uploadJks(Object)",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "POST /admin/realms/{realm}/clients/{client-uuid}/certificates/{attr}/upload-certificate",
+      "kind": "consumes",
+      "sources": "openapi~admin-client",
+      "observed": {
+        "admin-client": [
+          "multipart/form-data"
+        ],
+        "openapi": []
+      },
+      "reason": "The server consumes multipart/form-data but reads the parts from the request context instead of an entity parameter, so the generated OpenAPI declares no request body; the admin client declares multipart.",
+      "evidence": "server: services/src/main/java/org/keycloak/services/resources/admin/ClientAttributeCertificateResource.java:175,179; admin client: ClientAttributeCertificateResource#uploadJksCertificate(Object)",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "POST /admin/realms/{realm}/identity-provider/import-config",
+      "kind": "consumes",
+      "sources": "openapi~admin-client",
+      "observed": {
+        "admin-client": [
+          "application/json",
+          "multipart/form-data"
+        ],
+        "openapi": [
+          "application/json"
+        ]
+      },
+      "reason": "The server has two import-config methods, multipart upload and JSON; the multipart one reads its parts from the request context and declares no entity parameter, so the generated OpenAPI documents only JSON. The admin client binds both.",
+      "evidence": "server: services/src/main/java/org/keycloak/services/resources/admin/IdentityProvidersResource.java:128-134 (multipart), services/src/main/java/org/keycloak/services/resources/admin/IdentityProvidersResource.java:181-186 (JSON); admin client: IdentityProvidersResource#importFrom(Map), IdentityProvidersResource#importFrom(Object)",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "PUT /admin/realms/{realm}/workflows/{id}",
+      "kind": "consumes",
+      "sources": "openapi~admin-client",
+      "observed": {
+        "admin-client": [
+          "application/json"
+        ],
+        "openapi": [
+          "application/json",
+          "application/yaml"
+        ]
+      },
+      "reason": "HEAD also accepts and serves workflows as YAML; the admin client only speaks JSON. JSON is the representation the equivalence checks compare.",
+      "evidence": "server: services/src/main/java/org/keycloak/workflow/admin/resource/WorkflowResource.java:81 (application/yaml and application/json); admin client: WorkflowResource#update(WorkflowRepresentation)",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "DELETE /admin/realms/{realm}/client-scopes/{client-scope-id}/scope-mappings/clients/{client}",
+      "kind": "produces",
+      "sources": "openapi~admin-client",
+      "observed": {
+        "admin-client": [
+          "application/json"
+        ],
+        "openapi": []
+      },
+      "reason": "No response entity: the OpenAPI documents success without content. The admin-client interface inherits @Produces(application/json), which only sets the Accept header of a request whose empty answer the proxy discards.",
+      "evidence": "OpenAPI success: 204 (no content); admin client: RoleScopeResource#remove(List)",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "DELETE /admin/realms/{realm}/client-scopes/{client-scope-id}/scope-mappings/realm",
+      "kind": "produces",
+      "sources": "openapi~admin-client",
+      "observed": {
+        "admin-client": [
+          "application/json"
+        ],
+        "openapi": []
+      },
+      "reason": "No response entity: the OpenAPI documents success without content. The admin-client interface inherits @Produces(application/json), which only sets the Accept header of a request whose empty answer the proxy discards.",
+      "evidence": "OpenAPI success: 204 (no content); admin client: RoleScopeResource#remove(List)",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "DELETE /admin/realms/{realm}/clients/{client-uuid}/client-secret/rotated",
+      "kind": "produces",
+      "sources": "openapi~admin-client",
+      "observed": {
+        "admin-client": [
+          "application/json"
+        ],
+        "openapi": []
+      },
+      "reason": "No response entity: the OpenAPI documents success without content. The admin-client interface inherits @Produces(application/json), which only sets the Accept header of a request whose empty answer the proxy discards.",
+      "evidence": "OpenAPI success: 200 (no content); admin client: ClientResource#invalidateRotatedSecret(); the server answers Response.noContent() (services/src/main/java/org/keycloak/services/resources/admin/ClientResource.java:819) although the OpenAPI says 200",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "DELETE /admin/realms/{realm}/clients/{client-uuid}/scope-mappings/clients/{client}",
+      "kind": "produces",
+      "sources": "openapi~admin-client",
+      "observed": {
+        "admin-client": [
+          "application/json"
+        ],
+        "openapi": []
+      },
+      "reason": "No response entity: the OpenAPI documents success without content. The admin-client interface inherits @Produces(application/json), which only sets the Accept header of a request whose empty answer the proxy discards.",
+      "evidence": "OpenAPI success: 204 (no content); admin client: RoleScopeResource#remove(List)",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "DELETE /admin/realms/{realm}/clients/{client-uuid}/scope-mappings/realm",
+      "kind": "produces",
+      "sources": "openapi~admin-client",
+      "observed": {
+        "admin-client": [
+          "application/json"
+        ],
+        "openapi": []
+      },
+      "reason": "No response entity: the OpenAPI documents success without content. The admin-client interface inherits @Produces(application/json), which only sets the Accept header of a request whose empty answer the proxy discards.",
+      "evidence": "OpenAPI success: 204 (no content); admin client: RoleScopeResource#remove(List)",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "DELETE /admin/realms/{realm}/groups/{group-id}/role-mappings/clients/{client-id}",
+      "kind": "produces",
+      "sources": "openapi~admin-client",
+      "observed": {
+        "admin-client": [
+          "application/json"
+        ],
+        "openapi": []
+      },
+      "reason": "No response entity: the OpenAPI documents success without content. The admin-client interface inherits @Produces(application/json), which only sets the Accept header of a request whose empty answer the proxy discards.",
+      "evidence": "OpenAPI success: 204 (no content); admin client: RoleScopeResource#remove(List)",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "DELETE /admin/realms/{realm}/groups/{group-id}/role-mappings/realm",
+      "kind": "produces",
+      "sources": "openapi~admin-client",
+      "observed": {
+        "admin-client": [
+          "application/json"
+        ],
+        "openapi": []
+      },
+      "reason": "No response entity: the OpenAPI documents success without content. The admin-client interface inherits @Produces(application/json), which only sets the Accept header of a request whose empty answer the proxy discards.",
+      "evidence": "OpenAPI success: 204 (no content); admin client: RoleScopeResource#remove(List)",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "DELETE /admin/realms/{realm}/organizations/{org-id}/groups/{group-id}/role-mappings/clients/{client-id}",
+      "kind": "produces",
+      "sources": "openapi~admin-client",
+      "observed": {
+        "admin-client": [
+          "application/json"
+        ],
+        "openapi": []
+      },
+      "reason": "No response entity: the OpenAPI documents success without content. The admin-client interface inherits @Produces(application/json), which only sets the Accept header of a request whose empty answer the proxy discards.",
+      "evidence": "OpenAPI success: 204 (no content); admin client: RoleScopeResource#remove(List)",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "DELETE /admin/realms/{realm}/organizations/{org-id}/groups/{group-id}/role-mappings/realm",
+      "kind": "produces",
+      "sources": "openapi~admin-client",
+      "observed": {
+        "admin-client": [
+          "application/json"
+        ],
+        "openapi": []
+      },
+      "reason": "No response entity: the OpenAPI documents success without content. The admin-client interface inherits @Produces(application/json), which only sets the Accept header of a request whose empty answer the proxy discards.",
+      "evidence": "OpenAPI success: 204 (no content); admin client: RoleScopeResource#remove(List)",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "DELETE /admin/realms/{realm}/users/{user-id}",
+      "kind": "produces",
+      "sources": "openapi~admin-client",
+      "observed": {
+        "admin-client": [
+          "application/json"
+        ],
+        "openapi": []
+      },
+      "reason": "No response entity: the OpenAPI documents success without content. The admin-client interface inherits @Produces(application/json), which only sets the Accept header of a request whose empty answer the proxy discards.",
+      "evidence": "OpenAPI success: 204 (no content); admin client: UserResource#remove(), UsersResource#delete(String)",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "DELETE /admin/realms/{realm}/users/{user-id}/consents/{client}",
+      "kind": "produces",
+      "sources": "openapi~admin-client",
+      "observed": {
+        "admin-client": [
+          "application/json"
+        ],
+        "openapi": []
+      },
+      "reason": "No response entity: the OpenAPI documents success without content. The admin-client interface inherits @Produces(application/json), which only sets the Accept header of a request whose empty answer the proxy discards.",
+      "evidence": "OpenAPI success: 204 (no content); admin client: UserResource#revokeConsent(String)",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "DELETE /admin/realms/{realm}/users/{user-id}/credentials/{credentialId}",
+      "kind": "produces",
+      "sources": "openapi~admin-client",
+      "observed": {
+        "admin-client": [
+          "application/json"
+        ],
+        "openapi": []
+      },
+      "reason": "No response entity: the OpenAPI documents success without content. The admin-client interface inherits @Produces(application/json), which only sets the Accept header of a request whose empty answer the proxy discards.",
+      "evidence": "OpenAPI success: 204 (no content); admin client: UserResource#removeCredential(String)",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "DELETE /admin/realms/{realm}/users/{user-id}/federated-identity/{provider}",
+      "kind": "produces",
+      "sources": "openapi~admin-client",
+      "observed": {
+        "admin-client": [
+          "application/json"
+        ],
+        "openapi": []
+      },
+      "reason": "No response entity: the OpenAPI documents success without content. The admin-client interface inherits @Produces(application/json), which only sets the Accept header of a request whose empty answer the proxy discards.",
+      "evidence": "OpenAPI success: 204 (no content); admin client: UserResource#removeFederatedIdentity(String)",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "DELETE /admin/realms/{realm}/users/{user-id}/groups/{groupId}",
+      "kind": "produces",
+      "sources": "openapi~admin-client",
+      "observed": {
+        "admin-client": [
+          "application/json"
+        ],
+        "openapi": []
+      },
+      "reason": "No response entity: the OpenAPI documents success without content. The admin-client interface inherits @Produces(application/json), which only sets the Accept header of a request whose empty answer the proxy discards.",
+      "evidence": "OpenAPI success: 204 (no content); admin client: UserResource#leaveGroup(String)",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "DELETE /admin/realms/{realm}/users/{user-id}/role-mappings/clients/{client-id}",
+      "kind": "produces",
+      "sources": "openapi~admin-client",
+      "observed": {
+        "admin-client": [
+          "application/json"
+        ],
+        "openapi": []
+      },
+      "reason": "No response entity: the OpenAPI documents success without content. The admin-client interface inherits @Produces(application/json), which only sets the Accept header of a request whose empty answer the proxy discards.",
+      "evidence": "OpenAPI success: 204 (no content); admin client: RoleScopeResource#remove(List)",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "DELETE /admin/realms/{realm}/users/{user-id}/role-mappings/realm",
+      "kind": "produces",
+      "sources": "openapi~admin-client",
+      "observed": {
+        "admin-client": [
+          "application/json"
+        ],
+        "openapi": []
+      },
+      "reason": "No response entity: the OpenAPI documents success without content. The admin-client interface inherits @Produces(application/json), which only sets the Accept header of a request whose empty answer the proxy discards.",
+      "evidence": "OpenAPI success: 204 (no content); admin client: RoleScopeResource#remove(List)",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "GET /admin/realms/{realm}/client-session-stats",
+      "kind": "produces",
+      "sources": "openapi~admin-client",
+      "observed": {
+        "admin-client": [],
+        "openapi": [
+          "application/json"
+        ]
+      },
+      "reason": "The admin-client method declares no @Produces, so its proxy sends Accept */*; the server's @Produces(application/json) answers JSON either way.",
+      "evidence": "server: services/src/main/java/org/keycloak/services/resources/admin/RealmAdminResource.java:777; admin client: RealmResource#getClientSessionStats()",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{client-uuid}/evaluate-scopes/generate-example-access-token",
+      "kind": "produces",
+      "sources": "openapi~admin-client",
+      "observed": {
+        "admin-client": [],
+        "openapi": [
+          "application/json"
+        ]
+      },
+      "reason": "The admin-client method declares no @Produces, so its proxy sends Accept */*; the server's @Produces(application/json) answers JSON either way.",
+      "evidence": "server: services/src/main/java/org/keycloak/services/resources/admin/ClientScopeEvaluateResource.java:266; admin client: ClientScopeEvaluateResource#generateAccessToken(String,String,String)",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{client-uuid}/evaluate-scopes/generate-example-id-token",
+      "kind": "produces",
+      "sources": "openapi~admin-client",
+      "observed": {
+        "admin-client": [],
+        "openapi": [
+          "application/json"
+        ]
+      },
+      "reason": "The admin-client method declares no @Produces, so its proxy sends Accept */*; the server's @Produces(application/json) answers JSON either way.",
+      "evidence": "server: services/src/main/java/org/keycloak/services/resources/admin/ClientScopeEvaluateResource.java:228; admin client: ClientScopeEvaluateResource#generateExampleIdToken(String,String,String)",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{client-uuid}/evaluate-scopes/generate-example-userinfo",
+      "kind": "produces",
+      "sources": "openapi~admin-client",
+      "observed": {
+        "admin-client": [],
+        "openapi": [
+          "application/json"
+        ]
+      },
+      "reason": "The admin-client method declares no @Produces, so its proxy sends Accept */*; the server's @Produces(application/json) answers JSON either way.",
+      "evidence": "server: services/src/main/java/org/keycloak/services/resources/admin/ClientScopeEvaluateResource.java:197; admin client: ClientScopeEvaluateResource#generateExampleUserinfo(String,String)",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "GET /admin/realms/{realm}/components/{id}",
+      "kind": "produces",
+      "sources": "openapi~admin-client",
+      "observed": {
+        "admin-client": [],
+        "openapi": [
+          "application/json"
+        ]
+      },
+      "reason": "The admin-client method declares no @Produces, so its proxy sends Accept */*; the server's @Produces(application/json) answers JSON either way.",
+      "evidence": "server: services/src/main/java/org/keycloak/services/resources/admin/ComponentResource.java:160; admin client: ComponentResource#toRepresentation()",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "GET /admin/realms/{realm}/identity-provider/instances/{alias}/mapper-types",
+      "kind": "produces",
+      "sources": "openapi~admin-client",
+      "observed": {
+        "admin-client": [
+          "application/json"
+        ],
+        "openapi": [
+          "*/*"
+        ]
+      },
+      "reason": "The server method declares no @Produces, which the OpenAPI renders as */*; it returns a Map that the JSON provider serializes, which is what the admin client's @Produces(application/json) requests.",
+      "evidence": "services/src/main/java/org/keycloak/services/resources/admin/IdentityProviderResource.java:265-270; admin client: IdentityProviderResource#getMapperTypes()",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "GET /admin/realms/{realm}/identity-provider/instances/{alias}/reload-keys",
+      "kind": "produces",
+      "sources": "openapi~admin-client",
+      "observed": {
+        "admin-client": [],
+        "openapi": [
+          "application/json"
+        ]
+      },
+      "reason": "The admin-client method declares no @Produces, so its proxy sends Accept */*; the server's @Produces(application/json) answers JSON either way.",
+      "evidence": "server: services/src/main/java/org/keycloak/services/resources/admin/IdentityProviderResource.java:504; admin client: IdentityProviderResource#reloadKeys()",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "GET /admin/realms/{realm}/workflows",
+      "kind": "produces",
+      "sources": "openapi~admin-client",
+      "observed": {
+        "admin-client": [
+          "application/json"
+        ],
+        "openapi": [
+          "application/json",
+          "application/yaml"
+        ]
+      },
+      "reason": "HEAD also accepts and serves workflows as YAML; the admin client only speaks JSON. JSON is the representation the equivalence checks compare.",
+      "evidence": "server: services/src/main/java/org/keycloak/workflow/admin/resource/WorkflowsResource.java:120 (application/yaml and application/json); admin client: WorkflowsResource#list(), WorkflowsResource#list(String,Boolean,Integer,Integer)",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "GET /admin/realms/{realm}/workflows/{id}",
+      "kind": "produces",
+      "sources": "openapi~admin-client",
+      "observed": {
+        "admin-client": [
+          "application/json"
+        ],
+        "openapi": [
+          "application/json",
+          "application/yaml"
+        ]
+      },
+      "reason": "HEAD also accepts and serves workflows as YAML; the admin client only speaks JSON. JSON is the representation the equivalence checks compare.",
+      "evidence": "server: services/src/main/java/org/keycloak/workflow/admin/resource/WorkflowResource.java:113 (application/yaml and application/json); admin client: WorkflowResource#toRepresentation()",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "POST /admin/realms/{realm}/client-scopes/{client-scope-id}/scope-mappings/clients/{client}",
+      "kind": "produces",
+      "sources": "openapi~admin-client",
+      "observed": {
+        "admin-client": [
+          "application/json"
+        ],
+        "openapi": []
+      },
+      "reason": "No response entity: the OpenAPI documents success without content. The admin-client interface inherits @Produces(application/json), which only sets the Accept header of a request whose empty answer the proxy discards.",
+      "evidence": "OpenAPI success: 204 (no content); admin client: RoleScopeResource#add(List)",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "POST /admin/realms/{realm}/client-scopes/{client-scope-id}/scope-mappings/realm",
+      "kind": "produces",
+      "sources": "openapi~admin-client",
+      "observed": {
+        "admin-client": [
+          "application/json"
+        ],
+        "openapi": []
+      },
+      "reason": "No response entity: the OpenAPI documents success without content. The admin-client interface inherits @Produces(application/json), which only sets the Accept header of a request whose empty answer the proxy discards.",
+      "evidence": "OpenAPI success: 204 (no content); admin client: RoleScopeResource#add(List)",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "POST /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy",
+      "kind": "produces",
+      "sources": "openapi~admin-client",
+      "observed": {
+        "admin-client": [
+          "application/json"
+        ],
+        "openapi": []
+      },
+      "reason": "The server returns a JSON entity, but its @APIResponse declares no content, so the HEAD OpenAPI omits the response media type; the admin client's @Produces(application/json) matches the server.",
+      "evidence": "services/src/main/java/org/keycloak/authorization/admin/PolicyService.java:126,138 (Response with JSON entity); OpenAPI success: 201 (no content); admin client: PoliciesResource#create(PolicyRepresentation)",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "POST /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/scope",
+      "kind": "produces",
+      "sources": "openapi~admin-client",
+      "observed": {
+        "admin-client": [
+          "application/json"
+        ],
+        "openapi": []
+      },
+      "reason": "The server returns a JSON entity, but its @APIResponse declares no content, so the HEAD OpenAPI omits the response media type; the admin client's @Produces(application/json) matches the server.",
+      "evidence": "services/src/main/java/org/keycloak/authorization/admin/ScopeService.java:94,103 (Response with JSON entity); OpenAPI success: 200 (no content); admin client: ResourceScopesResource#create(ScopeRepresentation)",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "POST /admin/realms/{realm}/clients/{client-uuid}/scope-mappings/clients/{client}",
+      "kind": "produces",
+      "sources": "openapi~admin-client",
+      "observed": {
+        "admin-client": [
+          "application/json"
+        ],
+        "openapi": []
+      },
+      "reason": "No response entity: the OpenAPI documents success without content. The admin-client interface inherits @Produces(application/json), which only sets the Accept header of a request whose empty answer the proxy discards.",
+      "evidence": "OpenAPI success: 204 (no content); admin client: RoleScopeResource#add(List)",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "POST /admin/realms/{realm}/clients/{client-uuid}/scope-mappings/realm",
+      "kind": "produces",
+      "sources": "openapi~admin-client",
+      "observed": {
+        "admin-client": [
+          "application/json"
+        ],
+        "openapi": []
+      },
+      "reason": "No response entity: the OpenAPI documents success without content. The admin-client interface inherits @Produces(application/json), which only sets the Accept header of a request whose empty answer the proxy discards.",
+      "evidence": "OpenAPI success: 204 (no content); admin client: RoleScopeResource#add(List)",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "POST /admin/realms/{realm}/groups/{group-id}/children",
+      "kind": "produces",
+      "sources": "openapi~admin-client",
+      "observed": {
+        "admin-client": [
+          "application/json"
+        ],
+        "openapi": []
+      },
+      "reason": "The server returns a JSON entity, but its @APIResponse declares no content, so the HEAD OpenAPI omits the response media type; the admin client's @Produces(application/json) matches the server.",
+      "evidence": "services/src/main/java/org/keycloak/services/resources/admin/GroupResource.java:242,285 (Response with JSON entity); OpenAPI success: 201 (no content), 204 (no content); admin client: GroupResource#subGroup(GroupRepresentation)",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "POST /admin/realms/{realm}/groups/{group-id}/role-mappings/clients/{client-id}",
+      "kind": "produces",
+      "sources": "openapi~admin-client",
+      "observed": {
+        "admin-client": [
+          "application/json"
+        ],
+        "openapi": []
+      },
+      "reason": "No response entity: the OpenAPI documents success without content. The admin-client interface inherits @Produces(application/json), which only sets the Accept header of a request whose empty answer the proxy discards.",
+      "evidence": "OpenAPI success: 204 (no content); admin client: RoleScopeResource#add(List)",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "POST /admin/realms/{realm}/groups/{group-id}/role-mappings/realm",
+      "kind": "produces",
+      "sources": "openapi~admin-client",
+      "observed": {
+        "admin-client": [
+          "application/json"
+        ],
+        "openapi": []
+      },
+      "reason": "No response entity: the OpenAPI documents success without content. The admin-client interface inherits @Produces(application/json), which only sets the Accept header of a request whose empty answer the proxy discards.",
+      "evidence": "OpenAPI success: 204 (no content); admin client: RoleScopeResource#add(List)",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "POST /admin/realms/{realm}/organizations/{org-id}/groups/{group-id}/role-mappings/clients/{client-id}",
+      "kind": "produces",
+      "sources": "openapi~admin-client",
+      "observed": {
+        "admin-client": [
+          "application/json"
+        ],
+        "openapi": []
+      },
+      "reason": "No response entity: the OpenAPI documents success without content. The admin-client interface inherits @Produces(application/json), which only sets the Accept header of a request whose empty answer the proxy discards.",
+      "evidence": "OpenAPI success: 204 (no content); admin client: RoleScopeResource#add(List)",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "POST /admin/realms/{realm}/organizations/{org-id}/groups/{group-id}/role-mappings/realm",
+      "kind": "produces",
+      "sources": "openapi~admin-client",
+      "observed": {
+        "admin-client": [
+          "application/json"
+        ],
+        "openapi": []
+      },
+      "reason": "No response entity: the OpenAPI documents success without content. The admin-client interface inherits @Produces(application/json), which only sets the Accept header of a request whose empty answer the proxy discards.",
+      "evidence": "OpenAPI success: 204 (no content); admin client: RoleScopeResource#add(List)",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "POST /admin/realms/{realm}/users/{user-id}/credentials/{credentialId}/moveAfter/{newPreviousCredentialId}",
+      "kind": "produces",
+      "sources": "openapi~admin-client",
+      "observed": {
+        "admin-client": [
+          "application/json"
+        ],
+        "openapi": []
+      },
+      "reason": "No response entity: the OpenAPI documents success without content. The admin-client interface inherits @Produces(application/json), which only sets the Accept header of a request whose empty answer the proxy discards.",
+      "evidence": "OpenAPI success: 204 (no content); admin client: UserResource#moveCredentialAfter(String,String)",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "POST /admin/realms/{realm}/users/{user-id}/credentials/{credentialId}/moveToFirst",
+      "kind": "produces",
+      "sources": "openapi~admin-client",
+      "observed": {
+        "admin-client": [
+          "application/json"
+        ],
+        "openapi": []
+      },
+      "reason": "No response entity: the OpenAPI documents success without content. The admin-client interface inherits @Produces(application/json), which only sets the Accept header of a request whose empty answer the proxy discards.",
+      "evidence": "OpenAPI success: 204 (no content); admin client: UserResource#moveCredentialToFirst(String)",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "POST /admin/realms/{realm}/users/{user-id}/federated-identity/{provider}",
+      "kind": "produces",
+      "sources": "openapi~admin-client",
+      "observed": {
+        "admin-client": [
+          "application/json"
+        ],
+        "openapi": []
+      },
+      "reason": "No response entity: the OpenAPI documents success without content. The admin-client interface inherits @Produces(application/json), which only sets the Accept header of a request whose empty answer the proxy discards.",
+      "evidence": "OpenAPI success: 204 (no content); admin client: UserResource#addFederatedIdentity(String,FederatedIdentityRepresentation)",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "POST /admin/realms/{realm}/users/{user-id}/logout",
+      "kind": "produces",
+      "sources": "openapi~admin-client",
+      "observed": {
+        "admin-client": [
+          "application/json"
+        ],
+        "openapi": []
+      },
+      "reason": "No response entity: the OpenAPI documents success without content. The admin-client interface inherits @Produces(application/json), which only sets the Accept header of a request whose empty answer the proxy discards.",
+      "evidence": "OpenAPI success: 204 (no content); admin client: UserResource#logout()",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "POST /admin/realms/{realm}/users/{user-id}/role-mappings/clients/{client-id}",
+      "kind": "produces",
+      "sources": "openapi~admin-client",
+      "observed": {
+        "admin-client": [
+          "application/json"
+        ],
+        "openapi": []
+      },
+      "reason": "No response entity: the OpenAPI documents success without content. The admin-client interface inherits @Produces(application/json), which only sets the Accept header of a request whose empty answer the proxy discards.",
+      "evidence": "OpenAPI success: 204 (no content); admin client: RoleScopeResource#add(List)",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "POST /admin/realms/{realm}/users/{user-id}/role-mappings/realm",
+      "kind": "produces",
+      "sources": "openapi~admin-client",
+      "observed": {
+        "admin-client": [
+          "application/json"
+        ],
+        "openapi": []
+      },
+      "reason": "No response entity: the OpenAPI documents success without content. The admin-client interface inherits @Produces(application/json), which only sets the Accept header of a request whose empty answer the proxy discards.",
+      "evidence": "OpenAPI success: 204 (no content); admin client: RoleScopeResource#add(List)",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "PUT /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server",
+      "kind": "produces",
+      "sources": "openapi~admin-client",
+      "observed": {
+        "admin-client": [
+          "application/json"
+        ],
+        "openapi": []
+      },
+      "reason": "No response entity: the OpenAPI documents success without content. The admin-client interface inherits @Produces(application/json), which only sets the Accept header of a request whose empty answer the proxy discards.",
+      "evidence": "OpenAPI success: 204 (no content); admin client: AuthorizationResource#update(ResourceServerRepresentation)",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "PUT /admin/realms/{realm}/users/{user-id}",
+      "kind": "produces",
+      "sources": "openapi~admin-client",
+      "observed": {
+        "admin-client": [
+          "application/json"
+        ],
+        "openapi": []
+      },
+      "reason": "No response entity: the OpenAPI documents success without content. The admin-client interface inherits @Produces(application/json), which only sets the Accept header of a request whose empty answer the proxy discards.",
+      "evidence": "OpenAPI success: 204 (no content); admin client: UserResource#update(UserRepresentation)",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "PUT /admin/realms/{realm}/users/{user-id}/credentials/{credentialId}/userLabel",
+      "kind": "produces",
+      "sources": "openapi~admin-client",
+      "observed": {
+        "admin-client": [
+          "application/json"
+        ],
+        "openapi": []
+      },
+      "reason": "No response entity: the OpenAPI documents success without content. The admin-client interface inherits @Produces(application/json), which only sets the Accept header of a request whose empty answer the proxy discards.",
+      "evidence": "OpenAPI success: 204 (no content); admin client: UserResource#setCredentialUserLabel(String,String)",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "PUT /admin/realms/{realm}/users/{user-id}/disable-credential-types",
+      "kind": "produces",
+      "sources": "openapi~admin-client",
+      "observed": {
+        "admin-client": [
+          "application/json"
+        ],
+        "openapi": []
+      },
+      "reason": "No response entity: the OpenAPI documents success without content. The admin-client interface inherits @Produces(application/json), which only sets the Accept header of a request whose empty answer the proxy discards.",
+      "evidence": "OpenAPI success: 204 (no content); admin client: UserResource#disableCredentialType(List)",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "PUT /admin/realms/{realm}/users/{user-id}/execute-actions-email",
+      "kind": "produces",
+      "sources": "openapi~admin-client",
+      "observed": {
+        "admin-client": [
+          "application/json"
+        ],
+        "openapi": []
+      },
+      "reason": "No response entity: the OpenAPI documents success without content. The admin-client interface inherits @Produces(application/json), which only sets the Accept header of a request whose empty answer the proxy discards.",
+      "evidence": "OpenAPI success: 204 (no content); admin client: UserResource#executeActionsEmail(List), UserResource#executeActionsEmail(List,Integer), UserResource#executeActionsEmail(String,String,Integer,List), UserResource#executeActionsEmail(String,String,List)",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "PUT /admin/realms/{realm}/users/{user-id}/groups/{groupId}",
+      "kind": "produces",
+      "sources": "openapi~admin-client",
+      "observed": {
+        "admin-client": [
+          "application/json"
+        ],
+        "openapi": []
+      },
+      "reason": "No response entity: the OpenAPI documents success without content. The admin-client interface inherits @Produces(application/json), which only sets the Accept header of a request whose empty answer the proxy discards.",
+      "evidence": "OpenAPI success: 204 (no content); admin client: UserResource#joinGroup(String)",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "PUT /admin/realms/{realm}/users/{user-id}/reset-password",
+      "kind": "produces",
+      "sources": "openapi~admin-client",
+      "observed": {
+        "admin-client": [
+          "application/json"
+        ],
+        "openapi": []
+      },
+      "reason": "No response entity: the OpenAPI documents success without content. The admin-client interface inherits @Produces(application/json), which only sets the Accept header of a request whose empty answer the proxy discards.",
+      "evidence": "OpenAPI success: 204 (no content); admin client: UserResource#resetPassword(CredentialRepresentation)",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "PUT /admin/realms/{realm}/users/{user-id}/reset-password-email",
+      "kind": "produces",
+      "sources": "openapi~admin-client",
+      "observed": {
+        "admin-client": [
+          "application/json"
+        ],
+        "openapi": []
+      },
+      "reason": "No response entity: the OpenAPI documents success without content. The admin-client interface inherits @Produces(application/json), which only sets the Accept header of a request whose empty answer the proxy discards.",
+      "evidence": "OpenAPI success: 204 (no content); admin client: UserResource#resetPasswordEmail(), UserResource#resetPasswordEmail(String)",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "PUT /admin/realms/{realm}/users/{user-id}/send-verify-email",
+      "kind": "produces",
+      "sources": "openapi~admin-client",
+      "observed": {
+        "admin-client": [
+          "application/json"
+        ],
+        "openapi": []
+      },
+      "reason": "No response entity: the OpenAPI documents success without content. The admin-client interface inherits @Produces(application/json), which only sets the Accept header of a request whose empty answer the proxy discards.",
+      "evidence": "OpenAPI success: 204 (no content); admin client: UserResource#sendVerifyEmail(), UserResource#sendVerifyEmail(Integer), UserResource#sendVerifyEmail(String), UserResource#sendVerifyEmail(String,String), UserResource#sendVerifyEmail(String,String,Integer)",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "DELETE /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/resource/{resource-id}",
+      "kind": "query",
+      "sources": "openapi~admin-client",
+      "observed": {
+        "openapi@path-item": [
+          "_id",
+          "deep",
+          "exactName",
+          "first",
+          "matchingUri",
+          "max",
+          "name",
+          "owner",
+          "scope",
+          "type",
+          "uri"
+        ]
+      },
+      "reason": "Keycloak's generated OpenAPI hoists the @QueryParams of ResourceSetService's public find(...) overload, which has no HTTP-method annotation, onto every path item of the authorization resource collection. The method behind this operation reads none of them; the admin client correctly omits them.",
+      "evidence": "services/src/main/java/org/keycloak/authorization/admin/ResourceSetService.java:412-423 (unannotated find overload); concrete method: delete (services/src/main/java/org/keycloak/authorization/admin/ResourceSetService.java:196); admin client: ResourceResource#remove()",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "GET /admin/realms",
+      "kind": "query",
+      "sources": "openapi~admin-client",
+      "observed": {
+        "openapi": [
+          "briefRepresentation"
+        ]
+      },
+      "reason": "The server reads this query parameter, but no admin-client overload declares it: the adapter is built from keycloak/keycloak-client and lags HEAD. The typed oracle cannot send it; raw HTTP covers it.",
+      "evidence": "server: services/src/main/java/org/keycloak/services/resources/admin/RealmsAdminResource.java:122; admin client: RealmsResource#findAll()",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy",
+      "kind": "query",
+      "sources": "openapi~admin-client",
+      "observed": {
+        "openapi": [
+          "resourceType"
+        ]
+      },
+      "reason": "The server reads this query parameter, but no admin-client overload declares it: the adapter is built from keycloak/keycloak-client and lags HEAD. The typed oracle cannot send it; raw HTTP covers it.",
+      "evidence": "server: services/src/main/java/org/keycloak/authorization/admin/PolicyService.java:213; admin client: PoliciesResource#policies(), PoliciesResource#policies(String,String,String,String,String,Boolean,String,String,Integer,Integer)",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/search",
+      "kind": "query",
+      "sources": "openapi~admin-client",
+      "observed": {
+        "openapi": [
+          "fields"
+        ]
+      },
+      "reason": "The server reads this query parameter, but no admin-client overload declares it: the adapter is built from keycloak/keycloak-client and lags HEAD. The typed oracle cannot send it; raw HTTP covers it.",
+      "evidence": "server: services/src/main/java/org/keycloak/authorization/admin/PolicyService.java:180; admin client: PoliciesResource#findByName(String)",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/resource",
+      "kind": "query",
+      "sources": "openapi~admin-client",
+      "observed": {
+        "openapi": [
+          "_id",
+          "deep",
+          "exactName",
+          "matchingUri"
+        ]
+      },
+      "reason": "The server reads this query parameter, but no admin-client overload declares it: the adapter is built from keycloak/keycloak-client and lags HEAD. The typed oracle cannot send it; raw HTTP covers it.",
+      "evidence": "server: services/src/main/java/org/keycloak/authorization/admin/ResourceSetService.java:398-406; admin client: ResourcesResource#find(String,String,String,String,String,Integer,Integer), ResourcesResource#findByName(String), ResourcesResource#findByName(String,String), ResourcesResource#resources()",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/resource/search",
+      "kind": "query",
+      "sources": "openapi~admin-client",
+      "observed": {
+        "openapi@path-item": [
+          "_id",
+          "deep",
+          "exactName",
+          "first",
+          "matchingUri",
+          "max",
+          "owner",
+          "scope",
+          "type",
+          "uri"
+        ]
+      },
+      "reason": "Keycloak's generated OpenAPI hoists the @QueryParams of ResourceSetService's public find(...) overload, which has no HTTP-method annotation, onto every path item of the authorization resource collection. The method behind this operation reads none of them; the admin client correctly omits them.",
+      "evidence": "services/src/main/java/org/keycloak/authorization/admin/ResourceSetService.java:412-423 (unannotated find overload); concrete method: find(name) (services/src/main/java/org/keycloak/authorization/admin/ResourceSetService.java:374); admin client: ResourcesResource#searchByName(String)",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/resource/{resource-id}",
+      "kind": "query",
+      "sources": "openapi~admin-client",
+      "observed": {
+        "openapi@path-item": [
+          "_id",
+          "deep",
+          "exactName",
+          "first",
+          "matchingUri",
+          "max",
+          "name",
+          "owner",
+          "scope",
+          "type",
+          "uri"
+        ]
+      },
+      "reason": "Keycloak's generated OpenAPI hoists the @QueryParams of ResourceSetService's public find(...) overload, which has no HTTP-method annotation, onto every path item of the authorization resource collection. The method behind this operation reads none of them; the admin client correctly omits them.",
+      "evidence": "services/src/main/java/org/keycloak/authorization/admin/ResourceSetService.java:412-423 (unannotated find overload); concrete method: findById (services/src/main/java/org/keycloak/authorization/admin/ResourceSetService.java:222); admin client: ResourceResource#toRepresentation()",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/resource/{resource-id}/permissions",
+      "kind": "query",
+      "sources": "openapi~admin-client",
+      "observed": {
+        "openapi@path-item": [
+          "_id",
+          "deep",
+          "exactName",
+          "first",
+          "matchingUri",
+          "max",
+          "name",
+          "owner",
+          "scope",
+          "type",
+          "uri"
+        ]
+      },
+      "reason": "Keycloak's generated OpenAPI hoists the @QueryParams of ResourceSetService's public find(...) overload, which has no HTTP-method annotation, onto every path item of the authorization resource collection. The method behind this operation reads none of them; the admin client correctly omits them.",
+      "evidence": "services/src/main/java/org/keycloak/authorization/admin/ResourceSetService.java:412-423 (unannotated find overload); concrete method: getPermissions (services/src/main/java/org/keycloak/authorization/admin/ResourceSetService.java:292); admin client: ResourceResource#permissions()",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/scope",
+      "kind": "query",
+      "sources": "openapi~admin-client",
+      "observed": {
+        "openapi": [
+          "first",
+          "max",
+          "name",
+          "scopeId"
+        ]
+      },
+      "reason": "The server reads this query parameter, but no admin-client overload declares it: the adapter is built from keycloak/keycloak-client and lags HEAD. The typed oracle cannot send it; raw HTTP covers it.",
+      "evidence": "server: services/src/main/java/org/keycloak/authorization/admin/ScopeService.java:283-286; admin client: ResourceScopesResource#scopes()",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{client-uuid}/roles/{role-name}/groups",
+      "kind": "query",
+      "sources": "openapi~admin-client",
+      "observed": {
+        "openapi": [
+          "briefRepresentation"
+        ]
+      },
+      "reason": "The server reads this query parameter, but no admin-client overload declares it: the adapter is built from keycloak/keycloak-client and lags HEAD. The typed oracle cannot send it; raw HTTP covers it.",
+      "evidence": "server: services/src/main/java/org/keycloak/services/resources/admin/RoleContainerResource.java:649; admin client: RoleResource#getRoleGroupMembers(), RoleResource#getRoleGroupMembers(Integer,Integer)",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "GET /admin/realms/{realm}/components",
+      "kind": "query",
+      "sources": "openapi~admin-client",
+      "observed": {
+        "openapi": [
+          "providerId"
+        ]
+      },
+      "reason": "The server reads this query parameter, but no admin-client overload declares it: the adapter is built from keycloak/keycloak-client and lags HEAD. The typed oracle cannot send it; raw HTTP covers it.",
+      "evidence": "server: services/src/main/java/org/keycloak/services/resources/admin/ComponentResource.java:108; admin client: ComponentsResource#query(), ComponentsResource#query(String), ComponentsResource#query(String,String), ComponentsResource#query(String,String,String)",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "GET /admin/realms/{realm}/organizations",
+      "kind": "query",
+      "sources": "openapi~admin-client",
+      "observed": {
+        "openapi": [
+          "identityProvider"
+        ]
+      },
+      "reason": "The server reads this query parameter, but no admin-client overload declares it: the adapter is built from keycloak/keycloak-client and lags HEAD. The typed oracle cannot send it; raw HTTP covers it.",
+      "evidence": "server: services/src/main/java/org/keycloak/organization/admin/resource/OrganizationsResource.java:156; admin client: OrganizationsResource#getAll(), OrganizationsResource#list(Integer,Integer), OrganizationsResource#search(String), OrganizationsResource#search(String,Boolean,Integer,Integer), OrganizationsResource#search(String,Boolean,Integer,Integer,Boolean), OrganizationsResource#searchByAttribute(String), OrganizationsResource#searchByAttribute(String,Integer,Integer)",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "GET /admin/realms/{realm}/organizations/count",
+      "kind": "query",
+      "sources": "openapi~admin-client",
+      "observed": {
+        "openapi": [
+          "identityProvider"
+        ]
+      },
+      "reason": "The server reads this query parameter, but no admin-client overload declares it: the adapter is built from keycloak/keycloak-client and lags HEAD. The typed oracle cannot send it; raw HTTP covers it.",
+      "evidence": "server: services/src/main/java/org/keycloak/organization/admin/resource/OrganizationsResource.java:243; admin client: OrganizationsResource#count(String), OrganizationsResource#count(String,Boolean), OrganizationsResource#countByAttribute(String)",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "GET /admin/realms/{realm}/organizations/{org-id}/groups/group-by-path/{path}",
+      "kind": "query",
+      "sources": "openapi~admin-client",
+      "observed": {
+        "openapi": [
+          "briefRepresentation"
+        ]
+      },
+      "reason": "The server reads this query parameter, but no admin-client overload declares it: the adapter is built from keycloak/keycloak-client and lags HEAD. The typed oracle cannot send it; raw HTTP covers it.",
+      "evidence": "server: services/src/main/java/org/keycloak/organization/admin/resource/OrganizationGroupsResource.java:240; admin client: OrganizationGroupsResource#getGroupByPath(String,boolean)",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "GET /admin/realms/{realm}/organizations/{org-id}/groups/{group-id}/children",
+      "kind": "query",
+      "sources": "openapi~admin-client",
+      "observed": {
+        "openapi": [
+          "subGroupsCount"
+        ]
+      },
+      "reason": "The server reads this query parameter, but no admin-client overload declares it: the adapter is built from keycloak/keycloak-client and lags HEAD. The typed oracle cannot send it; raw HTTP covers it.",
+      "evidence": "server: services/src/main/java/org/keycloak/organization/admin/resource/OrganizationGroupResource.java:216; admin client: OrganizationGroupResource#getSubGroups(String,Boolean,Integer,Integer)",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "GET /admin/realms/{realm}/roles/{role-name}/groups",
+      "kind": "query",
+      "sources": "openapi~admin-client",
+      "observed": {
+        "openapi": [
+          "briefRepresentation"
+        ]
+      },
+      "reason": "The server reads this query parameter, but no admin-client overload declares it: the adapter is built from keycloak/keycloak-client and lags HEAD. The typed oracle cannot send it; raw HTTP covers it.",
+      "evidence": "server: services/src/main/java/org/keycloak/services/resources/admin/RoleContainerResource.java:649; admin client: RoleResource#getRoleGroupMembers(), RoleResource#getRoleGroupMembers(Integer,Integer)",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "GET /admin/realms/{realm}/workflows/{id}",
+      "kind": "query",
+      "sources": "openapi~admin-client",
+      "observed": {
+        "openapi": [
+          "includeId"
+        ]
+      },
+      "reason": "The server reads this query parameter, but no admin-client overload declares it: the adapter is built from keycloak/keycloak-client and lags HEAD. The typed oracle cannot send it; raw HTTP covers it.",
+      "evidence": "server: services/src/main/java/org/keycloak/workflow/admin/resource/WorkflowResource.java:127; admin client: WorkflowResource#toRepresentation()",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "POST /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/resource",
+      "kind": "query",
+      "sources": "openapi~admin-client",
+      "observed": {
+        "openapi@path-item": [
+          "_id",
+          "deep",
+          "exactName",
+          "first",
+          "matchingUri",
+          "max",
+          "name",
+          "owner",
+          "scope",
+          "type",
+          "uri"
+        ]
+      },
+      "reason": "Keycloak's generated OpenAPI hoists the @QueryParams of ResourceSetService's public find(...) overload, which has no HTTP-method annotation, onto every path item of the authorization resource collection. The method behind this operation reads none of them; the admin client correctly omits them.",
+      "evidence": "services/src/main/java/org/keycloak/authorization/admin/ResourceSetService.java:412-423 (unannotated find overload); concrete method: createPost (services/src/main/java/org/keycloak/authorization/admin/ResourceSetService.java:116); admin client: ResourcesResource#create(ResourceRepresentation)",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "POST /admin/realms/{realm}/organizations/{org-id}/members/invite-user",
+      "kind": "query",
+      "sources": "openapi~admin-client",
+      "observed": {
+        "openapi": [
+          "client_id"
+        ]
+      },
+      "reason": "The server reads this query parameter, but no admin-client overload declares it: the adapter is built from keycloak/keycloak-client and lags HEAD. The typed oracle cannot send it; raw HTTP covers it.",
+      "evidence": "server: services/src/main/java/org/keycloak/organization/admin/resource/OrganizationMemberResource.java:150; admin client: OrganizationMembersResource#inviteUser(String,String,String)",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "PUT /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/resource/{resource-id}",
+      "kind": "query",
+      "sources": "openapi~admin-client",
+      "observed": {
+        "openapi@path-item": [
+          "_id",
+          "deep",
+          "exactName",
+          "first",
+          "matchingUri",
+          "max",
+          "name",
+          "owner",
+          "scope",
+          "type",
+          "uri"
+        ]
+      },
+      "reason": "Keycloak's generated OpenAPI hoists the @QueryParams of ResourceSetService's public find(...) overload, which has no HTTP-method annotation, onto every path item of the authorization resource collection. The method behind this operation reads none of them; the admin client correctly omits them.",
+      "evidence": "services/src/main/java/org/keycloak/authorization/admin/ResourceSetService.java:412-423 (unannotated find overload); concrete method: update (services/src/main/java/org/keycloak/authorization/admin/ResourceSetService.java:166); admin client: ResourceResource#update(ResourceRepresentation)",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "PUT /admin/realms/{realm}/users/{user-id}/reset-password-email",
+      "kind": "query",
+      "sources": "openapi~admin-client",
+      "observed": {
+        "openapi": [
+          "redirect_uri"
+        ]
+      },
+      "reason": "The server reads this query parameter, but no admin-client overload declares it: the adapter is built from keycloak/keycloak-client and lags HEAD. The typed oracle cannot send it; raw HTTP covers it.",
+      "evidence": "server: services/src/main/java/org/keycloak/services/resources/admin/UserResource.java:1006; admin client: UserResource#resetPasswordEmail(), UserResource#resetPasswordEmail(String)",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "DELETE /admin/realms/{realm}/clients/{id}/authz/resource-server/policy/js/{id}",
+      "kind": "route",
+      "sources": "server",
+      "reason": "The JavaScript policy type only exists with the preview feature \"scripts\" (JSPolicyProviderFactory is unsupported otherwise), so on a default server PolicyService#getResource treats \"js\" as a policy id and PolicyResourceService rejects the unknown policy with a message-less NotFoundException, which is the generic JAX-RS miss. The admin client still exposes the typed js resource. With \"scripts\" enabled the typed resource exists, but these operations address one JS policy, and the admin API refuses to create or import one unless it comes from a deployed provider jar, so no API-seeded fixture can exist and the missing policy again answers the message-less 404.",
+      "evidence": "authz/policy/common/src/main/java/org/keycloak/authorization/policy/provider/js/JSPolicyProviderFactory.java:137-139; services/src/main/java/org/keycloak/authorization/admin/PolicyService.java:96-111; services/src/main/java/org/keycloak/authorization/admin/PolicyResourceService.java:68-69; authz/policy/common/src/main/java/org/keycloak/authorization/policy/provider/js/JSPolicyProviderFactory.java:62-63,131-134 (create/import refused unless deployed); nightly 999.0.0-SNAPSHOT answered 404 {\"error\":\"HTTP 404 Not Found\"} with default features and with --features=scripts (2026-09-29)",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{id}/authz/resource-server/policy/js/search",
+      "kind": "route",
+      "sources": "server",
+      "reason": "The JavaScript policy type only exists with the preview feature \"scripts\" (JSPolicyProviderFactory is unsupported otherwise), so on a default server PolicyService#getResource treats \"js\" as a policy id and PolicyResourceService rejects the unknown policy with a message-less NotFoundException, which is the generic JAX-RS miss. The admin client still exposes the typed js resource.",
+      "evidence": "authz/policy/common/src/main/java/org/keycloak/authorization/policy/provider/js/JSPolicyProviderFactory.java:137-139; services/src/main/java/org/keycloak/authorization/admin/PolicyService.java:96-111; services/src/main/java/org/keycloak/authorization/admin/PolicyResourceService.java:68-69; nightly 999.0.0-SNAPSHOT answered 404 {\"error\":\"HTTP 404 Not Found\"} with default features and routed the operation with --features=scripts (2026-09-29)",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{id}/authz/resource-server/policy/js/{id}",
+      "kind": "route",
+      "sources": "server",
+      "reason": "The JavaScript policy type only exists with the preview feature \"scripts\" (JSPolicyProviderFactory is unsupported otherwise), so on a default server PolicyService#getResource treats \"js\" as a policy id and PolicyResourceService rejects the unknown policy with a message-less NotFoundException, which is the generic JAX-RS miss. The admin client still exposes the typed js resource. With \"scripts\" enabled the typed resource exists, but these operations address one JS policy, and the admin API refuses to create or import one unless it comes from a deployed provider jar, so no API-seeded fixture can exist and the missing policy again answers the message-less 404.",
+      "evidence": "authz/policy/common/src/main/java/org/keycloak/authorization/policy/provider/js/JSPolicyProviderFactory.java:137-139; services/src/main/java/org/keycloak/authorization/admin/PolicyService.java:96-111; services/src/main/java/org/keycloak/authorization/admin/PolicyResourceService.java:68-69; authz/policy/common/src/main/java/org/keycloak/authorization/policy/provider/js/JSPolicyProviderFactory.java:62-63,131-134 (create/import refused unless deployed); nightly 999.0.0-SNAPSHOT answered 404 {\"error\":\"HTTP 404 Not Found\"} with default features and with --features=scripts (2026-09-29)",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{id}/authz/resource-server/policy/js/{id}/associatedPolicies",
+      "kind": "route",
+      "sources": "server",
+      "reason": "The JavaScript policy type only exists with the preview feature \"scripts\" (JSPolicyProviderFactory is unsupported otherwise), so on a default server PolicyService#getResource treats \"js\" as a policy id and PolicyResourceService rejects the unknown policy with a message-less NotFoundException, which is the generic JAX-RS miss. The admin client still exposes the typed js resource. With \"scripts\" enabled the typed resource exists, but these operations address one JS policy, and the admin API refuses to create or import one unless it comes from a deployed provider jar, so no API-seeded fixture can exist and the missing policy again answers the message-less 404.",
+      "evidence": "authz/policy/common/src/main/java/org/keycloak/authorization/policy/provider/js/JSPolicyProviderFactory.java:137-139; services/src/main/java/org/keycloak/authorization/admin/PolicyService.java:96-111; services/src/main/java/org/keycloak/authorization/admin/PolicyResourceService.java:68-69; authz/policy/common/src/main/java/org/keycloak/authorization/policy/provider/js/JSPolicyProviderFactory.java:62-63,131-134 (create/import refused unless deployed); nightly 999.0.0-SNAPSHOT answered 404 {\"error\":\"HTTP 404 Not Found\"} with default features and with --features=scripts (2026-09-29)",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{id}/authz/resource-server/policy/js/{id}/dependentPolicies",
+      "kind": "route",
+      "sources": "server",
+      "reason": "The JavaScript policy type only exists with the preview feature \"scripts\" (JSPolicyProviderFactory is unsupported otherwise), so on a default server PolicyService#getResource treats \"js\" as a policy id and PolicyResourceService rejects the unknown policy with a message-less NotFoundException, which is the generic JAX-RS miss. The admin client still exposes the typed js resource. With \"scripts\" enabled the typed resource exists, but these operations address one JS policy, and the admin API refuses to create or import one unless it comes from a deployed provider jar, so no API-seeded fixture can exist and the missing policy again answers the message-less 404.",
+      "evidence": "authz/policy/common/src/main/java/org/keycloak/authorization/policy/provider/js/JSPolicyProviderFactory.java:137-139; services/src/main/java/org/keycloak/authorization/admin/PolicyService.java:96-111; services/src/main/java/org/keycloak/authorization/admin/PolicyResourceService.java:68-69; authz/policy/common/src/main/java/org/keycloak/authorization/policy/provider/js/JSPolicyProviderFactory.java:62-63,131-134 (create/import refused unless deployed); nightly 999.0.0-SNAPSHOT answered 404 {\"error\":\"HTTP 404 Not Found\"} with default features and with --features=scripts (2026-09-29)",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{id}/authz/resource-server/policy/js/{id}/resources",
+      "kind": "route",
+      "sources": "server",
+      "reason": "The JavaScript policy type only exists with the preview feature \"scripts\" (JSPolicyProviderFactory is unsupported otherwise), so on a default server PolicyService#getResource treats \"js\" as a policy id and PolicyResourceService rejects the unknown policy with a message-less NotFoundException, which is the generic JAX-RS miss. The admin client still exposes the typed js resource. With \"scripts\" enabled the typed resource exists, but these operations address one JS policy, and the admin API refuses to create or import one unless it comes from a deployed provider jar, so no API-seeded fixture can exist and the missing policy again answers the message-less 404.",
+      "evidence": "authz/policy/common/src/main/java/org/keycloak/authorization/policy/provider/js/JSPolicyProviderFactory.java:137-139; services/src/main/java/org/keycloak/authorization/admin/PolicyService.java:96-111; services/src/main/java/org/keycloak/authorization/admin/PolicyResourceService.java:68-69; authz/policy/common/src/main/java/org/keycloak/authorization/policy/provider/js/JSPolicyProviderFactory.java:62-63,131-134 (create/import refused unless deployed); nightly 999.0.0-SNAPSHOT answered 404 {\"error\":\"HTTP 404 Not Found\"} with default features and with --features=scripts (2026-09-29)",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "POST /admin/realms/{realm}/clients/{id}/authz/resource-server/policy/js",
+      "kind": "route",
+      "sources": "server",
+      "reason": "The JavaScript policy type only exists with the preview feature \"scripts\" (JSPolicyProviderFactory is unsupported otherwise), so on a default server PolicyService#getResource treats \"js\" as a policy id and PolicyResourceService rejects the unknown policy with a message-less NotFoundException, which is the generic JAX-RS miss. The admin client still exposes the typed js resource.",
+      "evidence": "authz/policy/common/src/main/java/org/keycloak/authorization/policy/provider/js/JSPolicyProviderFactory.java:137-139; services/src/main/java/org/keycloak/authorization/admin/PolicyService.java:96-111; services/src/main/java/org/keycloak/authorization/admin/PolicyResourceService.java:68-69; nightly 999.0.0-SNAPSHOT answered 404 {\"error\":\"HTTP 404 Not Found\"} with default features and routed the operation with --features=scripts (2026-09-29)",
+      "since": "2026-09-28"
+    },
+    {
+      "key": "PUT /admin/realms/{realm}/clients/{id}/authz/resource-server/policy/js/{id}",
+      "kind": "route",
+      "sources": "server",
+      "reason": "The JavaScript policy type only exists with the preview feature \"scripts\" (JSPolicyProviderFactory is unsupported otherwise), so on a default server PolicyService#getResource treats \"js\" as a policy id and PolicyResourceService rejects the unknown policy with a message-less NotFoundException, which is the generic JAX-RS miss. The admin client still exposes the typed js resource. With \"scripts\" enabled the typed resource exists, but these operations address one JS policy, and the admin API refuses to create or import one unless it comes from a deployed provider jar, so no API-seeded fixture can exist and the missing policy again answers the message-less 404.",
+      "evidence": "authz/policy/common/src/main/java/org/keycloak/authorization/policy/provider/js/JSPolicyProviderFactory.java:137-139; services/src/main/java/org/keycloak/authorization/admin/PolicyService.java:96-111; services/src/main/java/org/keycloak/authorization/admin/PolicyResourceService.java:68-69; authz/policy/common/src/main/java/org/keycloak/authorization/policy/provider/js/JSPolicyProviderFactory.java:62-63,131-134 (create/import refused unless deployed); nightly 999.0.0-SNAPSHOT answered 404 {\"error\":\"HTTP 404 Not Found\"} with default features and with --features=scripts (2026-09-29)",
+      "since": "2026-09-28"
+    }
+  ]
+}
