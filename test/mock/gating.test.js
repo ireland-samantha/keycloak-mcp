@@ -42,9 +42,6 @@ const bodyHazards = [
   ['G7 a client secret set through the client representation needs the irreversible override', 'SEC-2', WRITER,
     workflow(sameResourceUpdate('PUT /admin/realms/{realm}/clients/{client-uuid}', { 'client-uuid': 'client-1' }, { secret: 'chosen-secret' })),
     /^step 1 is irreversible and requires an explicit override: .*\[sets-secret\]/],
-];
-
-const unguardedHazards = [
   ['G9 turning off event auditing needs the irreversible override', 'SEC-7', WRITER,
     workflow(sameResourceUpdate('PUT /admin/realms/{realm}/events/config', {}, { adminEventsEnabled: false, eventsEnabled: false },
       { adminEventsEnabled: true, eventsEnabled: true })), /^step 1 is irreversible and requires an explicit override: .*\[stops-events\]/],
@@ -60,4 +57,3 @@ async function refuses(t, settings, [tool, args], message) {
 
 for (const [name, settings, call, message] of refusals) test(name, t => refuses(t, settings, call, message));
 for (const [name, , settings, call, message] of bodyHazards) test(name, t => refuses(t, settings, call, message));
-for (const [name, todo, settings, call, message] of unguardedHazards) test(name, { todo }, t => refuses(t, settings, call, message));

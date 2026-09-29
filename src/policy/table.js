@@ -107,8 +107,16 @@ export const IRREVERSIBLE_PATHS = [
 // alone, without reading Keycloak's current state, so a field that would change something counts as
 // changing it: send only the fields an update changes.
 const isSet = value => value !== undefined && value !== null;
+const numberOf = value => Number(JSON.isRawJSON(value) ? value.rawJSON : value);
+const configHas = (body, keys) => keys.some(key => isSet(body?.config?.[key]));
+const stopsRecording = (body, userEventsOff) => userEventsOff || body?.adminEventsEnabled === false || body?.adminEventsDetailsEnabled === false ||
+  isSet(body?.eventsListeners) || isSet(body?.enabledEventTypes) || numberOf(body?.eventsExpiration) > 0;
 const RTM = 'server-spi-private/src/main/java/org/keycloak/models/utils/RepresentationToModel.java';
+const REALM_UPDATE = 'model/storage-private/src/main/java/org/keycloak/storage/datastore/DefaultExportImportManager.java';
+const EVENT_PURGE = 'model/jpa/src/main/java/org/keycloak/events/jpa/JpaEventStoreProvider.java:90-111';
 const USER = 'PUT /admin/realms/{realm}/users/{user-id}';
+const REALM = 'PUT /admin/realms/{realm}';
+const COMPONENT = 'PUT /admin/realms/{realm}/components/{id}';
 export const IRREVERSIBLE_BODIES = {
   'sets-credentials': {
     operations: [USER],
@@ -116,6 +124,41 @@ export const IRREVERSIBLE_BODIES = {
     summary: 'the body sets credentials',
     reason: 'A user update stores every credential in the body, setting the password from a value or creating a credential through its provider; the previous password hash cannot be read back (SEC-2).',
     source: `services/resources/admin/UserResource.java:233; ${RTM}:849-873`,
+  },
+  'replaces-smtp': {
+    operations: [REALM],
+    applies: ({ body }) => isSet(body?.smtpServer),
+    summary: 'the body replaces the SMTP settings',
+    reason: 'The SMTP settings are replaced whole: the stored password or token secret is dropped unless the body masks it and names the same destination, which a body alone cannot show.',
+    source: `${REALM_UPDATE}:932-980`,
+  },
+  'stops-realm-events': {
+    operations: [REALM],
+    applies: ({ body }) => stopsRecording(body, body?.eventsEnabled === false),
+    summary: 'the body turns off or narrows event recording, or schedules stored events for deletion',
+    reason: 'Events not recorded while recording is off or narrowed, or not passed to a removed listener, are lost for good, and a positive eventsExpiration makes Keycloak delete older stored events (SEC-7).',
+    source: `${REALM_UPDATE}:903-910; ${EVENT_PURGE}`,
+  },
+  'stops-events': {
+    operations: ['PUT /admin/realms/{realm}/events/config'],
+    applies: ({ body }) => stopsRecording(body, body?.eventsEnabled !== true),
+    summary: 'the body turns off or narrows event recording, or schedules stored events for deletion',
+    reason: 'As for the realm update, with one difference: eventsEnabled is a plain boolean in this body, so leaving it out turns user events off (SEC-7).',
+    source: `services/managers/RealmManager.java:337-360; core/src/main/java/org/keycloak/representations/idm/RealmEventsConfigRepresentation.java:27; ${EVENT_PURGE}`,
+  },
+  'repoints-federation': {
+    operations: [COMPONENT],
+    applies: ({ body }) => configHas(body, ['connectionUrl', 'bindDn', 'scimurl', 'loginusername']),
+    summary: 'the body changes where a user storage provider connects with its stored credential',
+    reason: 'A component update keeps a bind credential the body leaves out or masks, so a new LDAP or Ipatuura address receives the stored credential on the next user search; a sent credential cannot be recalled (SEC-3).',
+    source: `federation/ldap/src/main/java/org/keycloak/storage/ldap/LDAPStorageProviderFactory.java:147-169; LDAPStorageProvider.java:400; ${RTM}:1221-1245; federation/ipatuura/src/main/java/org/keycloak/ipatuura_user_spi/IpatuuraUserStorageProviderFactory.java:56-66`,
+  },
+  'repoints-idp-secret': {
+    operations: ['PUT /admin/realms/{realm}/identity-provider/instances/{alias}'],
+    applies: ({ body }) => configHas(body, ['tokenUrl', 'tokenIntrospectionUrl']) && body.config.clientSecret === KEYCLOAK_OWN_MASKS.mask,
+    summary: 'the body names a token endpoint while keeping the stored client secret',
+    reason: 'A masked clientSecret keeps the stored secret, which Keycloak sends to the token and introspection endpoints, so a new address there receives it (SEC-3).',
+    source: 'services/resources/admin/IdentityProviderResource.java:212-214; broker/oidc/AbstractOAuth2IdentityProvider.java:674-711, :865, :1053-1064',
   },
   'sets-secret': {
     methods: ['PUT', 'PATCH'],
@@ -127,11 +170,12 @@ export const IRREVERSIBLE_BODIES = {
 };
 
 // Holders in which Keycloak never stores its own mask as a secret: a config map keeps the stored value
-// for it. A client secret sent as the mask is stored as the mask.
+// for it, and smtpServer keeps or drops the stored password (see replaces-smtp). A client secret sent
+// as the mask is stored as the mask.
 export const MASKED_SECRET_HOLDERS = {
-  holders: ['config'],
-  reason: 'Component, identity-provider and authenticator config updates keep the stored secret for a value that is exactly the mask; ClientRepresentation.secret is stored as sent.',
-  source: `${RTM}:1235, :625-642; services/resources/admin/IdentityProviderResource.java:212-214; AuthenticationManagementResource.java:1687-1693`,
+  holders: ['config', 'smtpServer'],
+  reason: 'Component, identity-provider and authenticator config updates keep the stored secret for a value that is exactly the mask, and the SMTP settings keep or drop it; ClientRepresentation.secret is stored as sent.',
+  source: `${RTM}:1235, :625-642; services/resources/admin/IdentityProviderResource.java:212-214; AuthenticationManagementResource.java:1687-1693; ${REALM_UPDATE}:957-976`,
 };
 
 // Endpoints whose whole response is replaced by a marker unless sensitive reads are enabled.

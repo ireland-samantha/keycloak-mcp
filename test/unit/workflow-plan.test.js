@@ -22,9 +22,9 @@ test('preflight returns a frozen copy that later changes to the caller\'s steps 
 
 test('preflight keeps numbers beyond 2^53 exact in its copy', () => {
   const [planned] = preflight(testConfig(writer), [{ operation: 'PUT /admin/realms/{realm}',
-    args: { body: { eventsExpiration: JSON.rawJSON('9007199254740993') } },
-    compensate: { operation: 'PUT /admin/realms/{realm}', args: { body: { eventsExpiration: 1 } } } }]);
-  assert.equal(JSON.stringify(planned.args.body), '{"eventsExpiration":9007199254740993}');
+    args: { body: { attributes: { quota: JSON.rawJSON('9007199254740993') } } },
+    compensate: { operation: 'PUT /admin/realms/{realm}', args: { body: { attributes: { quota: 1 } } } } }]);
+  assert.equal(JSON.stringify(planned.args.body), '{"attributes":{"quota":9007199254740993}}');
 });
 
 test('a workflow sends and compensates exactly what preflight validated, whatever the caller changes meanwhile', async () => {
