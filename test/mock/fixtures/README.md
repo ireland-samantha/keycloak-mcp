@@ -4,9 +4,11 @@
 
 Provenance: recorded on 2026-09-29 from `quay.io/keycloak/keycloak:nightly` at image digest `sha256:6184d6c6fb25c9f013e2e803b56001e91efff023633c797f7114405aa0f98c94`, which reports server version `999.0.0-SNAPSHOT`. The recorder, `scripts/record-mock-fixtures.mjs`, ran against a disposable realm that it created, filled and then deleted. The same details are stored in the file's `provenance` field.
 
+The recorder plants secrets wherever a Keycloak representation can carry one: the client secret, the rotated client secret and a SAML private key in client attributes, private JWK members inside the `jwks.string` attribute, a PEM private key and an API key in custom client attributes, an API key in a realm attribute, the SMTP password, the identity-provider client secret, an LDAP bind credential, an imported RSA key and a user password. `components.list` holds a realm's real components: the LDAP provider with its mappers, the default and imported key providers, and the client-registration policies.
+
 Scrubbing:
 - every JWT (access, initial-access and registration tokens) is replaced with `<scrubbed-jwt>`;
-- the client, identity-provider, SMTP and user secrets the recorder set are replaced with `<scrubbed-secret>`;
+- every planted secret that Keycloak returns in clear is replaced with `<scrubbed-secret>`, so the placeholders mark exactly where a real representation exposes a secret;
 - values Keycloak masks itself, such as `**********`, are kept as sent;
 - `{origin}` and `{realm}` stand for the server origin and realm name. The mock fills them in with its own values.
 

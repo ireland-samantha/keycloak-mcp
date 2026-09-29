@@ -4,6 +4,7 @@
 //   KEYCLOAK_URL=http://127.0.0.1:18080 KEYCLOAK_ADMIN=admin KEYCLOAK_ADMIN_PASSWORD=... \
 //   KEYCLOAK_IMAGE=quay.io/keycloak/keycloak:nightly KEYCLOAK_IMAGE_DIGEST=sha256:... \
 //   node scripts/record-mock-fixtures.mjs
+import { generateKeyPairSync } from 'node:crypto';
 import { writeFileSync } from 'node:fs';
 
 const origin = new URL(process.env.KEYCLOAK_URL ?? 'http://127.0.0.1:18080').origin;
@@ -11,11 +12,22 @@ const { KEYCLOAK_ADMIN: adminUser, KEYCLOAK_ADMIN_PASSWORD: adminPassword } = pr
 if (!adminUser || !adminPassword) throw new Error('KEYCLOAK_ADMIN and KEYCLOAK_ADMIN_PASSWORD are required');
 const realm = 'n1-mock-fixtures';
 const output = new URL('../test/mock/fixtures/keycloak-head.json', import.meta.url);
-// Values this script sets itself; none may survive scrubbing.
+// Values this script sets itself; none may survive scrubbing. Keycloak returns some of them in clear and
+// masks others, so the scrubbed placeholders mark where secrets sit in real representations.
 const planted = {
   clientSecret: 'fixture-client-secret-7d1e', smtpPassword: 'fixture-smtp-password-7d1e',
   idpSecret: 'fixture-idp-secret-7d1e', userPassword: 'Fixture-User-Password-7d1e',
+  rotatedSecret: 'fixture-rotated-secret-7d1e', samlPrivateKey: 'fixture-saml-private-key-7d1e', jwkPrivate: 'fixture-jwk-private-7d1e',
+  pemPrivateKey: 'fixture-pem-private-key-7d1e', ldapBindCredential: 'fixture-ldap-bind-7d1e',
+  realmAttribute: 'fixture-realm-attribute-7d1e', clientAttribute: 'fixture-client-attribute-7d1e',
 };
+// A real key, because Keycloak parses an imported one; it masks it in every response.
+const importedKey = generateKeyPairSync('rsa', { modulusLength: 2048 }).privateKey.export({ type: 'pkcs8', format: 'pem' });
+const jwks = JSON.stringify({ keys: [
+  { kty: 'RSA', kid: 'fixture-rsa', use: 'sig', alg: 'RS256', n: 'fixture-public-modulus', e: 'AQAB',
+    d: planted.jwkPrivate, p: planted.jwkPrivate, q: planted.jwkPrivate, dp: planted.jwkPrivate, dq: planted.jwkPrivate, qi: planted.jwkPrivate },
+  { kty: 'oct', kid: 'fixture-oct', k: planted.jwkPrivate },
+] });
 const jwt = /eyJ[\w-]+\.[\w-]+\.[\w-]*/g;
 const admin = `${origin}/admin/realms/${realm}`;
 const responses = {};
@@ -59,6 +71,7 @@ async function recordAll() {
   await record('realm.create', 'POST /admin/realms', 'POST', `${origin}/admin/realms`, { json: {
     realm, enabled: true, adminEventsEnabled: true, adminEventsDetailsEnabled: true,
     smtpServer: { host: 'smtp.example.invalid', port: '25', from: 'noreply@example.invalid', auth: 'true', user: 'mailer', password: planted.smtpPassword },
+    attributes: { customApiKey: planted.realmAttribute },
   } });
   await record('realm.get', 'GET /admin/realms/{realm}', 'GET', '');
   await record('realm.update', 'PUT /admin/realms/{realm}', 'PUT', '', { json: { displayName: 'Mock fixtures' } });
@@ -66,8 +79,15 @@ async function recordAll() {
   const client = await record('clients.create', 'POST /admin/realms/{realm}/clients', 'POST', '/clients', { json: {
     clientId: 'fixture-service', publicClient: false, secret: planted.clientSecret, serviceAccountsEnabled: true,
     authorizationServicesEnabled: true, standardFlowEnabled: false, directAccessGrantsEnabled: false,
+    attributes: {
+      'client.secret.rotated': planted.rotatedSecret, 'saml.signing.private.key': planted.samlPrivateKey, 'jwks.string': jwks,
+      'custom.api.key': planted.clientAttribute, 'custom.tls.key': `-----BEGIN PRIVATE KEY-----\n${planted.pemPrivateKey}\n-----END PRIVATE KEY-----\n`,
+      'access.token.lifespan': '120', 'use.refresh.tokens': 'true', 'client_credentials.use_refresh_token': 'false',
+    },
   } });
   const clientId = createdId(client);
+  await record('client.registrationAccessToken', 'POST /admin/realms/{realm}/clients/{client-uuid}/registration-access-token', 'POST',
+    `/clients/${clientId}/registration-access-token`);
   await record('clients.list', 'GET /admin/realms/{realm}/clients', 'GET', '/clients?clientId=fixture-service');
   await record('client.get', 'GET /admin/realms/{realm}/clients/{client-uuid}', 'GET', `/clients/${clientId}`);
   await record('client.secret', 'GET /admin/realms/{realm}/clients/{client-uuid}/client-secret', 'GET', `/clients/${clientId}/client-secret`);
@@ -112,6 +132,15 @@ async function recordAll() {
   } });
   await record('idp.get', 'GET /admin/realms/{realm}/identity-provider/instances/{alias}', 'GET', '/identity-provider/instances/fixture-idp');
 
+  const realmId = (await call('GET', admin)).body.id;
+  await call('POST', `${admin}/components`, { json: { name: 'fixture-ldap', providerId: 'ldap', providerType: 'org.keycloak.storage.UserStorageProvider', parentId: realmId,
+    config: { vendor: ['other'], connectionUrl: ['ldap://ldap.example.invalid'], bindDn: ['cn=admin,dc=example,dc=invalid'], bindCredential: [planted.ldapBindCredential],
+      usersDn: ['ou=users,dc=example,dc=invalid'], usernameLDAPAttribute: ['uid'], rdnLDAPAttribute: ['uid'], uuidLDAPAttribute: ['entryUUID'],
+      userObjectClasses: ['inetOrgPerson'], editMode: ['READ_ONLY'], authType: ['simple'], enabled: ['false'], usePasswordModifyExtendedOp: ['false'], validatePasswordPolicy: ['false'] } } });
+  await call('POST', `${admin}/components`, { json: { name: 'fixture-imported-rsa', providerId: 'rsa', providerType: 'org.keycloak.keys.KeyProvider', parentId: realmId,
+    config: { priority: ['5'], privateKey: [importedKey] } } });
+  await record('components.list', 'GET /admin/realms/{realm}/components', 'GET', '/components');
+
   const authz = `/clients/${clientId}/authz/resource-server`;
   await record('authz.scope.create', 'POST /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/scope', 'POST',
     `${authz}/scope`, { json: { name: 'fixture-scope' } });
@@ -152,7 +181,7 @@ try {
     responses,
   });
   const text = `${JSON.stringify(fixtures, null, 1)}\n`;
-  if (text.search(jwt) !== -1 || Object.values(planted).some(secret => text.includes(secret))) throw new Error('a secret survived scrubbing');
+  if (text.search(jwt) !== -1 || [...Object.values(planted), importedKey].some(secret => text.includes(secret))) throw new Error('a secret survived scrubbing');
   writeFileSync(output, text);
   console.log(JSON.stringify({ serverVersion: version, responses: Object.keys(responses).length }));
 } finally {

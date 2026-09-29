@@ -8,6 +8,10 @@ const canary = 'redaction-canary-4b1f';
 const SENSITIVE_READS = { KEYCLOAK_MCP_ALLOW_SENSITIVE_READS: 'true' };
 const withSecret = (response, secret = canary) => ({ ...response, json: response.json.map(item => ({ ...item, secret })) });
 const clientPath = { path: { 'client-uuid': 'client-1' } };
+const isObject = value => value !== null && typeof value === 'object' && !Array.isArray(value);
+const withoutRedactedFields = value => Object.fromEntries(Object.entries(value)
+  .filter(([, child]) => isObject(child) || !JSON.stringify(child).includes('[REDACTED by keycloak-mcp'))
+  .map(([key, child]) => [key, isObject(child) ? withoutRedactedFields(child) : child]));
 
 test('E1 the default scrub replaces sensitive keys at any depth, in objects and arrays', async t => {
   const { mock, mcp } = await startScenario(t);
@@ -123,8 +127,9 @@ test('E6 writing back a redacted read never sends the redaction marker to Keyclo
   assert.equal(refused.isError, true);
   assert.match(refused.text, /^request contains a value redacted by keycloak-mcp/);
   assert.deepEqual(mock.adminRequests().map(request => request.method), ['GET']);
-  // Leaving the redacted fields out, as the refusal asks, keeps the stored secret.
-  const unredacted = Object.fromEntries(Object.entries(client).filter(([, value]) => value !== '[REDACTED by keycloak-mcp]'));
+  // Leaving the redacted fields out, as the refusal asks, keeps the stored secret: Keycloak only sets
+  // the client attributes an update names (RepresentationToModel.java:583-592).
+  const unredacted = withoutRedactedFields(client);
   const resent = await mcp.call('keycloak_workflow', { execute: true, steps: [{ ...update, args: { ...clientPath, body: { ...unredacted, description: 'updated' } },
     compensate: { ...update.compensate, args: { ...clientPath, body: unredacted } } }] });
   assert.equal(resent.value.status, 'COMPLETED', resent.text);
