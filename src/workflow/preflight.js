@@ -1,5 +1,6 @@
 import { catalogFor } from '../catalog/index.js';
 import { buildRequest } from '../http/request.js';
+import { frozenJsonCopy } from '../internal/json.js';
 import { isIrreversible, isMutation } from '../policy/classify.js';
 import { REALM_CREATION } from '../policy/table.js';
 import { checkCompensation } from './compensation-rules.js';
@@ -65,14 +66,15 @@ function planStep(context) {
   const mutation = isMutation(step.operation, operationCatalog);
   const irreversible = isIrreversible(step.operation, operationCatalog) || step.irreversible === true;
   for (const rule of mutation ? mutationRules : readRules) rule({ ...context, irreversible });
-  return { operation: step.operation, args: step.args ?? {}, compensate: step.compensate ?? null, irreversible };
+  return Object.freeze({ operation: step.operation, args: step.args ?? Object.freeze({}), compensate: step.compensate ?? null, irreversible });
 }
 
 // Validates a whole plan without network access and returns it normalized. Without a catalog it
-// uses the one the configuration selects.
+// uses the one the configuration selects. The rules run on a frozen copy of the steps, and the plan
+// is built from that copy, so a caller that changes its step objects later cannot change what runs.
 export function preflight(config, steps, operationCatalog = catalogFor(config)) {
   requireStepCount(steps);
-  const contexts = steps.map((step, index) => ({ config, operationCatalog, step, label: `step ${index + 1}` }));
+  const contexts = frozenJsonCopy(steps).map((step, index) => ({ config, operationCatalog, step, label: `step ${index + 1}` }));
   contexts.forEach(requireOperation);
   requireWritesForMutations(config, steps, operationCatalog);
   return contexts.map(planStep);
