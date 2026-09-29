@@ -1,5 +1,5 @@
 import { refuseRedactedValue } from '../internal/redaction.js';
-import { isTextType } from './media-type.js';
+import { requestContentType } from '../internal/media-type.js';
 
 const limitExceeded = () => new Error('request body exceeds configured limit');
 
@@ -102,21 +102,11 @@ function serialize(contentType, args, limit) {
   throw new Error('non-JSON bodies require text or bodyBase64');
 }
 
-// Without args.contentType, a text body goes as the operation's text/* type, else its XML or YAML type,
-// and any other body as JSON when declared; failing those, as the first declared type.
-function defaultContentType(op, args) {
-  if (args.bodyBase64 !== undefined) return op.requestTypes[0];
-  const preferred = typeof args.body === 'string'
-    ? [...op.requestTypes.filter(type => type.startsWith('text/')), ...op.requestTypes.filter(isTextType)]
-    : op.requestTypes.filter(type => type === 'application/json');
-  return preferred[0] ?? op.requestTypes[0];
-}
-
 // Encodes args.body or args.bodyBase64 as one of the operation's declared request types. A multipart
 // body carries no content type: fetch sets it together with the boundary.
 export function encodeBody(op, args, limit) {
   if (!op.requestTypes.length) throw new Error('operation does not declare a request body');
-  const contentType = args.contentType ?? defaultContentType(op, args);
+  const contentType = requestContentType(op, args);
   if (!op.requestTypes.includes(contentType)) throw new Error('content type is not declared for this operation');
   if (args.body !== undefined && args.bodyBase64 !== undefined) throw new Error('choose body or bodyBase64');
   if (contentType === 'multipart/form-data') {

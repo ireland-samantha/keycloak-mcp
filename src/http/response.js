@@ -4,7 +4,7 @@ import { REDACTED_ENDPOINT } from '../internal/redaction.js';
 import { isSensitiveEndpoint } from '../policy/classify.js';
 import { redactResponse, redactText } from '../policy/redaction.js';
 import { discardBody, readLimitedBody } from './body.js';
-import { decodeText, isJsonType, isTextType, mediaTypeOf } from './media-type.js';
+import { decodeText, isJsonType, isTextType, mediaTypeOf } from '../internal/media-type.js';
 
 function decodeValue(bytes, header, op, config) {
   if (isSensitiveEndpoint(op) && !config.allowSensitiveReads) return REDACTED_ENDPOINT;
