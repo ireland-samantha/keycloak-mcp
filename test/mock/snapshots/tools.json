@@ -1,0 +1,32 @@
+{
+ "keycloak_search_operations": {
+  "name": "keycloak_search_operations",
+  "description": "Search the pinned Keycloak Admin REST and configured SPI operation catalog by path, summary, tag, or HTTP method.",
+  "inputSchema": {"type":"object","$schema":"https://json-schema.org/draft/2020-12/schema","properties":{"search":{"type":"string"},"tag":{"type":"string"},"method":{"type":"string"},"offset":{"default":0,"type":"integer","minimum":0,"maximum":9007199254740991},"limit":{"default":25,"type":"integer","minimum":1,"maximum":100}}},
+  "annotations": {"readOnlyHint":true}
+ },
+ "keycloak_describe_operation": {
+  "name": "keycloak_describe_operation",
+  "description": "Get required path and query parameters, request types, and summary for one exact catalog operation.",
+  "inputSchema": {"type":"object","$schema":"https://json-schema.org/draft/2020-12/schema","properties":{"operation":{"type":"string"}},"required":["operation"]},
+  "annotations": {"readOnlyHint":true}
+ },
+ "keycloak_describe_schema": {
+  "name": "keycloak_describe_schema",
+  "description": "Expand a Keycloak representation named in an operation request or response schema reference.",
+  "inputSchema": {"type":"object","$schema":"https://json-schema.org/draft/2020-12/schema","properties":{"name":{"type":"string"}},"required":["name"]},
+  "annotations": {"readOnlyHint":true}
+ },
+ "keycloak_read": {
+  "name": "keycloak_read",
+  "description": "Call a read-only catalog operation in the configured realm with a service-account token. This includes GET and the client-description converter POST. Sensitive JSON fields are redacted by default.",
+  "inputSchema": {"type":"object","$schema":"https://json-schema.org/draft/2020-12/schema","properties":{"operation":{"type":"string"},"args":{"type":"object","properties":{"path":{"type":"object","propertyNames":{"type":"string"},"additionalProperties":{"type":["string","number"]}},"query":{"type":"object","propertyNames":{"type":"string"},"additionalProperties":{}},"body":{},"bodyBase64":{"type":"string"},"contentType":{"type":"string"},"accept":{"type":"string"}}}},"required":["operation"]},
+  "annotations": {"readOnlyHint":true}
+ },
+ "keycloak_workflow": {
+  "name": "keycloak_workflow",
+  "description": "Preflight a Keycloak workflow by default. Set execute=true to run; every mutation needs an explicit compensation. Failed steps may have committed and are reported as uncertain.",
+  "inputSchema": {"type":"object","$schema":"https://json-schema.org/draft/2020-12/schema","properties":{"steps":{"minItems":1,"maxItems":20,"type":"array","items":{"type":"object","properties":{"operation":{"type":"string"},"args":{"type":"object","properties":{"path":{"type":"object","propertyNames":{"type":"string"},"additionalProperties":{"type":["string","number"]}},"query":{"type":"object","propertyNames":{"type":"string"},"additionalProperties":{}},"body":{},"bodyBase64":{"type":"string"},"contentType":{"type":"string"},"accept":{"type":"string"}}},"compensate":{"type":"object","properties":{"operation":{"type":"string"},"args":{"type":"object","properties":{"path":{"type":"object","propertyNames":{"type":"string"},"additionalProperties":{"type":["string","number"]}},"query":{"type":"object","propertyNames":{"type":"string"},"additionalProperties":{}},"body":{},"bodyBase64":{"type":"string"},"contentType":{"type":"string"},"accept":{"type":"string"}}}},"required":["operation"]},"irreversible":{"type":"boolean"}},"required":["operation"]}},"execute":{"default":false,"type":"boolean"}},"required":["steps"]},
+  "annotations": {"readOnlyHint":false,"destructiveHint":true}
+ }
+}
