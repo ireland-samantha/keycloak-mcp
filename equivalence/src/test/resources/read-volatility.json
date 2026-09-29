@@ -85,6 +85,30 @@
       "pattern": "\\bID=\"[^\"]*\"",
       "reason": "A SAML broker's SP descriptor gets a new random document ID on every export; the rest of the XML is compared.",
       "evidence": "services/src/main/java/org/keycloak/broker/saml/SAMLIdentityProvider.java:498-517; saml-core/src/main/java/org/keycloak/saml/processing/core/saml/v2/util/SAMLMetadataUtil.java:188"
+    },
+    {
+      "key": "POST /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/evaluate",
+      "path": "$.rpt.jti",
+      "reason": "The evaluated user gets a fresh user session and a new access token per request, returned as rpt with a new token id.",
+      "evidence": "services/src/main/java/org/keycloak/authorization/admin/PolicyEvaluationService.java:340-346, :145, :285; services/src/main/java/org/keycloak/authorization/admin/representation/PolicyEvaluationResponseBuilder.java:80"
+    },
+    {
+      "key": "POST /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/evaluate",
+      "path": "$.rpt.sid",
+      "reason": "The id of the user session each evaluation creates for the user and removes afterwards.",
+      "evidence": "services/src/main/java/org/keycloak/authorization/admin/PolicyEvaluationService.java:340-346, :285"
+    },
+    {
+      "key": "POST /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/permission/evaluate",
+      "path": "$.rpt.jti",
+      "reason": "The evaluated user gets a fresh user session and a new access token per request, returned as rpt with a new token id.",
+      "evidence": "services/src/main/java/org/keycloak/authorization/admin/PolicyEvaluationService.java:340-346, :145, :285; services/src/main/java/org/keycloak/authorization/admin/representation/PolicyEvaluationResponseBuilder.java:80"
+    },
+    {
+      "key": "POST /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/permission/evaluate",
+      "path": "$.rpt.sid",
+      "reason": "The id of the user session each evaluation creates for the user and removes afterwards.",
+      "evidence": "services/src/main/java/org/keycloak/authorization/admin/PolicyEvaluationService.java:340-346, :285"
     }
   ]
 }

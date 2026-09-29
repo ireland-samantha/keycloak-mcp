@@ -74,9 +74,9 @@ class ReadEquivalenceIT {
 
     /**
      * One operation as F1 reads it: its reference definition, the catalog's when keycloak-mcp lists it, and the
-     * request every side sends.
+     * requests every side sends (one, or one per entity the operation is read with).
      */
-    private record Read(String key, OpView reference, JsonNode catalog, ReadRequest request) {
+    private record Read(String key, OpView reference, JsonNode catalog, List<ReadRequest> requests) {
         String template() {
             return reference.path();
         }
@@ -95,7 +95,7 @@ class ReadEquivalenceIT {
             return catalog != null ? catalog.path("path").asText() : template();
         }
 
-        JsonNode mcpArguments() {
+        JsonNode mcpArguments(ReadRequest request) {
             return request.mcpArguments(catalogPath());
         }
     }
@@ -184,7 +184,7 @@ class ReadEquivalenceIT {
         if (listed == null) {
             return Optional.of(dynamicTest(read.named(), () -> check(read)));
         }
-        Classification classification = mcp.classify(read.operation(), read.catalogPath(), read.mcpArguments());
+        Classification classification = classify(read);
         return switch (classification.kind()) {
             case READ -> Optional.of(dynamicTest(read.named(), () -> check(read)));
             case MUTATION -> {
@@ -195,6 +195,18 @@ class ReadEquivalenceIT {
             case UNKNOWN, REALM_ADMINISTRATION_DISABLED ->
                     Optional.of(dynamicTest(read.named(), () -> unclassified(read, classification)));
         };
+    }
+
+    /** keycloak-mcp's classification of the operation with each request's arguments: the first that is not a read. */
+    private static Classification classify(Read read) throws Exception {
+        Classification classification = null;
+        for (ReadRequest request : read.requests()) {
+            classification = mcp.classify(read.operation(), read.catalogPath(), read.mcpArguments(request));
+            if (classification.kind() != Classification.Kind.READ) {
+                break;
+            }
+        }
+        return classification;
     }
 
     private static void outOfScope(String key, String reason) {
@@ -213,11 +225,16 @@ class ReadEquivalenceIT {
         Check viaMcp;
         Check viaAdapter;
         try {
-            ReadRequest request = read.request();
-            UnaryOperator<JsonNode> mask = v -> volatility.mask(read.key(), v);
-            viaMcp = judge.mcp(read.key(), read.template(), read.catalog() != null,
-                    ReadComparison.run(() -> raw(request), () -> throughMcp(read), mask, ATTEMPTS));
-            viaAdapter = throughAdapter(read, request, mask);
+            Map<String, Check> mcpChecks = new LinkedHashMap<>();
+            Map<String, Check> adapterChecks = new LinkedHashMap<>();
+            for (ReadRequest request : read.requests()) {
+                UnaryOperator<JsonNode> mask = v -> volatility.mask(read.key(), request.view().apply(v));
+                mcpChecks.put(request.variant(), judge.mcp(read.key(), read.template(), read.catalog() != null,
+                        ReadComparison.run(() -> raw(request), () -> throughMcp(read, request), mask, ATTEMPTS)));
+                adapterChecks.put(request.variant(), throughAdapter(read, request, mask));
+            }
+            viaMcp = ReadJudge.combine(mcpChecks);
+            viaAdapter = ReadJudge.combine(adapterChecks);
         } catch (Exception | AssertionError e) {
             env.ledger().record(read.key(), Verdict.F1_READ, "ERROR", false, e.toString());
             throw e;
@@ -244,8 +261,8 @@ class ReadEquivalenceIT {
         return Observation.ofHttp(r.status(), r.header("Content-Type"), r.body());
     }
 
-    private static Observation throughMcp(Read read) throws Exception {
-        return KeycloakMcpReads.read(mcp.forPath(read.catalogPath()), read.operation(), read.mcpArguments());
+    private static Observation throughMcp(Read read, ReadRequest request) throws Exception {
+        return KeycloakMcpReads.read(mcp.forPath(read.catalogPath()), read.operation(), read.mcpArguments(request));
     }
 
     private static Check throughAdapter(Read read, ReadRequest request, UnaryOperator<JsonNode> mask) throws Exception {

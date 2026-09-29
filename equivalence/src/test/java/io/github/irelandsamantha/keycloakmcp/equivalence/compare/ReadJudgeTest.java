@@ -5,7 +5,9 @@ import io.github.irelandsamantha.keycloakmcp.equivalence.ledger.EquivalenceLedge
 import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -75,5 +77,36 @@ class ReadJudgeTest {
 
     private static Observation json(String body) {
         return Observation.ofHttp(200, "application/json", body.getBytes(StandardCharsets.UTF_8));
+    }
+
+    @Test
+    void anOperationReadOnceKeepsItsCheck() {
+        Check only = new Check("EQUIVALENT", true, "200 JSON");
+        Map<String, Check> single = new LinkedHashMap<>();
+        single.put(null, only);
+        assertEquals(only, ReadJudge.combine(single));
+    }
+
+    @Test
+    void variantsReportTheLeastAnyProvedAndEveryOutcome() {
+        Map<String, Check> variants = new LinkedHashMap<>();
+        variants.put("JKS", new Check("EQUIVALENT", true, "200 BINARY"));
+        variants.put("PKCS12", new Check("ROUTED_ONLY", true, "501 gated"));
+        Check combined = ReadJudge.combine(variants);
+        assertEquals("ROUTED_ONLY", combined.outcome());
+        assertTrue(combined.accepted());
+        assertEquals("JKS: EQUIVALENT (200 BINARY); PKCS12: ROUTED_ONLY (501 gated)", combined.detail());
+        variants.put("PKCS12", new Check(ReadJudge.NOT_IN_ADAPTER, true, null));
+        assertEquals(ReadJudge.NOT_IN_ADAPTER, ReadJudge.combine(variants).outcome());
+    }
+
+    @Test
+    void aRefusedVariantRefusesTheOperation() {
+        Map<String, Check> variants = new LinkedHashMap<>();
+        variants.put("JKS", new Check("EQUIVALENT", true, "200 BINARY"));
+        variants.put("PKCS12", new Check(ReadJudge.UNSTABLE, false, "salted"));
+        Check combined = ReadJudge.combine(variants);
+        assertEquals(ReadJudge.UNSTABLE, combined.outcome());
+        assertFalse(combined.accepted());
     }
 }

@@ -3,8 +3,10 @@ package io.github.irelandsamantha.keycloakmcp.equivalence.compare;
 import io.github.irelandsamantha.keycloakmcp.equivalence.ledger.EquivalenceLedger.Check;
 import io.github.irelandsamantha.keycloakmcp.equivalence.ledger.Verdict;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
@@ -34,6 +36,10 @@ public final class ReadJudge {
     public static final String NOT_IN_ADAPTER = "NOT_IN_ADAPTER";
 
     private static final int EXCERPT = 200;
+
+    /** Accepted outcomes by how much they prove, least first; {@link #combine} reports the least any variant proved. */
+    private static final List<String> PROOF = List.of(Verdict.Outcome.ROUTED_ONLY.name(), NOT_IN_ADAPTER,
+            Verdict.Outcome.DIVERGENT_DOCUMENTED.name(), Verdict.Outcome.EQUIVALENT.name());
 
     private final DocumentedDivergences gates;
     private final KnownLag lag;
@@ -93,6 +99,27 @@ public final class ReadJudge {
         }
         return fail(DIVERGENT, "admin client (" + binding + ") differs from raw HTTP (" + describe(c.reference())
                 + ") beyond admin-client-known-lag.json: " + a.undocumented());
+    }
+
+    /**
+     * One operation's check from the checks of the requests it is read with (e.g. a keystore download per format):
+     * the first check refused, else the least any request proved ({@link #PROOF}), each request's outcome in the
+     * detail. An operation read with one request keeps that request's check.
+     *
+     * @param byVariant each request's check by its variant name, in request order
+     */
+    public static Check combine(Map<String, Check> byVariant) {
+        if (byVariant.size() == 1) {
+            return byVariant.values().iterator().next();
+        }
+        String detail = byVariant.entrySet().stream().map(e -> e.getKey() + ": " + e.getValue().outcome()
+                + (e.getValue().detail() == null ? "" : " (" + e.getValue().detail() + ")")).collect(Collectors.joining("; "));
+        Optional<Check> refused = byVariant.values().stream().filter(c -> !c.accepted()).findFirst();
+        if (refused.isPresent()) {
+            return new Check(refused.get().outcome(), false, detail);
+        }
+        String least = byVariant.values().stream().map(Check::outcome).min(Comparator.comparingInt(PROOF::indexOf)).orElseThrow();
+        return new Check(least, true, detail);
     }
 
     /** The divergence a server refusal is documented as, when it is one. */

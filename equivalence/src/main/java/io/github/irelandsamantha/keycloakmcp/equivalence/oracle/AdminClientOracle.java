@@ -135,6 +135,10 @@ public final class AdminClientOracle implements AutoCloseable {
                 return Observation.ofHttp(response.getStatus(), response.getHeaderString(HttpHeaders.CONTENT_TYPE), body);
             }
         }
+        // A byte[] return type is the entity itself (a keystore download), not a representation to serialise.
+        if (result instanceof byte[] entity) {
+            return Observation.ofHttp(recorder.status, recorder.contentType, entity);
+        }
         return new Observation(recorder.status, TYPED_VIEW.valueToTree(result), null);
     }
 
@@ -142,14 +146,16 @@ public final class AdminClientOracle implements AutoCloseable {
         return e.params(ParamSpec.Source.QUERY).stream().map(ParamSpec::name).collect(Collectors.toSet());
     }
 
-    /** Records the last admin request and the status it got; token requests are not of interest. */
+    /** Records the last admin request and the status and media type it got; token requests are not of interest. */
     private static final class Recorder implements ClientRequestFilter, ClientResponseFilter {
         private volatile Request request;
         private volatile int status;
+        private volatile String contentType;
 
         void reset() {
             request = null;
             status = 0;
+            contentType = null;
         }
 
         @Override
@@ -165,6 +171,7 @@ public final class AdminClientOracle implements AutoCloseable {
         public void filter(ClientRequestContext ctx, ClientResponseContext response) {
             if (isAdmin(ctx)) {
                 status = response.getStatus();
+                contentType = response.getHeaderString(HttpHeaders.CONTENT_TYPE);
             }
         }
 

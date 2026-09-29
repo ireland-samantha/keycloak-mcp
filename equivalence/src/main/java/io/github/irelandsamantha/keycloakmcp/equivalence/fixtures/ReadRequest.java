@@ -1,5 +1,6 @@
 package io.github.irelandsamantha.keycloakmcp.equivalence.fixtures;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.github.irelandsamantha.keycloakmcp.equivalence.surface.PathTemplates;
@@ -9,20 +10,25 @@ import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
 /**
  * One read as both keycloak-mcp and the raw oracle send it: path values by position, query parameters, an optional
- * entity and the {@code Accept} media type.
+ * entity and the {@code Accept} media type. An operation read with several entities (a keystore download per format)
+ * has one request per entity, each named by its {@code variant}.
  *
  * @param template   the operation's path template (variable names do not matter)
  * @param pathValues raw value per variable, in path order
  * @param body       {@code null} for none
  * @param accept     {@code null} to let each client send its default, which for keycloak-mcp's {@code fetch} and
  *                   for the raw oracle is {@code *}{@code /*}
+ * @param variant    what sets this request apart from the operation's other requests; {@code null} for the only one
+ * @param view       how every side's answer is read before the comparison, e.g. a keystore by its content; the
+ *                   identity for most reads
  */
 public record ReadRequest(String method, String template, List<String> pathValues, Map<String, String> query,
-                          ReadBody body, String accept) {
+                          ReadBody body, String accept, String variant, UnaryOperator<JsonNode> view) {
 
     /** keycloak-mcp's pinned realm fills this variable; a request may not set it. */
     public static final String REALM_VARIABLE = "realm";
