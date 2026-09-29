@@ -14,6 +14,8 @@ import io.github.irelandsamantha.keycloakmcp.equivalence.fixtures.SeededRealm;
 import io.github.irelandsamantha.keycloakmcp.equivalence.harness.EquivalenceEnvironment;
 import io.github.irelandsamantha.keycloakmcp.equivalence.harness.KeycloakMcpProcess;
 import io.github.irelandsamantha.keycloakmcp.equivalence.harness.KeycloakMcpReads;
+import io.github.irelandsamantha.keycloakmcp.equivalence.harness.KeycloakMcpReads.Classification;
+import io.github.irelandsamantha.keycloakmcp.equivalence.harness.McpStdioClient;
 import io.github.irelandsamantha.keycloakmcp.equivalence.harness.RawHttp;
 import io.github.irelandsamantha.keycloakmcp.equivalence.ledger.EquivalenceLedger.Check;
 import io.github.irelandsamantha.keycloakmcp.equivalence.ledger.Verdict;
@@ -41,6 +43,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.DynamicTest.dynamicTest;
 
 /**
@@ -50,9 +53,14 @@ import static org.junit.jupiter.api.DynamicTest.dynamicTest;
  * {@code Accept}: status, content class and value, with only key order tolerated. Where the admin client has the
  * operation, its typed result must match raw HTTP too, modulo the dated {@code admin-client-known-lag.json}.
  *
+ * <p>Every read is sent raw to the live server, so what counts as a read fails closed. A GET or HEAD the catalog
+ * lacks is a read by its method. A catalog operation is what keycloak-mcp's dry run says it is
+ * ({@link KeycloakMcpReads#classify}): a read, or a mutation, recorded as out of scope for F2. Any other answer fails
+ * the operation's test as {@value #CLASSIFICATION_UNKNOWN} without sending anything, and the factory sends nothing
+ * at all unless a known mutation and a known read still classify as such.
+ *
  * <p>Reads run in one seeded realm. A read the server refuses there is {@code ROUTED_ONLY} only when
- * {@code divergences.json} documents the refusal as a feature or provider gate. Operations keycloak-mcp classifies
- * as mutations are recorded as out of scope, for F2. Every verdict lands in the ledger.
+ * {@code divergences.json} documents the refusal as a feature or provider gate. Every verdict lands in the ledger.
  */
 @ExtendWith(EquivalenceExtension.class)
 class ReadEquivalenceIT {
@@ -60,14 +68,33 @@ class ReadEquivalenceIT {
     /** Sandwiches read before giving up on an unstable reference. */
     private static final int ATTEMPTS = 3;
 
-    /** One read operation: its reference definition and, when keycloak-mcp lists it, the catalog's. */
-    private record Read(String key, OpView reference, JsonNode catalog) {
+    /** F1 outcome of a catalog operation keycloak-mcp neither accepts as a read nor refuses as a mutation. */
+    private static final String CLASSIFICATION_UNKNOWN = "CLASSIFICATION_UNKNOWN";
+
+    /** Operations every catalog lists whose classification is beyond doubt; see {@link #requireClassificationSignals}. */
+    private static final String KNOWN_MUTATION = "DELETE /admin/realms/{realm}";
+    private static final String KNOWN_READ = "GET /admin/realms/{realm}";
+
+    /**
+     * One operation as F1 reads it: its reference definition, the catalog's when keycloak-mcp lists it, and the
+     * request every side sends.
+     */
+    private record Read(String key, OpView reference, JsonNode catalog, ReadRequest request) {
         String template() {
             return reference.path();
         }
 
         String named() {
             return reference.method() + " " + reference.path();
+        }
+
+        /** The operation as keycloak-mcp names it. */
+        String operation() {
+            return catalog != null ? catalog.path("key").asText() : named();
+        }
+
+        JsonNode mcpArguments() {
+            return request.mcpArguments(catalog != null ? catalog.path("path").asText() : template());
         }
     }
 
@@ -120,48 +147,79 @@ class ReadEquivalenceIT {
 
     @TestFactory
     Stream<DynamicTest> everyReadMatchesTheLiveServer() throws Exception {
-        List<Read> reads = readsInScope();
-        return Stream.concat(
-                reads.stream().map(r -> dynamicTest(r.named(), () -> check(r))),
-                Stream.of(dynamicTest("allowlists hold no stale entries", ReadEquivalenceIT::noStaleEntries)));
+        requireClassificationSignals();
+        List<DynamicTest> tests = new ArrayList<>();
+        for (String key : reference.keys()) {
+            testOf(key).ifPresent(tests::add);
+        }
+        tests.add(dynamicTest("allowlists hold no stale entries", ReadEquivalenceIT::noStaleEntries));
+        return tests.stream();
     }
 
     /**
-     * Every GET and HEAD, and every catalog operation keycloak-mcp does not classify as a mutation; the others are
-     * recorded as out of scope with the reason.
+     * Refuses to run F1 unless keycloak-mcp's dry run still gives the two answers {@link KeycloakMcpReads} relies on:
+     * a changed refusal text, check order or argument validation must stop the run, not turn mutations into reads.
      */
-    private static List<Read> readsInScope() throws Exception {
-        List<Read> reads = new ArrayList<>();
-        for (String key : reference.keys()) {
-            OpView op = reference.primary(key);
-            JsonNode listed = catalog.get(key);
-            boolean safeMethod = op.method().equals("GET") || op.method().equals("HEAD");
-            if (listed != null && KeycloakMcpReads.classifiesAsMutation(mcp.client(), listed.path("key").asText())) {
+    private static void requireClassificationSignals() throws Exception {
+        JsonNode noArguments = McpStdioClient.JSON.createObjectNode();
+        Classification mutation = KeycloakMcpReads.classify(mcp.client(), KNOWN_MUTATION, noArguments);
+        Classification read = KeycloakMcpReads.classify(mcp.client(), KNOWN_READ, noArguments);
+        if (mutation.kind() != Classification.Kind.MUTATION || read.kind() != Classification.Kind.READ) {
+            fail("keycloak-mcp's dry run no longer tells a mutation from a read the way KeycloakMcpReads expects, so F1"
+                    + " sends nothing. " + KNOWN_MUTATION + " classified " + mutation.kind() + " (" + mutation.answer()
+                    + "), " + KNOWN_READ + " classified " + read.kind() + " (" + read.answer() + ")");
+        }
+    }
+
+    /**
+     * The F1 test of one reference operation, or none for one F1 leaves to F2 (recorded as out of scope with the
+     * reason).
+     */
+    private static Optional<DynamicTest> testOf(String key) throws Exception {
+        OpView op = reference.primary(key);
+        JsonNode listed = catalog.get(key);
+        if (listed == null && !op.method().equals("GET") && !op.method().equals("HEAD")) {
+            outOfScope(key, "absent from catalog '" + env.catalog().version() + "', so keycloak-mcp's classification of this "
+                    + op.method() + " cannot be observed");
+            return Optional.empty();
+        }
+        Read read = new Read(key, op, listed, ReadRequests.forOperation(op.method(), op.path(),
+                values.valuesFor(op.path()), accept(op, listed), realm));
+        if (listed == null) {
+            return Optional.of(dynamicTest(read.named(), () -> check(read)));
+        }
+        Classification classification = KeycloakMcpReads.classify(mcp.client(), read.operation(), read.mcpArguments());
+        return switch (classification.kind()) {
+            case READ -> Optional.of(dynamicTest(read.named(), () -> check(read)));
+            case MUTATION -> {
                 outOfScope(key, "keycloak-mcp classifies it as a mutation (a dry-run keycloak_workflow answers '"
                         + KeycloakMcpReads.WRITES_DISABLED + "')");
-            } else if (listed == null && !safeMethod) {
-                outOfScope(key, "absent from catalog '" + env.catalog().version() + "', so keycloak-mcp's classification of this "
-                        + op.method() + " cannot be observed");
-            } else {
-                reads.add(new Read(key, op, listed));
+                yield Optional.empty();
             }
-        }
-        return reads;
+            case UNKNOWN -> Optional.of(dynamicTest(read.named(), () -> unclassified(read, classification)));
+        };
     }
 
     private static void outOfScope(String key, String reason) {
         env.ledger().record(key, Verdict.F1_READ, Verdict.OUT_OF_SCOPE, true, reason + "; F2 covers it");
     }
 
+    private static void unclassified(Read read, Classification classification) {
+        String detail = "keycloak-mcp's dry run neither accepted it as a read ('" + KeycloakMcpReads.PREFLIGHT_OK
+                + "') nor refused it as a mutation ('" + KeycloakMcpReads.WRITES_DISABLED + "'), so nothing was sent;"
+                + " it answered: " + classification.answer();
+        env.ledger().record(read.key(), Verdict.F1_READ, CLASSIFICATION_UNKNOWN, false, detail);
+        fail(read.named() + " " + CLASSIFICATION_UNKNOWN + ": " + detail);
+    }
+
     private static void check(Read read) throws Exception {
         Check viaMcp;
         Check viaAdapter;
         try {
-            ReadRequest request = ReadRequests.forOperation(read.reference().method(), read.template(),
-                    values.valuesFor(read.template()), accept(read), realm);
+            ReadRequest request = read.request();
             UnaryOperator<JsonNode> mask = v -> volatility.mask(read.key(), v);
             viaMcp = judge.mcp(read.key(), read.template(), read.catalog() != null,
-                    ReadComparison.run(() -> raw(request), () -> throughMcp(read, request), mask, ATTEMPTS));
+                    ReadComparison.run(() -> raw(request), () -> throughMcp(read), mask, ATTEMPTS));
             viaAdapter = throughAdapter(read, request, mask);
         } catch (Exception | AssertionError e) {
             env.ledger().record(read.key(), Verdict.F1_READ, "ERROR", false, e.toString());
@@ -179,9 +237,8 @@ class ReadEquivalenceIT {
      * The media type both sides ask for: JSON when the operation offers it, else its first response type. With
      * none declared, both send their default (see {@link ReadRequest#accept()}).
      */
-    private static String accept(Read read) {
-        Collection<String> offered = read.catalog() != null
-                ? Json.texts(read.catalog().path("responseTypes")) : read.reference().produces();
+    private static String accept(OpView op, JsonNode listed) {
+        Collection<String> offered = listed != null ? Json.texts(listed.path("responseTypes")) : op.produces();
         return offered.contains("application/json") ? "application/json" : offered.stream().findFirst().orElse(null);
     }
 
@@ -190,10 +247,8 @@ class ReadEquivalenceIT {
         return Observation.ofHttp(r.status(), r.header("Content-Type"), r.body());
     }
 
-    private static Observation throughMcp(Read read, ReadRequest request) throws Exception {
-        String operation = read.catalog() != null ? read.catalog().path("key").asText() : read.named();
-        String template = read.catalog() != null ? read.catalog().path("path").asText() : read.template();
-        return KeycloakMcpReads.read(mcp.client(), operation, request.mcpArguments(template));
+    private static Observation throughMcp(Read read) throws Exception {
+        return KeycloakMcpReads.read(mcp.client(), read.operation(), read.mcpArguments());
     }
 
     private static Check throughAdapter(Read read, ReadRequest request, UnaryOperator<JsonNode> mask) throws Exception {
