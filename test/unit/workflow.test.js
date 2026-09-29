@@ -405,3 +405,12 @@ test('failed compensation is reported and recorded without claiming rollback', a
   assert.equal(result.priorStepsCompensated, false);
   assert.equal(JSON.parse(readFileSync(join(dir, `${result.runId}.json`), 'utf8')).status, 'IN_DOUBT');
 });
+
+test('preflight uses the configured catalog version when no catalog is passed', { todo: 'ARCH-3' }, () => {
+  const config = testConfig({ KEYCLOAK_MCP_CATALOG_VERSION: '26.3.5' });
+  assert.throws(() => preflight(config, [{ operation: 'GET /admin/realms/{realm}/workflows' }]), /not in the pinned Keycloak catalog/);
+});
+
+test('preflight reports a step without an operation before checking write permission', { todo: 'WF-12' }, () => {
+  assert.throws(() => preflight(testConfig(), [null]), { name: 'Error', message: 'step 1 has no operation' });
+});

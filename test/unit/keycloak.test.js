@@ -539,3 +539,8 @@ test('OpenClaw plugin config selects a private service-account file', () => {
     for (const [key, value] of Object.entries(old)) if (value === undefined) delete process.env[key]; else process.env[key] = value;
   }
 });
+
+test('KeycloakAdmin offers no public way around the read guard and workflow preflight', { todo: 'ARCH-2' }, () => {
+  const admin = new KeycloakAdmin(testConfig(), () => { throw new Error('network not expected'); });
+  assert.equal(admin._invoke, undefined);
+});
