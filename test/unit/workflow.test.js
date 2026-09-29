@@ -1,37 +1,25 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { mkdtempSync, readFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { configFromEnv, createCatalog, isIrreversible, isMutation, KeycloakAdmin } from '../../src/keycloak.js';
+import { createCatalog, isIrreversible, isMutation, KeycloakAdmin } from '../../src/keycloak.js';
 import { preflight, runWorkflow, WorkflowBuilder } from '../../src/workflow.js';
-
-const env = {
-  KEYCLOAK_BASE_URL: 'https://id.example.com/auth',
-  KEYCLOAK_REALM: 'test-realm',
-  KEYCLOAK_AUTH_REALM: 'master',
-  KEYCLOAK_CLIENT_ID: 'mcp-service',
-  KEYCLOAK_CLIENT_SECRET: 'test-secret',
-};
-
-function response(status, value, headers = {}) {
-  return new Response(value === null ? null : JSON.stringify(value), {
-    status, headers: { 'content-type': 'application/json', ...headers },
-  });
-}
+import { samplePathArgs } from '../support/catalog.js';
+import { testConfig } from '../support/config.js';
+import { jsonResponse, tokenResponse } from '../support/fetch.js';
+import { privateTempDir } from '../support/temp.js';
 
 test('every official mutation requires compensation or an irreversible override before network', () => {
   const expected = { latest: 202, '26.3.5': 184 };
   for (const version of Object.keys(expected)) {
     const catalog = createCatalog('', version);
-    const config = configFromEnv({ ...env, KEYCLOAK_MCP_CATALOG_VERSION: version,
+    const config = testConfig({ KEYCLOAK_MCP_CATALOG_VERSION: version,
       KEYCLOAK_MCP_ALLOW_WRITE: 'true', KEYCLOAK_MCP_ALLOW_REALM_ADMIN: 'true',
       KEYCLOAK_MCP_SINGLE_WRITER: 'true' });
     const mutations = catalog.operations.filter(operation => isMutation(operation.key, catalog));
     assert.equal(mutations.length, expected[version]);
     for (const operation of mutations) {
-      const path = Object.fromEntries(operation.parameters.filter(parameter =>
-        parameter.in === 'path' && parameter.name !== 'realm').map(parameter => [parameter.name, 'safe-value']));
+      const path = samplePathArgs(operation);
       const args = { path, ...(operation.key === 'POST /admin/realms' ? { body: { realm: config.realm } } : {}) };
       assert.throws(() => preflight(config, [{ operation: operation.key, args }], catalog),
         /compensat|irreversible/, operation.key);
@@ -41,7 +29,7 @@ test('every official mutation requires compensation or an irreversible override 
 
 test('preflight refuses destructive or caller-chosen create compensation targets', () => {
   for (const override of [false, true]) {
-    const config = configFromEnv({ ...env, KEYCLOAK_MCP_ALLOW_WRITE: 'true',
+    const config = testConfig({ KEYCLOAK_MCP_ALLOW_WRITE: 'true',
       KEYCLOAK_MCP_SINGLE_WRITER: 'true', KEYCLOAK_MCP_ALLOW_IRREVERSIBLE: String(override) });
     assert.throws(() => preflight(config, [{ operation: 'PUT /admin/realms/{realm}',
       args: { body: { displayName: 'changed' } },
@@ -69,7 +57,7 @@ test('preflight refuses destructive or caller-chosen create compensation targets
 });
 
 test('preflight refuses unrelated POST compensation and different resource bindings', () => {
-  const config = configFromEnv({ ...env, KEYCLOAK_MCP_ALLOW_WRITE: 'true',
+  const config = testConfig({ KEYCLOAK_MCP_ALLOW_WRITE: 'true',
     KEYCLOAK_MCP_SINGLE_WRITER: 'true' });
   assert.throws(() => preflight(config, [{
     operation: 'POST /admin/realms/{realm}/users/{user-id}/role-mappings/realm',
@@ -98,7 +86,7 @@ test('preflight refuses unrelated POST compensation and different resource bindi
 });
 
 test('named create compensation must delete the exact new role or identity-provider alias', () => {
-  const config = configFromEnv({ ...env, KEYCLOAK_MCP_ALLOW_WRITE: 'true', KEYCLOAK_MCP_SINGLE_WRITER: 'true' });
+  const config = testConfig({ KEYCLOAK_MCP_ALLOW_WRITE: 'true', KEYCLOAK_MCP_SINGLE_WRITER: 'true' });
   for (const [collection, parameter, bodyKey, body] of [
     ['roles', 'role-name', 'name', { name: 'new-role' }],
     ['identity-provider/instances', 'alias', 'alias', { alias: 'new-idp', providerId: 'oidc' }],
@@ -124,13 +112,13 @@ test('named create rollback calls the matching child DELETE after a failed read'
   ]) {
     const name = body.name ?? body.alias;
     const calls = [];
-    const admin = new KeycloakAdmin(configFromEnv({ ...env, KEYCLOAK_MCP_ALLOW_WRITE: 'true',
+    const admin = new KeycloakAdmin(testConfig({ KEYCLOAK_MCP_ALLOW_WRITE: 'true',
       KEYCLOAK_MCP_SINGLE_WRITER: 'true' }), async (url, options) => {
-      if (url.endsWith('/token')) return response(200, { access_token: 'token', expires_in: 900 });
+      if (url.endsWith('/token')) return tokenResponse();
       calls.push(`${options.method} ${new URL(url).pathname}`);
-      if (options.method === 'POST') return response(201, null);
-      if (options.method === 'GET') return response(404, {});
-      return response(204, null);
+      if (options.method === 'POST') return jsonResponse(201, null);
+      if (options.method === 'GET') return jsonResponse(404, {});
+      return jsonResponse(204, null);
     });
     const result = await runWorkflow(admin, [
       { operation: `POST /admin/realms/{realm}/${collection}`, args: { body },
@@ -164,10 +152,10 @@ test('existing-resource deletes and external actions require an irreversible ove
   const step = { operation: 'DELETE /admin/realms/{realm}/groups/{group-id}',
     args: { path: { 'group-id': 'existing-id' } },
     compensate: { operation: 'POST /admin/realms/{realm}/groups', args: { body: { name: 'same-name' } } } };
-  const base = { ...env, KEYCLOAK_MCP_ALLOW_WRITE: 'true', KEYCLOAK_MCP_SINGLE_WRITER: 'true' };
-  assert.throws(() => preflight(configFromEnv(base), [step]), /irreversible/);
-  assert.throws(() => preflight(configFromEnv({ ...base, KEYCLOAK_MCP_ALLOW_IRREVERSIBLE: 'true' }), [step]), /irreversible/);
-  const allowed = preflight(configFromEnv({ ...base, KEYCLOAK_MCP_ALLOW_IRREVERSIBLE: 'true' }),
+  const base = { KEYCLOAK_MCP_ALLOW_WRITE: 'true', KEYCLOAK_MCP_SINGLE_WRITER: 'true' };
+  assert.throws(() => preflight(testConfig(base), [step]), /irreversible/);
+  assert.throws(() => preflight(testConfig({ ...base, KEYCLOAK_MCP_ALLOW_IRREVERSIBLE: 'true' }), [step]), /irreversible/);
+  const allowed = preflight(testConfig({ ...base, KEYCLOAK_MCP_ALLOW_IRREVERSIBLE: 'true' }),
     [{ operation: step.operation, args: step.args, irreversible: true }]);
   assert.equal(allowed[0].irreversible, true);
 
@@ -175,15 +163,15 @@ test('existing-resource deletes and external actions require an irreversible ove
     args: { path: { 'user-id': 'existing-id' }, body: ['password'] },
     compensate: { operation: 'PUT /admin/realms/{realm}/users/{user-id}/disable-credential-types',
       args: { path: { 'user-id': 'existing-id' }, body: ['password'] } } };
-  assert.throws(() => preflight(configFromEnv(base), [disable]), /irreversible/);
-  assert.throws(() => preflight(configFromEnv({ ...base, KEYCLOAK_MCP_ALLOW_IRREVERSIBLE: 'true' }), [disable]), /irreversible/);
-  const explicitlyAllowed = preflight(configFromEnv({ ...base, KEYCLOAK_MCP_ALLOW_IRREVERSIBLE: 'true' }),
+  assert.throws(() => preflight(testConfig(base), [disable]), /irreversible/);
+  assert.throws(() => preflight(testConfig({ ...base, KEYCLOAK_MCP_ALLOW_IRREVERSIBLE: 'true' }), [disable]), /irreversible/);
+  const explicitlyAllowed = preflight(testConfig({ ...base, KEYCLOAK_MCP_ALLOW_IRREVERSIBLE: 'true' }),
     [{ operation: disable.operation, args: disable.args, irreversible: true }]);
   assert.equal(explicitlyAllowed[0].irreversible, true);
 });
 
 test('bodyless association PUTs cannot claim a repeated PUT as rollback', () => {
-  const base = { ...env, KEYCLOAK_MCP_ALLOW_WRITE: 'true', KEYCLOAK_MCP_SINGLE_WRITER: 'true' };
+  const base = { KEYCLOAK_MCP_ALLOW_WRITE: 'true', KEYCLOAK_MCP_SINGLE_WRITER: 'true' };
   for (const version of ['latest', '26.3.5']) {
     const catalog = createCatalog('', version);
     const associations = catalog.operations.filter(operation => operation.method === 'PUT' &&
@@ -191,12 +179,11 @@ test('bodyless association PUTs cannot claim a repeated PUT as rollback', () => 
     assert.ok(associations.length >= 6, `${version} association routes`);
     for (const operation of associations) {
       assert.equal(isIrreversible(operation.key, catalog), true, operation.key);
-      const path = Object.fromEntries(operation.parameters.filter(parameter => parameter.in === 'path' &&
-        parameter.name !== 'realm').map(parameter => [parameter.name, 'test-id']));
+      const path = samplePathArgs(operation, 'test-id');
       const step = { operation: operation.key, args: { path },
         compensate: { operation: operation.key, args: { path } } };
-      assert.throws(() => preflight(configFromEnv(base), [step], catalog), /irreversible/, operation.key);
-      const allowed = preflight(configFromEnv({ ...base, KEYCLOAK_MCP_ALLOW_IRREVERSIBLE: 'true' }),
+      assert.throws(() => preflight(testConfig(base), [step], catalog), /irreversible/, operation.key);
+      const allowed = preflight(testConfig({ ...base, KEYCLOAK_MCP_ALLOW_IRREVERSIBLE: 'true' }),
         [{ operation: operation.key, args: { path }, irreversible: true }], catalog);
       assert.equal(allowed[0].irreversible, true);
     }
@@ -205,7 +192,7 @@ test('bodyless association PUTs cannot claim a repeated PUT as rollback', () => 
 
 test('latest invitation resend and workflow execution actions cannot claim a compensating undo', () => {
   const catalog = createCatalog('', 'latest');
-  const base = { ...env, KEYCLOAK_MCP_ALLOW_WRITE: 'true', KEYCLOAK_MCP_SINGLE_WRITER: 'true' };
+  const base = { KEYCLOAK_MCP_ALLOW_WRITE: 'true', KEYCLOAK_MCP_SINGLE_WRITER: 'true' };
   const actions = [
     ['POST /admin/realms/{realm}/organizations/{org-id}/invitations/{id}/resend',
       { path: { 'org-id': 'org-id', id: 'invitation-id' } }],
@@ -218,10 +205,10 @@ test('latest invitation resend and workflow execution actions cannot claim a com
   for (const [operation, args] of actions) {
     assert.equal(isIrreversible(operation, catalog), true, operation);
     const compensated = [{ operation, args, compensate: { operation, args } }];
-    assert.throws(() => preflight(configFromEnv(base), compensated, catalog), /irreversible/, operation);
-    assert.throws(() => preflight(configFromEnv({ ...base, KEYCLOAK_MCP_ALLOW_IRREVERSIBLE: 'true' }),
+    assert.throws(() => preflight(testConfig(base), compensated, catalog), /irreversible/, operation);
+    assert.throws(() => preflight(testConfig({ ...base, KEYCLOAK_MCP_ALLOW_IRREVERSIBLE: 'true' }),
       compensated, catalog), /irreversible/, operation);
-    const explicit = preflight(configFromEnv({ ...base, KEYCLOAK_MCP_ALLOW_IRREVERSIBLE: 'true' }),
+    const explicit = preflight(testConfig({ ...base, KEYCLOAK_MCP_ALLOW_IRREVERSIBLE: 'true' }),
       [{ operation, args, irreversible: true }], catalog);
     assert.equal(explicit[0].irreversible, true);
   }
@@ -229,13 +216,13 @@ test('latest invitation resend and workflow execution actions cannot claim a com
 
 test('saga compensates completed mutations in reverse after a later failure', async () => {
   const calls = [];
-  const admin = new KeycloakAdmin(configFromEnv({ ...env, KEYCLOAK_MCP_ALLOW_WRITE: 'true', KEYCLOAK_MCP_SINGLE_WRITER: 'true' }), async (url, options) => {
-    if (url.endsWith('/token')) return response(200, { access_token: 'token', expires_in: 900 });
+  const admin = new KeycloakAdmin(testConfig({ KEYCLOAK_MCP_ALLOW_WRITE: 'true', KEYCLOAK_MCP_SINGLE_WRITER: 'true' }), async (url, options) => {
+    if (url.endsWith('/token')) return tokenResponse();
     calls.push(`${options.method} ${new URL(url).pathname}`);
     if (url.endsWith('/users') && options.method === 'POST')
-      return response(201, null, { location: 'https://id.example.com/auth/admin/realms/test-realm/users/user-1' });
-    if (url.endsWith('/groups') && options.method === 'POST') return response(500, {});
-    return response(204, null);
+      return jsonResponse(201, null, { location: 'https://id.example.com/auth/admin/realms/test-realm/users/user-1' });
+    if (url.endsWith('/groups') && options.method === 'POST') return jsonResponse(500, {});
+    return jsonResponse(204, null);
   });
   const steps = [
     { operation: 'PUT /admin/realms/{realm}', args: { body: { displayName: 'changed' } },
@@ -259,12 +246,12 @@ test('saga compensates completed mutations in reverse after a later failure', as
 });
 
 test('failed read does not claim the failed step may have committed', async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'keycloak-mcp-read-failure-'));
-  const admin = new KeycloakAdmin(configFromEnv({ ...env, KEYCLOAK_MCP_ALLOW_WRITE: 'true', KEYCLOAK_MCP_SINGLE_WRITER: 'true', KEYCLOAK_MCP_JOURNAL_DIR: dir }), async (url, options) => {
-    if (url.endsWith('/token')) return response(200, { access_token: 'token', expires_in: 900 });
-    if (options.method === 'POST') return response(201, null, { location: 'https://id.example.com/auth/admin/realms/test-realm/groups/new-group' });
-    if (options.method === 'DELETE') return response(204, null);
-    return response(404, {});
+  const dir = privateTempDir('keycloak-mcp-read-failure-');
+  const admin = new KeycloakAdmin(testConfig({ KEYCLOAK_MCP_ALLOW_WRITE: 'true', KEYCLOAK_MCP_SINGLE_WRITER: 'true', KEYCLOAK_MCP_JOURNAL_DIR: dir }), async (url, options) => {
+    if (url.endsWith('/token')) return tokenResponse();
+    if (options.method === 'POST') return jsonResponse(201, null, { location: 'https://id.example.com/auth/admin/realms/test-realm/groups/new-group' });
+    if (options.method === 'DELETE') return jsonResponse(204, null);
+    return jsonResponse(404, {});
   });
   const result = await runWorkflow(admin, [
     { operation: 'POST /admin/realms/{realm}/groups', args: { body: { name: 'new-group' } },
@@ -279,13 +266,13 @@ test('failed read does not claim the failed step may have committed', async () =
 
 test('create compensation binds the ID returned in Keycloak Location', async () => {
   const calls = [];
-  const dir = mkdtempSync(join(tmpdir(), 'keycloak-mcp-location-'));
-  const admin = new KeycloakAdmin(configFromEnv({ ...env, KEYCLOAK_MCP_ALLOW_WRITE: 'true', KEYCLOAK_MCP_SINGLE_WRITER: 'true', KEYCLOAK_MCP_JOURNAL_DIR: dir }), async (url, options) => {
-    if (url.endsWith('/token')) return response(200, { access_token: 'token', expires_in: 900 });
+  const dir = privateTempDir('keycloak-mcp-location-');
+  const admin = new KeycloakAdmin(testConfig({ KEYCLOAK_MCP_ALLOW_WRITE: 'true', KEYCLOAK_MCP_SINGLE_WRITER: 'true', KEYCLOAK_MCP_JOURNAL_DIR: dir }), async (url, options) => {
+    if (url.endsWith('/token')) return tokenResponse();
     calls.push(`${options.method} ${new URL(url).pathname}`);
-    if (url.endsWith('/users') && options.method === 'POST') return response(201, null, { location: 'https://id.example.com/auth/admin/realms/test-realm/users/new-user-id' });
-    if (url.endsWith('/groups') && options.method === 'POST') return response(400, {});
-    return response(204, null);
+    if (url.endsWith('/users') && options.method === 'POST') return jsonResponse(201, null, { location: 'https://id.example.com/auth/admin/realms/test-realm/users/new-user-id' });
+    if (url.endsWith('/groups') && options.method === 'POST') return jsonResponse(400, {});
+    return jsonResponse(204, null);
   });
   const result = await runWorkflow(admin, [
     { operation: 'POST /admin/realms/{realm}/users', args: { body: { username: 'new-user' } },
@@ -305,12 +292,12 @@ test('create compensation binds the ID returned in Keycloak Location', async () 
 test('create compensation binds a generated UUID returned in JSON when Location is absent', async () => {
   const id = 'baebccda-a5cd-4ed8-a889-c95e4cf2d64b';
   const calls = [];
-  const admin = new KeycloakAdmin(configFromEnv({ ...env, KEYCLOAK_MCP_ALLOW_WRITE: 'true', KEYCLOAK_MCP_SINGLE_WRITER: 'true' }), async (url, options) => {
-    if (url.endsWith('/token')) return response(200, { access_token: 'token', expires_in: 900 });
+  const admin = new KeycloakAdmin(testConfig({ KEYCLOAK_MCP_ALLOW_WRITE: 'true', KEYCLOAK_MCP_SINGLE_WRITER: 'true' }), async (url, options) => {
+    if (url.endsWith('/token')) return tokenResponse();
     calls.push(`${options.method} ${new URL(url).pathname}`);
-    if (options.method === 'POST') return response(201, { _id: id, name: 'resource' });
-    if (options.method === 'GET') return response(404, {});
-    return response(204, null);
+    if (options.method === 'POST') return jsonResponse(201, { _id: id, name: 'resource' });
+    if (options.method === 'GET') return jsonResponse(404, {});
+    return jsonResponse(204, null);
   });
   const result = await runWorkflow(admin, [
     { operation: 'POST /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/resource',
@@ -328,10 +315,10 @@ test('create compensation binds a generated UUID returned in JSON when Location 
 
 test('JSON response binding refuses ambiguous IDs and cross-collection deletion', async () => {
   const calls = [];
-  const admin = new KeycloakAdmin(configFromEnv({ ...env, KEYCLOAK_MCP_ALLOW_WRITE: 'true', KEYCLOAK_MCP_SINGLE_WRITER: 'true' }), async (url, options) => {
-    if (url.endsWith('/token')) return response(200, { access_token: 'token', expires_in: 900 });
+  const admin = new KeycloakAdmin(testConfig({ KEYCLOAK_MCP_ALLOW_WRITE: 'true', KEYCLOAK_MCP_SINGLE_WRITER: 'true' }), async (url, options) => {
+    if (url.endsWith('/token')) return tokenResponse();
     calls.push(options.method);
-    return response(201, { id: 'baebccda-a5cd-4ed8-a889-c95e4cf2d64b', _id: '498be114-4423-4f28-a1ec-8add9a250c11' });
+    return jsonResponse(201, { id: 'baebccda-a5cd-4ed8-a889-c95e4cf2d64b', _id: '498be114-4423-4f28-a1ec-8add9a250c11' });
   });
   const create = { operation: 'POST /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/resource',
     args: { path: { 'client-uuid': 'client-id' }, body: { name: 'resource' } } };
@@ -348,10 +335,10 @@ test('JSON response binding refuses ambiguous IDs and cross-collection deletion'
 
 test('JSON response binding refuses a conflicting Location', async () => {
   const calls = [];
-  const admin = new KeycloakAdmin(configFromEnv({ ...env, KEYCLOAK_MCP_ALLOW_WRITE: 'true', KEYCLOAK_MCP_SINGLE_WRITER: 'true' }), async (url, options) => {
-    if (url.endsWith('/token')) return response(200, { access_token: 'token', expires_in: 900 });
+  const admin = new KeycloakAdmin(testConfig({ KEYCLOAK_MCP_ALLOW_WRITE: 'true', KEYCLOAK_MCP_SINGLE_WRITER: 'true' }), async (url, options) => {
+    if (url.endsWith('/token')) return tokenResponse();
     calls.push(options.method);
-    return response(201, { _id: 'baebccda-a5cd-4ed8-a889-c95e4cf2d64b' },
+    return jsonResponse(201, { _id: 'baebccda-a5cd-4ed8-a889-c95e4cf2d64b' },
       { location: 'https://id.example.com/auth/admin/realms/test-realm/clients/client-id/authz/resource-server/resource/498be114-4423-4f28-a1ec-8add9a250c11' });
   });
   const result = await runWorkflow(admin, [{
@@ -367,10 +354,10 @@ test('JSON response binding refuses a conflicting Location', async () => {
 
 test('Location binding refuses a resource outside the created collection', async () => {
   const calls = [];
-  const admin = new KeycloakAdmin(configFromEnv({ ...env, KEYCLOAK_MCP_ALLOW_WRITE: 'true', KEYCLOAK_MCP_SINGLE_WRITER: 'true' }), async (url, options) => {
-    if (url.endsWith('/token')) return response(200, { access_token: 'token', expires_in: 900 });
+  const admin = new KeycloakAdmin(testConfig({ KEYCLOAK_MCP_ALLOW_WRITE: 'true', KEYCLOAK_MCP_SINGLE_WRITER: 'true' }), async (url, options) => {
+    if (url.endsWith('/token')) return tokenResponse();
     calls.push(options.method);
-    return response(201, null, { location: 'https://id.example.com/auth/admin/realms/master/users/other-user' });
+    return jsonResponse(201, null, { location: 'https://id.example.com/auth/admin/realms/master/users/other-user' });
   });
   const result = await runWorkflow(admin, [{ operation: 'POST /admin/realms/{realm}/users', args: { body: { username: 'new-user' } },
     compensate: { operation: 'DELETE /admin/realms/{realm}/users/{user-id}', args: { path: { 'user-id': '$step.locationId' } } } }], { dryRun: false });
@@ -381,10 +368,10 @@ test('Location binding refuses a resource outside the created collection', async
 
 test('Location binding refuses a matching path on another origin', async () => {
   const calls = [];
-  const admin = new KeycloakAdmin(configFromEnv({ ...env, KEYCLOAK_MCP_ALLOW_WRITE: 'true', KEYCLOAK_MCP_SINGLE_WRITER: 'true' }), async (url, options) => {
-    if (url.endsWith('/token')) return response(200, { access_token: 'token', expires_in: 900 });
+  const admin = new KeycloakAdmin(testConfig({ KEYCLOAK_MCP_ALLOW_WRITE: 'true', KEYCLOAK_MCP_SINGLE_WRITER: 'true' }), async (url, options) => {
+    if (url.endsWith('/token')) return tokenResponse();
     calls.push(options.method);
-    return response(201, null, { location: 'https://other.example.com/auth/admin/realms/test-realm/users/new-user-id' });
+    return jsonResponse(201, null, { location: 'https://other.example.com/auth/admin/realms/test-realm/users/new-user-id' });
   });
   const result = await runWorkflow(admin, [{ operation: 'POST /admin/realms/{realm}/users', args: { body: { username: 'new-user' } },
     compensate: { operation: 'DELETE /admin/realms/{realm}/users/{user-id}', args: { path: { 'user-id': '$step.locationId' } } } }], { dryRun: false });
@@ -394,19 +381,19 @@ test('Location binding refuses a matching path on another origin', async () => {
 });
 
 test('Location binding cannot direct a create compensation at another collection', async () => {
-  const admin = new KeycloakAdmin(configFromEnv({ ...env, KEYCLOAK_MCP_ALLOW_WRITE: 'true', KEYCLOAK_MCP_SINGLE_WRITER: 'true' }));
+  const admin = new KeycloakAdmin(testConfig({ KEYCLOAK_MCP_ALLOW_WRITE: 'true', KEYCLOAK_MCP_SINGLE_WRITER: 'true' }));
   await assert.rejects(() => runWorkflow(admin, [{ operation: 'POST /admin/realms/{realm}/users', args: { body: { username: 'new-user' } },
     compensate: { operation: 'DELETE /admin/realms/{realm}/groups/{group-id}', args: { path: { 'group-id': '$step.locationId' } } } }]), /compensation must target the created resource/);
 });
 
 test('failed compensation is reported and recorded without claiming rollback', async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'keycloak-mcp-journal-'));
-  const config = configFromEnv({ ...env, KEYCLOAK_MCP_ALLOW_WRITE: 'true', KEYCLOAK_MCP_SINGLE_WRITER: 'true', KEYCLOAK_MCP_JOURNAL_DIR: dir });
+  const dir = privateTempDir('keycloak-mcp-journal-');
+  const config = testConfig({ KEYCLOAK_MCP_ALLOW_WRITE: 'true', KEYCLOAK_MCP_SINGLE_WRITER: 'true', KEYCLOAK_MCP_JOURNAL_DIR: dir });
   let realmUpdates = 0;
   const admin = new KeycloakAdmin(config, async (url, options) => {
-    if (url.endsWith('/token')) return response(200, { access_token: 'token', expires_in: 900 });
-    if (options.method === 'PUT' && url.endsWith('/test-realm') && ++realmUpdates === 1) return response(204, null);
-    return response(500, {});
+    if (url.endsWith('/token')) return tokenResponse();
+    if (options.method === 'PUT' && url.endsWith('/test-realm') && ++realmUpdates === 1) return jsonResponse(204, null);
+    return jsonResponse(500, {});
   });
   const result = await runWorkflow(admin, [
     { operation: 'PUT /admin/realms/{realm}', args: { body: { displayName: 'changed' } },

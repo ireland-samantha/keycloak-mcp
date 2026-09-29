@@ -1,19 +1,16 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { buildRequest, configFromEnv, createCatalog, describeOperation, isMutation } from '../../src/keycloak.js';
+import { buildRequest, createCatalog, describeOperation, isMutation } from '../../src/keycloak.js';
+import { testConfig } from '../support/config.js';
 
-const env = {
-  KEYCLOAK_BASE_URL: 'https://id.example.com', KEYCLOAK_REALM: 'test',
-  KEYCLOAK_CLIENT_ID: 'service-client', KEYCLOAK_CLIENT_SECRET: 'secret',
-  KEYCLOAK_MCP_ALLOW_WRITE: 'true',
-};
+const writable = { KEYCLOAK_MCP_ALLOW_WRITE: 'true' };
 const upload = 'POST /admin/realms/{realm}/clients/{client-uuid}/certificates/{attr}/upload-certificate';
 
 test('certificate uploads serialize a bounded multipart form on both pinned catalogs', async () => {
   for (const version of ['latest', '26.3.5']) {
     const catalog = createCatalog('', version);
     assert.ok(describeOperation(upload, catalog).requestTypes.includes('multipart/form-data'));
-    const request = buildRequest(configFromEnv(env), upload, { path: {
+    const request = buildRequest(testConfig(writable), upload, { path: {
       'client-uuid': 'client-id', attr: 'jwt.credential',
     }, contentType: 'multipart/form-data', body: {
       keystoreFormat: 'Certificate PEM',
@@ -31,17 +28,17 @@ test('certificate uploads serialize a bounded multipart form on both pinned cata
 test('multipart validation rejects malformed files and oversized bodies before network', () => {
   const catalog = createCatalog('', '26.3.5');
   const path = { 'client-uuid': 'client-id', attr: 'jwt.credential' };
-  const config = configFromEnv(env);
+  const config = testConfig(writable);
   assert.throws(() => buildRequest(config, upload, { path, contentType: 'multipart/form-data',
     body: { file: { filename: '../escape.pem', contentType: 'application/x-pem-file', base64: 'Zm9v' } } }, catalog), /filename/);
   assert.throws(() => buildRequest(config, upload, { path, contentType: 'multipart/form-data',
     body: { file: { filename: 'test.pem', contentType: 'application/x-pem-file', base64: 'not-base64' } } }, catalog), /base64/);
-  assert.throws(() => buildRequest(configFromEnv({ ...env, KEYCLOAK_MCP_MAX_BODY_BYTES: '100' }), upload,
+  assert.throws(() => buildRequest(testConfig({ ...writable, KEYCLOAK_MCP_MAX_BODY_BYTES: '100' }), upload,
     { path, contentType: 'multipart/form-data', body: { keystoreFormat: 'Certificate PEM' } }, catalog), /limit/);
 });
 
 test('oversized base64 input is rejected before decoding into a request body', () => {
-  const config = configFromEnv({ ...env, KEYCLOAK_MCP_MAX_BODY_BYTES: '4096' });
+  const config = testConfig({ ...writable, KEYCLOAK_MCP_MAX_BODY_BYTES: '4096' });
   const oversized = Buffer.alloc(8192).toString('base64');
   const originalFrom = Buffer.from;
   let decoded = false;
@@ -64,7 +61,7 @@ test('oversized base64 input is rejected before decoding into a request body', (
 test('latest identity-provider certificate upload is a bounded read-only multipart conversion', async () => {
   const operation = 'POST /admin/realms/{realm}/identity-provider/upload-certificate';
   const catalog = createCatalog('', 'latest');
-  const config = configFromEnv({ ...env, KEYCLOAK_MCP_ALLOW_WRITE: 'false' });
+  const config = testConfig({ KEYCLOAK_MCP_ALLOW_WRITE: 'false' });
   assert.equal(isMutation(operation, catalog), false);
   assert.deepEqual(describeOperation(operation, catalog).requestTypes, ['multipart/form-data']);
   const request = buildRequest(config, operation, { body: {
