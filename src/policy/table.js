@@ -100,6 +100,40 @@ export const IRREVERSIBLE_PATHS = [
     source: 'workflow/admin/resource/WorkflowsResource.java:164; WorkflowResource.java:147, :201' },
 ];
 
+// Request bodies that make an otherwise reversible write irreversible, keyed by rule name. A rule covers
+// the operations it lists, or every operation with one of its `methods`. `applies(request)` gets the
+// JSON the request sends as `body`, its path values as `path` (the configured realm as `path.realm`)
+// and `setsSecret()`, whether the body sets a field that SECRET_FIELDS holds secret. A body is judged
+// alone, without reading Keycloak's current state, so a field that would change something counts as
+// changing it: send only the fields an update changes.
+const isSet = value => value !== undefined && value !== null;
+const RTM = 'server-spi-private/src/main/java/org/keycloak/models/utils/RepresentationToModel.java';
+const USER = 'PUT /admin/realms/{realm}/users/{user-id}';
+export const IRREVERSIBLE_BODIES = {
+  'sets-credentials': {
+    operations: [USER],
+    applies: ({ body }) => isSet(body?.credentials),
+    summary: 'the body sets credentials',
+    reason: 'A user update stores every credential in the body, setting the password from a value or creating a credential through its provider; the previous password hash cannot be read back (SEC-2).',
+    source: `services/resources/admin/UserResource.java:233; ${RTM}:849-873`,
+  },
+  'sets-secret': {
+    methods: ['PUT', 'PATCH'],
+    applies: request => request.setsSecret(),
+    summary: 'the body sets a secret',
+    reason: 'An update that sets a secret field replaces the stored secret, whose previous value keycloak-mcp never shows, so no compensation can put it back. Keycloak\'s own mask sets nothing only where MASKED_SECRET_HOLDERS says so.',
+    source: `${RTM}:625-642, :1221-1245; services/resources/admin/IdentityProviderResource.java:212-214`,
+  },
+};
+
+// Holders in which Keycloak never stores its own mask as a secret: a config map keeps the stored value
+// for it. A client secret sent as the mask is stored as the mask.
+export const MASKED_SECRET_HOLDERS = {
+  holders: ['config'],
+  reason: 'Component, identity-provider and authenticator config updates keep the stored secret for a value that is exactly the mask; ClientRepresentation.secret is stored as sent.',
+  source: `${RTM}:1235, :625-642; services/resources/admin/IdentityProviderResource.java:212-214; AuthenticationManagementResource.java:1687-1693`,
+};
+
 // Endpoints whose whole response is replaced by a marker unless sensitive reads are enabled.
 export const SENSITIVE_RESPONSE_PATHS = [
   { pattern: /\/client-secret(?:\/|$)/, reason: 'Returns the current or rotated client secret.',
@@ -260,7 +294,6 @@ export const NAMED_CREATE_TARGETS = {
 // same create is strict: Keycloak creates the object with exactly that ID or refuses a taken name with
 // 409 through the table's unique constraint. keycloak-mcp therefore chooses that ID itself for any such
 // create whose compensation binds the created ID.
-const RTM = 'server-spi-private/src/main/java/org/keycloak/models/utils/RepresentationToModel.java';
 const AUTHZ_ENTITIES = 'model/jpa/src/main/java/org/keycloak/authorization/jpa/entities';
 export const UPSERT_CREATES = {
   'POST /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/scope': {

@@ -1,9 +1,10 @@
 import { parseLosslessJson } from '../internal/json.js';
 import { REDACTED } from '../internal/redaction.js';
-import { CUSTOM_KEY_MAPS, FIELD_REDACTIONS, KEYCLOAK_OWN_MASKS, SECRET_FIELDS, SECRET_VALUE_SHAPES } from './table.js';
+import { CUSTOM_KEY_MAPS, FIELD_REDACTIONS, KEYCLOAK_OWN_MASKS, MASKED_SECRET_HOLDERS, SECRET_FIELDS, SECRET_VALUE_SHAPES } from './table.js';
 
 const isObject = value => value !== null && typeof value === 'object' && !Array.isArray(value) && !JSON.isRawJSON(value);
 const isKeptAsSent = text => text === KEYCLOAK_OWN_MASKS.mask || KEYCLOAK_OWN_MASKS.vault.test(text);
+const isOnlyMask = value => (Array.isArray(value) ? value.length > 0 && value.every(isOnlyMask) : value === KEYCLOAK_OWN_MASKS.mask);
 const looksLikeJson = text => /^\s*[[{]/.test(text);
 const looksLikeBase64Der = text => text.startsWith('M') && /^[A-Za-z0-9+/\r\n]+={0,2}$/.test(text);
 
@@ -59,6 +60,23 @@ class Redactor {
       : Object.fromEntries(entries.map(([name], index) => [name, redacted[index]]));
   }
 
+  // Whether a request body sets a secret: a secret field holding anything but Keycloak's own mask in a
+  // holder where the mask keeps the stored value, or a string that is or carries key material.
+  setsSecret(value, holder = null) {
+    if (typeof value === 'string') return this.isKeyMaterial(value);
+    if (Array.isArray(value)) return value.some(item => this.setsSecret(item, holder));
+    if (!isObject(value)) return false;
+    return Object.entries(value).some(([name, child]) => (this.isSecretField(holder, name, value)
+      ? child !== undefined && child !== null && !(MASKED_SECRET_HOLDERS.holders.includes(holder) && isOnlyMask(child))
+      : this.setsSecret(child, name)));
+  }
+
+  isKeyMaterial(text) {
+    if (SECRET_VALUE_SHAPES.pemPrivateKey.pattern.test(text) || isDerPrivateKey(text)) return true;
+    if (!looksLikeJson(text)) return false;
+    try { return this.setsSecret(parseLosslessJson(text)); } catch { return false; }
+  }
+
   redactText(text) {
     if (SECRET_VALUE_SHAPES.pemPrivateKey.pattern.test(text) || isDerPrivateKey(text)) return REDACTED;
     if (!looksLikeJson(text)) return text;
@@ -78,4 +96,9 @@ export function redactResponse(value, op, secretAttributes = []) {
 // Free text, such as an error message, with any secret-shaped value in it replaced by the marker.
 export function redactText(text, secretAttributes = []) {
   return new Redactor(null, secretAttributes).redactText(text);
+}
+
+// Whether a request body sets a secret the policy table knows, or one of the operator's `secretAttributes`.
+export function setsSecret(body, secretAttributes = []) {
+  return new Redactor(null, secretAttributes).setsSecret(body);
 }

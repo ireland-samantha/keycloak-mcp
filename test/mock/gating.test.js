@@ -34,18 +34,23 @@ const refusals = [
     /^step 1 is irreversible and requires an explicit override$/],
 ];
 
-const unguardedHazards = [
+// Updates whose body makes them irreversible; the second entry names the finding.
+const bodyHazards = [
   ['G7 a password set through the user representation needs the irreversible override', 'SEC-2', WRITER,
     workflow(sameResourceUpdate('PUT /admin/realms/{realm}/users/{user-id}', user,
-      { credentials: [{ type: 'password', value: 'Chosen-Password-1', temporary: false }] })), /irreversible/],
+      { credentials: [{ type: 'password', value: 'Chosen-Password-1', temporary: false }] })), /^step 1 is irreversible and requires an explicit override: .*\[sets-credentials\]/],
   ['G7 a client secret set through the client representation needs the irreversible override', 'SEC-2', WRITER,
-    workflow(sameResourceUpdate('PUT /admin/realms/{realm}/clients/{client-uuid}', { 'client-uuid': 'client-1' }, { secret: 'chosen-secret' })), /irreversible/],
+    workflow(sameResourceUpdate('PUT /admin/realms/{realm}/clients/{client-uuid}', { 'client-uuid': 'client-1' }, { secret: 'chosen-secret' })),
+    /^step 1 is irreversible and requires an explicit override: .*\[sets-secret\]/],
+];
+
+const unguardedHazards = [
   ['G9 turning off event auditing needs the irreversible override', 'SEC-7', WRITER,
     workflow(sameResourceUpdate('PUT /admin/realms/{realm}/events/config', {}, { adminEventsEnabled: false, eventsEnabled: false },
-      { adminEventsEnabled: true, eventsEnabled: true })), /irreversible/],
+      { adminEventsEnabled: true, eventsEnabled: true })), /^step 1 is irreversible and requires an explicit override: .*\[stops-events\]/],
   ['G10 repointing a federation provider connection needs the irreversible override', 'SEC-3', WRITER,
     workflow(sameResourceUpdate('PUT /admin/realms/{realm}/components/{id}', { id: 'ldap-1' },
-      { config: { connectionUrl: ['ldap://directory.example.invalid'] } })), /irreversible/],
+      { config: { connectionUrl: ['ldap://directory.example.invalid'] } })), /^step 1 is irreversible and requires an explicit override: .*\[repoints-federation\]/],
 ];
 
 async function refuses(t, settings, [tool, args], message) {
@@ -54,4 +59,5 @@ async function refuses(t, settings, [tool, args], message) {
 }
 
 for (const [name, settings, call, message] of refusals) test(name, t => refuses(t, settings, call, message));
+for (const [name, , settings, call, message] of bodyHazards) test(name, t => refuses(t, settings, call, message));
 for (const [name, todo, settings, call, message] of unguardedHazards) test(name, { todo }, t => refuses(t, settings, call, message));

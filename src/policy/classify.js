@@ -1,6 +1,8 @@
 import { defaultCatalog, describeOperation } from '../catalog/index.js';
+import { jsonBodyOf } from '../internal/json.js';
+import { setsSecret } from './redaction.js';
 import {
-  GENERATED_ID_PARAMETER, IRREVERSIBLE_PATHS, NAMED_CREATE_TARGETS, OPERATION_OVERRIDES,
+  GENERATED_ID_PARAMETER, IRREVERSIBLE_BODIES, IRREVERSIBLE_PATHS, NAMED_CREATE_TARGETS, OPERATION_OVERRIDES,
   RECEIPT_SENSITIVE_PATH_PARAMETER, SENSITIVE_RESPONSE_PATHS, TOKEN_REFRESH_BEFORE_COMPENSATION, UPSERT_CREATES,
 } from './table.js';
 
@@ -28,6 +30,24 @@ export function isIrreversible(key, operationCatalog = defaultCatalog()) {
   if (override !== undefined) return override;
   if (op.extension) return op.irreversible;
   return isAssociationPut(op, operationCatalog) || IRREVERSIBLE_PATHS.some(({ pattern }) => pattern.test(op.path));
+}
+
+const coversOperation = (rule, op) => Boolean(rule.operations?.includes(op.key) || rule.methods?.includes(op.method));
+
+// The names of the IRREVERSIBLE_BODIES rules that apply to an operation, whatever its body.
+export function bodyRuleNames(key, operationCatalog = defaultCatalog()) {
+  const op = describeOperation(key, operationCatalog);
+  return Object.entries(IRREVERSIBLE_BODIES).filter(([, rule]) => coversOperation(rule, op)).map(([name]) => name);
+}
+
+// The IRREVERSIBLE_BODIES rules that a call with `args` triggers, as [{ name, summary }]. The body is
+// judged as the JSON the request sends; `config` gives the realm and the operator's secret attributes.
+export function irreversibleBodyRules(key, args, config, operationCatalog = defaultCatalog()) {
+  const names = bodyRuleNames(key, operationCatalog);
+  if (!names.length) return [];
+  const body = jsonBodyOf(args);
+  const request = { body, path: { ...args?.path, realm: config.realm }, setsSecret: () => setsSecret(body, config.secretAttributes) };
+  return names.filter(name => IRREVERSIBLE_BODIES[name].applies(request)).map(name => ({ name, summary: IRREVERSIBLE_BODIES[name].summary }));
 }
 
 export function isSensitiveEndpoint(op) {

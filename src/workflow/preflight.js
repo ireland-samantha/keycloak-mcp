@@ -1,9 +1,9 @@
 import { catalogFor } from '../catalog/index.js';
 import { buildRequest } from '../http/request.js';
 import { frozenJsonCopy } from '../internal/json.js';
-import { isIrreversible, isMutation } from '../policy/classify.js';
+import { irreversibleBodyRules, isIrreversible, isMutation } from '../policy/classify.js';
 import { REALM_CREATION } from '../policy/table.js';
-import { checkCompensation } from './compensation-rules.js';
+import { checkCompensation, explainBodyRules } from './compensation-rules.js';
 
 // Preflight applies its rules in a fixed order and reports the first that fails, so the order
 // of the lists below decides which message a plan with several problems gets.
@@ -40,8 +40,9 @@ function refuseCompensation({ step, label }) {
   if (step.compensate) throw new Error(`${label} is read-only and needs no compensation`);
 }
 
-function requireIrreversibleOverride({ config, step, label, irreversible }) {
-  if (irreversible && !(config.allowIrreversible && step.irreversible === true)) throw new Error(`${label} is irreversible and requires an explicit override`);
+function requireIrreversibleOverride({ config, step, label, irreversible, bodyRules }) {
+  if (irreversible && !(config.allowIrreversible && step.irreversible === true))
+    throw new Error(`${label} is irreversible and requires an explicit override${bodyRules.length ? `: ${explainBodyRules(bodyRules)}` : ''}`);
 }
 
 function requireCompensation({ step, label, irreversible }) {
@@ -62,10 +63,11 @@ const mutationRules = [requireIrreversibleOverride, requireCompensation, checkDe
 
 function planStep(context) {
   for (const rule of stepRules) rule(context);
-  const { step, operationCatalog } = context;
+  const { config, step, operationCatalog } = context;
   const mutation = isMutation(step.operation, operationCatalog);
-  const irreversible = isIrreversible(step.operation, operationCatalog) || step.irreversible === true;
-  for (const rule of mutation ? mutationRules : readRules) rule({ ...context, irreversible });
+  const bodyRules = mutation ? irreversibleBodyRules(step.operation, step.args, config, operationCatalog) : [];
+  const irreversible = isIrreversible(step.operation, operationCatalog) || bodyRules.length > 0 || step.irreversible === true;
+  for (const rule of mutation ? mutationRules : readRules) rule({ ...context, irreversible, bodyRules });
   return Object.freeze({ operation: step.operation, args: step.args ?? Object.freeze({}), compensate: step.compensate ?? null, irreversible });
 }
 

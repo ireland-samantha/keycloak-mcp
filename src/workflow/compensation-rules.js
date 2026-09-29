@@ -2,7 +2,9 @@ import { isDeepStrictEqual } from 'node:util';
 import { describeOperation } from '../catalog/index.js';
 import { buildRequest } from '../http/request.js';
 import { directChildParameter } from '../internal/path-template.js';
-import { isGeneratedIdParameter, isIrreversible, isMutation, isSensitiveEndpoint, namedCreateTarget, upsertIdField } from '../policy/classify.js';
+import {
+  irreversibleBodyRules, isGeneratedIdParameter, isIrreversible, isMutation, isSensitiveEndpoint, namedCreateTarget, upsertIdField,
+} from '../policy/classify.js';
 import { REALM_CREATION } from '../policy/table.js';
 import { idBindings, isIdMarker, RESPONSE_ID, withPendingIds } from './markers.js';
 
@@ -11,6 +13,9 @@ const UPDATE_METHODS = ['PUT', 'PATCH'];
 const CHECKABLE_METHODS = ['POST', ...UPDATE_METHODS, 'DELETE'];
 
 const fail = (context, message) => { throw new Error(`${context.label} ${message}`); };
+
+// The refusal text for body rules: each rule's name and what the body does.
+export const explainBodyRules = rules => rules.map(rule => `[${rule.name}] ${rule.summary}`).join('; ');
 
 // What the rules compare: both operations, the collection the step addresses, and the compensation
 // path parameter naming a direct child of that collection, if there is one.
@@ -98,11 +103,14 @@ function deletesCreatedName({ compensation, childParameter, childValue }, { step
     childValue.trim().length > 0 && childValue === step.args?.body?.[named.field];
 }
 
-// An irreversible compensation (a DELETE, say) may only remove what this step itself created.
+// An irreversible compensation (a DELETE, say, or an update whose body is irreversible) may only remove
+// what this step itself created.
 function irreversibleUndoesOnlyTheCreate(target, context) {
-  if (isIrreversible(context.step.compensate.operation, context.operationCatalog) && !deletesCreatedRealm(context) &&
+  const { config, step, operationCatalog } = context;
+  const bodyRules = irreversibleBodyRules(step.compensate.operation, step.compensate.args, config, operationCatalog);
+  if ((isIrreversible(step.compensate.operation, operationCatalog) || bodyRules.length) && !deletesCreatedRealm(context) &&
     !deletesCreatedName(target, context) && !(target.childParameter && isIdMarker(target.childValue)))
-    fail(context, 'cannot use an irreversible compensation without a generated-ID or matching created-name binding');
+    fail(context, `cannot use an irreversible compensation without a generated-ID or matching created-name binding${bodyRules.length ? `: ${explainBodyRules(bodyRules)}` : ''}`);
 }
 
 function compensationBuilds(_target, { config, step, operationCatalog }) {

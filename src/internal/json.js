@@ -16,3 +16,10 @@ function deepFreeze(value) {
 export function frozenJsonCopy(value) {
   return value === undefined ? undefined : deepFreeze(parseLosslessJson(JSON.stringify(value)));
 }
+
+// The JSON value a call's args send as its body: `body` itself, or `bodyBase64` parsed as JSON when it
+// holds JSON, else undefined.
+export function jsonBodyOf(args = {}) {
+  if (args.bodyBase64 === undefined) return args.body;
+  try { return parseLosslessJson(Buffer.from(args.bodyBase64, 'base64').toString('utf8')); } catch { return undefined; }
+}
