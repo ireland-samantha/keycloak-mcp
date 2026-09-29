@@ -4,7 +4,6 @@ import io.github.irelandsamantha.keycloakmcp.equivalence.compare.Divergence;
 import io.github.irelandsamantha.keycloakmcp.equivalence.compare.DocumentedDivergences;
 import io.github.irelandsamantha.keycloakmcp.equivalence.fixtures.PathValues;
 import io.github.irelandsamantha.keycloakmcp.equivalence.fixtures.ProbeBodies;
-import io.github.irelandsamantha.keycloakmcp.equivalence.fixtures.RealmSeeder;
 import io.github.irelandsamantha.keycloakmcp.equivalence.fixtures.SeededRealm;
 import io.github.irelandsamantha.keycloakmcp.equivalence.harness.EquivalenceEnvironment;
 import io.github.irelandsamantha.keycloakmcp.equivalence.harness.McpCatalogSnapshot;
@@ -169,7 +168,7 @@ class StructuralEquivalenceIT {
         }
         List<RouteProbe.Result> results;
         List<String> seedingLog;
-        try (SeededRealm realm = new RealmSeeder(env.adminClient()).seed("equivalence-s3-" + System.currentTimeMillis())) {
+        try (SeededRealm realm = env.seeder().seed("equivalence-s3-" + System.currentTimeMillis())) {
             seedingLog = realm.log();
             results = new RouteProbe(env.http()::send, new PathValues(realm)::valuesFor, ProbeBodies.forRealm(realm))
                     .probe(targets);

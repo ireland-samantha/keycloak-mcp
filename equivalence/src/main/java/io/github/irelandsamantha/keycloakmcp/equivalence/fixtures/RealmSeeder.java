@@ -1,300 +1,100 @@
 package io.github.irelandsamantha.keycloakmcp.equivalence.fixtures;
 
-import jakarta.ws.rs.core.Response;
-import org.keycloak.admin.client.CreatedResponseUtil;
 import org.keycloak.admin.client.Keycloak;
-import org.keycloak.admin.client.resource.AuthorizationResource;
-import org.keycloak.admin.client.resource.RealmResource;
-import org.keycloak.representations.idm.ClientRepresentation;
-import org.keycloak.representations.idm.ClientScopeRepresentation;
-import org.keycloak.representations.idm.GroupRepresentation;
-import org.keycloak.representations.idm.IdentityProviderRepresentation;
-import org.keycloak.representations.idm.OrganizationDomainRepresentation;
-import org.keycloak.representations.idm.OrganizationRepresentation;
 import org.keycloak.representations.idm.RealmRepresentation;
-import org.keycloak.representations.idm.RoleRepresentation;
-import org.keycloak.representations.idm.UserRepresentation;
-import org.keycloak.representations.idm.authorization.AbstractPolicyRepresentation;
-import org.keycloak.representations.idm.authorization.AggregatePolicyRepresentation;
-import org.keycloak.representations.idm.authorization.ClientPolicyRepresentation;
-import org.keycloak.representations.idm.authorization.GroupPolicyRepresentation;
-import org.keycloak.representations.idm.authorization.ResourcePermissionRepresentation;
-import org.keycloak.representations.idm.authorization.ResourceRepresentation;
-import org.keycloak.representations.idm.authorization.RolePolicyRepresentation;
-import org.keycloak.representations.idm.authorization.ScopePermissionRepresentation;
-import org.keycloak.representations.idm.authorization.ScopeRepresentation;
-import org.keycloak.representations.idm.authorization.TimePolicyRepresentation;
-import org.keycloak.representations.idm.authorization.UserPolicyRepresentation;
-import org.keycloak.representations.workflows.WorkflowRepresentation;
-import org.keycloak.representations.workflows.WorkflowStepRepresentation;
 
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
+import java.security.SecureRandom;
+import java.util.HexFormat;
 import java.util.Map;
-import java.util.function.Function;
-import java.util.function.Supplier;
 
 /**
- * Creates a disposable realm holding one entity of every kind the admin API addresses by id or name, so an
- * operation can be called with values that exist. Steps are best-effort: a failed step leaves its id unset and is
- * recorded in {@link SeededRealm#log()}, so a later check can explain a surprising response.
+ * Creates a disposable realm holding at least one entity of every kind the admin API reads or addresses by id or
+ * name, with the relations that make reads non-trivial: composite roles, subgroups, memberships and role mappings,
+ * a user with a password, a federated identity, a consent and live sessions, identity-provider mappers, a key
+ * provider and an LDAP component, a configured authentication flow, an organization with a domain, members, an
+ * identity-provider link, groups and an invitation, client policies, localization texts, events and a workflow,
+ * and a resource server with a policy of every type the admin client can create.
+ *
+ * <p>Nothing leaves the test network: the identity provider and LDAP server are unresolvable or non-routable, the
+ * LDAP component is disabled, and mail goes to the {@code SmtpSink} named in the {@link Context}.
  */
 public final class RealmSeeder {
 
+    /**
+     * @param serverUrl root URL of the server, for the logins that create sessions
+     * @param smtpHost  host under which the server reaches the mail sink
+     * @param smtpPort  its port
+     */
+    public record Context(String serverUrl, String smtpHost, int smtpPort) {
+    }
+
     public static final String USER = "seed-user";
+    /** Realm and client role, both composite (of {@link #CHILD_ROLE} of the realm and of the client). */
     public static final String ROLE = "seed-role";
+    public static final String CHILD_ROLE = "seed-child-role";
     public static final String GROUP = "seed-group";
     public static final String SUB_GROUP = "seed-sub-group";
     public static final String ORG_GROUP = "seed-org-group";
     public static final String WORKFLOW = "seed-workflow";
     public static final String IDP_ALIAS = "seed-idp";
+    public static final String CLIENT = "seed-authz";
     public static final String SCOPE_NAME = "seed-scope";
     public static final String TEMPLATE_SCOPE_NAME = "seed-template-scope";
+    public static final String FLOW = "seed-flow";
+    public static final String LOCALE = "en";
+    public static final String LOCALIZATION_KEY = "seed.key";
+    public static final String DOMAIN = "seed.example";
     /** Policy names; each typed policy gets its own so deleting one type cannot remove another's target. */
     public static final String USER_POLICY = "p-user";
 
-    private final Keycloak admin;
+    private static final SecureRandom RANDOM = new SecureRandom();
 
-    public RealmSeeder(Keycloak admin) {
+    private final Keycloak admin;
+    private final Context context;
+
+    public RealmSeeder(Keycloak admin, Context context) {
         this.admin = admin;
+        this.context = context;
     }
 
     /** Creates realm {@code name} and populates it. The caller owns the result and must close it. */
     public SeededRealm seed(String name) {
+        admin.realms().create(realm(name));
+        Seeding s = new Seeding(name, admin.realm(name), context);
+        s.step(SeededRealm.REALM_ID, () -> s.realm.toRepresentation().getId());
+        RealmSettingsSeeding.seed(s);
+        RoleAndGroupSeeding.realmRoles(s);
+        ClientSeeding.seed(s);
+        RoleAndGroupSeeding.groups(s);
+        IdentityProviderSeeding.seed(s);
+        UserSeeding.seed(s);
+        ComponentSeeding.seed(s);
+        AuthenticationSeeding.seed(s);
+        OrganizationSeeding.seed(s);
+        WorkflowSeeding.seed(s);
+        AuthorizationSeeding.seed(s);
+        SessionSeeding.seed(s);
+        return new SeededRealm(admin, name, s.ids(), s.log());
+    }
+
+    /** A random secret for a seeded credential; seeded realms are disposable, so it is never reused. */
+    static String secret() {
+        byte[] b = new byte[16];
+        RANDOM.nextBytes(b);
+        return HexFormat.of().formatHex(b);
+    }
+
+    private RealmRepresentation realm(String name) {
         RealmRepresentation realm = new RealmRepresentation();
         realm.setRealm(name);
         realm.setEnabled(true);
         realm.setOrganizationsEnabled(true);
-        admin.realms().create(realm);
-        Seeding s = new Seeding(admin.realm(name));
-        s.populate();
-        return new SeededRealm(admin, name, Map.copyOf(s.ids), List.copyOf(s.log));
-    }
-
-    /** Mutable state of one seeding run. */
-    private static final class Seeding {
-        private final RealmResource r;
-        private final Map<String, String> ids = new LinkedHashMap<>();
-        private final List<String> log = new ArrayList<>();
-
-        Seeding(RealmResource r) {
-            this.r = r;
-        }
-
-        void populate() {
-            step(SeededRealm.REALM_ID, () -> r.toRepresentation().getId());
-            step(SeededRealm.USER_ID, () -> created(r.users().create(user())));
-            step(SeededRealm.ROLE_ID, () -> {
-                r.roles().create(role());
-                return r.roles().get(ROLE).toRepresentation().getId();
-            });
-            step(SeededRealm.GROUP_ID, () -> created(r.groups().add(group(GROUP))));
-            step(SeededRealm.SUB_GROUP_ID, () -> created(r.groups().group(ids.get(SeededRealm.GROUP_ID)).subGroup(group(SUB_GROUP))));
-            step(SeededRealm.CLIENT_SCOPE_ID, () -> created(r.clientScopes().create(clientScope(SCOPE_NAME))));
-            // client-templates is an alias of client-scopes (RealmAdminResource.java:219-223) whose {id} locator
-            // rejects an unknown scope (ClientScopesResource.java:148-155); its own scope survives
-            // DELETE client-scopes/{id}, which the probe sends first.
-            step(SeededRealm.CLIENT_TEMPLATE_ID, () -> created(r.clientScopes().create(clientScope(TEMPLATE_SCOPE_NAME))));
-            step(SeededRealm.CLIENT_ID, () -> {
-                ClientRepresentation c = new ClientRepresentation();
-                c.setClientId("seed-authz");
-                c.setPublicClient(false);
-                c.setServiceAccountsEnabled(true);
-                c.setAuthorizationServicesEnabled(true);
-                return created(r.clients().create(c));
-            });
-            step(SeededRealm.CLIENT_ROLE, () -> {
-                r.clients().get(ids.get(SeededRealm.CLIENT_ID)).roles().create(role());
-                return ROLE;
-            });
-            step(SeededRealm.COMPONENT_ID, () -> r.components()
-                    .query(ids.get(SeededRealm.REALM_ID), "org.keycloak.keys.KeyProvider").getFirst().getId());
-            step(SeededRealm.EXECUTION_ID, () -> r.flows().getExecutions("browser").getFirst().getId());
-            step(SeededRealm.IDP, () -> {
-                try (Response resp = r.identityProviders().create(identityProvider())) {
-                    ensure2xx(resp);
-                }
-                return IDP_ALIAS;
-            });
-            step(SeededRealm.ORG_ID, () -> created(r.organizations().create(organization())));
-            step(SeededRealm.ORG_MEMBER, () -> {
-                try (Response resp = r.organizations().get(ids.get(SeededRealm.ORG_ID)).members().addMember(ids.get(SeededRealm.USER_ID))) {
-                    ensure2xx(resp);
-                }
-                return ids.get(SeededRealm.USER_ID);
-            });
-            step(SeededRealm.ORG_GROUP_ID, () -> created(r.organizations().get(ids.get(SeededRealm.ORG_ID)).groups()
-                    .addTopLevelGroup(group(ORG_GROUP))));
-            step(SeededRealm.WORKFLOW_ID, () -> created(r.workflows().create(workflow())));
-            populateAuthorization(r.clients().get(ids.getOrDefault(SeededRealm.CLIENT_ID, SeededRealm.MISSING)).authorization());
-        }
-
-        private void populateAuthorization(AuthorizationResource authz) {
-            // Clients created over REST get no "Default Resource" on HEAD; create one.
-            step(SeededRealm.RESOURCE_ID, () -> {
-                try (Response resp = authz.resources().create(new ResourceRepresentation("seed-resource"))) {
-                    ensure2xx(resp);
-                    return resp.readEntity(ResourceRepresentation.class).getId();
-                }
-            });
-            step(SeededRealm.SCOPE_ID, () -> {
-                try (Response resp = authz.scopes().create(new ScopeRepresentation(SCOPE_NAME))) {
-                    ensure2xx(resp);
-                }
-                return authz.scopes().findByName(SCOPE_NAME).getId();
-            });
-            policy(authz, "user", USER_POLICY, () -> {
-                UserPolicyRepresentation p = new UserPolicyRepresentation();
-                p.addUser(ids.get(SeededRealm.USER_ID));
-                return p;
-            }, rep -> authz.policies().user().create((UserPolicyRepresentation) rep));
-            // Separate target for the untyped /policy/{id} operations, so typed deletes cannot remove it first.
-            policy(authz, "generic", "p-generic", () -> {
-                UserPolicyRepresentation p = new UserPolicyRepresentation();
-                p.addUser(ids.get(SeededRealm.USER_ID));
-                return p;
-            }, rep -> authz.policies().user().create((UserPolicyRepresentation) rep));
-            policy(authz, "role", "p-role", () -> {
-                RolePolicyRepresentation p = new RolePolicyRepresentation();
-                p.addRole(ROLE);
-                return p;
-            }, rep -> authz.policies().role().create((RolePolicyRepresentation) rep));
-            policy(authz, "group", "p-group", () -> {
-                GroupPolicyRepresentation p = new GroupPolicyRepresentation();
-                p.addGroup(ids.get(SeededRealm.GROUP_ID), false);
-                return p;
-            }, rep -> authz.policies().group().create((GroupPolicyRepresentation) rep));
-            policy(authz, "time", "p-time", () -> {
-                TimePolicyRepresentation p = new TimePolicyRepresentation();
-                p.setNotBefore("2020-01-01 00:00:00");
-                return p;
-            }, rep -> authz.policies().time().create((TimePolicyRepresentation) rep));
-            policy(authz, "client", "p-client", () -> {
-                ClientPolicyRepresentation p = new ClientPolicyRepresentation();
-                p.addClient(ids.get(SeededRealm.CLIENT_ID));
-                return p;
-            }, rep -> authz.policies().client().create((ClientPolicyRepresentation) rep));
-            policy(authz, "aggregate", "p-aggregate", () -> {
-                AggregatePolicyRepresentation p = new AggregatePolicyRepresentation();
-                p.addPolicy(USER_POLICY);
-                return p;
-            }, rep -> authz.policies().aggregate().create((AggregatePolicyRepresentation) rep));
-            permission(authz, "resource", "perm-resource", () -> {
-                ResourcePermissionRepresentation p = new ResourcePermissionRepresentation();
-                p.addResource(ids.get(SeededRealm.RESOURCE_ID));
-                p.addPolicy(USER_POLICY);
-                return p;
-            }, rep -> authz.permissions().resource().create((ResourcePermissionRepresentation) rep));
-            permission(authz, "scope", "perm-scope", () -> {
-                ScopePermissionRepresentation p = new ScopePermissionRepresentation();
-                p.addScope(SCOPE_NAME);
-                p.addPolicy(USER_POLICY);
-                return p;
-            }, rep -> authz.permissions().scope().create((ScopePermissionRepresentation) rep));
-        }
-
-        private void policy(AuthorizationResource authz, String type, String name, Supplier<AbstractPolicyRepresentation> rep,
-                            Function<AbstractPolicyRepresentation, Response> create) {
-            authorizationEntry(SeededRealm.policy(type), authz, name, rep, create);
-        }
-
-        private void permission(AuthorizationResource authz, String type, String name, Supplier<AbstractPolicyRepresentation> rep,
-                                Function<AbstractPolicyRepresentation, Response> create) {
-            authorizationEntry(SeededRealm.permission(type), authz, name, rep, create);
-        }
-
-        private void authorizationEntry(String key, AuthorizationResource authz, String name,
-                                        Supplier<AbstractPolicyRepresentation> rep,
-                                        Function<AbstractPolicyRepresentation, Response> create) {
-            step(key, () -> {
-                AbstractPolicyRepresentation p = rep.get();
-                p.setName(name);
-                try (Response resp = create.apply(p)) {
-                    ensure2xx(resp);
-                }
-                return authz.policies().findByName(name).getId();
-            });
-        }
-
-        private void step(String key, Supplier<String> action) {
-            try {
-                ids.put(key, action.get());
-            } catch (RuntimeException e) {
-                log.add(key + ": " + e.getClass().getSimpleName() + " " + e.getMessage());
-            }
-        }
-    }
-
-    private static String created(Response r) {
-        try (r) {
-            return CreatedResponseUtil.getCreatedId(r);
-        }
-    }
-
-    private static void ensure2xx(Response r) {
-        if (r.getStatus() / 100 != 2) {
-            throw new IllegalStateException("HTTP " + r.getStatus() + " " + r.readEntity(String.class));
-        }
-    }
-
-    private static UserRepresentation user() {
-        UserRepresentation u = new UserRepresentation();
-        u.setUsername(USER);
-        u.setEmail(USER + "@seed.example");
-        u.setEnabled(true);
-        return u;
-    }
-
-    private static RoleRepresentation role() {
-        RoleRepresentation role = new RoleRepresentation();
-        role.setName(ROLE);
-        return role;
-    }
-
-    private static ClientScopeRepresentation clientScope(String name) {
-        ClientScopeRepresentation cs = new ClientScopeRepresentation();
-        cs.setName(name);
-        cs.setProtocol("openid-connect");
-        return cs;
-    }
-
-    private static GroupRepresentation group(String name) {
-        GroupRepresentation g = new GroupRepresentation();
-        g.setName(name);
-        return g;
-    }
-
-    /** An OIDC broker pointing at an unresolvable host, so nothing ever leaves the test network. */
-    private static IdentityProviderRepresentation identityProvider() {
-        IdentityProviderRepresentation idp = new IdentityProviderRepresentation();
-        idp.setAlias(IDP_ALIAS);
-        idp.setProviderId("oidc");
-        idp.setConfig(Map.of("clientId", "x", "clientSecret", "y", "authorizationUrl", "https://idp.invalid/auth",
-                "tokenUrl", "https://idp.invalid/token", "clientAuthMethod", "client_secret_post"));
-        return idp;
-    }
-
-    /**
-     * A workflow needs a step: the steps decide the resource type it applies to, and none leaves it ambiguous
-     * ({@code Workflow.java:170-194}). Activating it (an operation under test) only schedules the step, far enough
-     * out that it never runs during a suite.
-     */
-    private static WorkflowRepresentation workflow() {
-        return WorkflowRepresentation.withName(WORKFLOW)
-                .withSteps(WorkflowStepRepresentation.create().of("set-user-attribute")
-                        .after(Duration.ofDays(3650)).withConfig("equivalence", "seeded").build())
-                .build();
-    }
-
-    private static OrganizationRepresentation organization() {
-        OrganizationRepresentation org = new OrganizationRepresentation();
-        org.setName("seed-org");
-        org.setAlias("seed-org");
-        OrganizationDomainRepresentation domain = new OrganizationDomainRepresentation();
-        domain.setName("seed.example");
-        org.addDomain(domain);
-        return org;
+        realm.setVerifiableCredentialsEnabled(true);
+        // One failed login shows up in the brute-force status without ever locking the seeded user out.
+        realm.setBruteForceProtected(true);
+        realm.setFailureFactor(1000);
+        realm.setSmtpServer(Map.of("host", context.smtpHost(), "port", String.valueOf(context.smtpPort()),
+                "from", "noreply@" + DOMAIN));
+        return realm;
     }
 }

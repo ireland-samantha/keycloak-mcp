@@ -1,5 +1,6 @@
 package io.github.irelandsamantha.keycloakmcp.equivalence.harness;
 
+import io.github.irelandsamantha.keycloakmcp.equivalence.fixtures.RealmSeeder;
 import io.github.irelandsamantha.keycloakmcp.equivalence.ledger.EquivalenceLedger;
 import io.github.irelandsamantha.keycloakmcp.equivalence.ledger.Provenance;
 import io.github.irelandsamantha.keycloakmcp.equivalence.surface.AdminClientArtifact;
@@ -12,6 +13,7 @@ import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;
@@ -30,6 +32,7 @@ public final class EquivalenceEnvironment implements AutoCloseable {
     private static final String CATALOG_ONLY_REALM = "equivalence-catalog";
 
     private final Settings settings;
+    private final SmtpSink mail;
     private final KeycloakServer server;
     private final Keycloak bootstrapAdmin;
     private final ServiceAccount serviceAccount;
@@ -41,9 +44,10 @@ public final class EquivalenceEnvironment implements AutoCloseable {
     private ReferenceSurface reference;
     private McpCatalogSnapshot catalog;
 
-    private EquivalenceEnvironment(Settings settings, KeycloakServer server, Keycloak bootstrapAdmin,
+    private EquivalenceEnvironment(Settings settings, SmtpSink mail, KeycloakServer server, Keycloak bootstrapAdmin,
                                    ServiceAccount serviceAccount) {
         this.settings = settings;
+        this.mail = mail;
         this.server = server;
         this.bootstrapAdmin = bootstrapAdmin;
         this.serviceAccount = serviceAccount;
@@ -54,17 +58,27 @@ public final class EquivalenceEnvironment implements AutoCloseable {
     }
 
     public static EquivalenceEnvironment start(Settings settings) {
-        KeycloakServer server = KeycloakServer.start(settings);
+        SmtpSink mail;
+        try {
+            mail = SmtpSink.start();
+        } catch (IOException e) {
+            throw new UncheckedIOException("Cannot start the SMTP sink", e);
+        }
+        KeycloakServer server = null;
         Keycloak admin = null;
         try {
+            server = KeycloakServer.start(settings, mail.port());
             admin = KeycloakBuilder.builder().serverUrl(server.baseUrl()).realm(ServiceAccount.AUTH_REALM)
                     .clientId("admin-cli").username(settings.adminUser()).password(settings.adminPassword()).build();
-            return new EquivalenceEnvironment(settings, server, admin, ServiceAccount.provision(admin));
+            return new EquivalenceEnvironment(settings, mail, server, admin, ServiceAccount.provision(admin));
         } catch (RuntimeException e) {
             if (admin != null) {
                 admin.close();
             }
-            server.close();
+            if (server != null) {
+                server.close();
+            }
+            closeQuietly(mail);
             throw e;
         }
     }
@@ -80,6 +94,11 @@ public final class EquivalenceEnvironment implements AutoCloseable {
     }
 
     /** The ledger, with a row for every reference operation. */
+    /** Seeds disposable realms on this server; their mail goes to this run's SMTP sink. */
+    public RealmSeeder seeder() {
+        return new RealmSeeder(adminClient, new RealmSeeder.Context(server.baseUrl(), server.callbackHost(), mail.port()));
+    }
+
     public EquivalenceLedger ledger() {
         reference();
         return ledger;
@@ -148,6 +167,15 @@ public final class EquivalenceEnvironment implements AutoCloseable {
         } finally {
             bootstrapAdmin.close();
             server.close();
+            closeQuietly(mail);
+        }
+    }
+
+    private static void closeQuietly(SmtpSink mail) {
+        try {
+            mail.close();
+        } catch (IOException ignored) {
+            // only a listening socket; the JVM releases it on exit anyway
         }
     }
 }

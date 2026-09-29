@@ -1,5 +1,6 @@
 package io.github.irelandsamantha.keycloakmcp.equivalence.harness;
 
+import org.testcontainers.Testcontainers;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.utility.DockerImageName;
@@ -15,23 +16,29 @@ import java.util.List;
 public final class KeycloakServer implements AutoCloseable {
 
     private static final int HTTP_PORT = 8080;
+    private static final String CONTAINER_CALLBACK_HOST = "host.testcontainers.internal";
 
     private final String baseUrl;
     private final String image;
     private final String imageDigest;
+    private final String callbackHost;
     private final GenericContainer<?> container;
 
-    private KeycloakServer(String baseUrl, String image, String imageDigest, GenericContainer<?> container) {
+    private KeycloakServer(String baseUrl, String image, String imageDigest, String callbackHost,
+                           GenericContainer<?> container) {
         this.baseUrl = baseUrl;
         this.image = image;
         this.imageDigest = imageDigest;
+        this.callbackHost = callbackHost;
         this.container = container;
     }
 
-    public static KeycloakServer start(Settings settings) {
+    /** @param hostPorts ports of this JVM the server must be able to reach under {@link #callbackHost()} */
+    public static KeycloakServer start(Settings settings, int... hostPorts) {
         if (settings.externalServer()) {
-            return new KeycloakServer(settings.url().replaceAll("/+$", ""), "external", null, null);
+            return new KeycloakServer(settings.url().replaceAll("/+$", ""), "external", null, settings.callbackHost(), null);
         }
+        Testcontainers.exposeHostPorts(hostPorts);
         GenericContainer<?> container = new GenericContainer<>(DockerImageName.parse(settings.image()))
                 .withExposedPorts(HTTP_PORT)
                 .withEnv("KC_BOOTSTRAP_ADMIN_USERNAME", settings.adminUser())
@@ -51,11 +58,16 @@ public final class KeycloakServer implements AutoCloseable {
         String digest = digests == null || digests.isEmpty() ? imageId : digests.getFirst();
         // keycloak-mcp accepts plain HTTP only on loopback; Testcontainers maps the port on the Docker host.
         String baseUrl = "http://" + container.getHost() + ":" + container.getMappedPort(HTTP_PORT);
-        return new KeycloakServer(baseUrl, settings.image(), digest, container);
+        return new KeycloakServer(baseUrl, settings.image(), digest, CONTAINER_CALLBACK_HOST, container);
     }
 
     public String baseUrl() {
         return baseUrl;
+    }
+
+    /** Host name or address under which the server reaches this JVM. */
+    public String callbackHost() {
+        return callbackHost;
     }
 
     /** What was started; "external" when attached to {@code keycloak.url}. */

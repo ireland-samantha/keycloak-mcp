@@ -13,9 +13,11 @@ import java.nio.file.Path;
  * @param keycloakMcpRoot keycloak-mcp checkout whose {@code src/index.js} is spawned
  * @param catalogVersion  {@code KEYCLOAK_MCP_CATALOG_VERSION} for the spawned keycloak-mcp
  * @param node            Node.js executable
+ * @param callbackHost    host the Keycloak server reaches this JVM under (for the {@link SmtpSink}) when attached
+ *                        to {@code url}; a container always uses Testcontainers' host alias
  */
 public record Settings(String image, String features, String url, String adminUser, String adminPassword,
-                       Path keycloakMcpRoot, String catalogVersion, String node) {
+                       Path keycloakMcpRoot, String catalogVersion, String node, String callbackHost) {
 
     public static Settings fromSystemProperties() {
         return new Settings(
@@ -26,7 +28,9 @@ public record Settings(String image, String features, String url, String adminUs
                 property("keycloak.admin.password", "admin"),
                 Path.of(property("keycloakmcp.root", "..")).toAbsolutePath().normalize(),
                 property("keycloakmcp.catalog", "nightly"),
-                property("node.executable", "node"));
+                property("node.executable", "node"),
+                // Docker's default bridge gateway: where a container started with "-p" reaches its host.
+                property("keycloak.callback.host", "172.17.0.1"));
     }
 
     public boolean externalServer() {

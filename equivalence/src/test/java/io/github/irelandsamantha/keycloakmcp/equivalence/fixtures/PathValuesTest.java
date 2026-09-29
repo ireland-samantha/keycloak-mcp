@@ -56,6 +56,40 @@ class PathValuesTest {
     }
 
     @Test
+    void theTextAfterAVariableCanDecideToo() {
+        PathValues seeded = new PathValues(new SeededRealm(null, "r1", Map.of(
+                SeededRealm.FLOW_ID, "flow-uuid",
+                SeededRealm.CLIENT_ID, "client-uuid",
+                SeededRealm.SAML_CLIENT_ID, "saml-uuid"), List.of()));
+
+        assertEquals(List.of("r1", "flow-uuid"), seeded.valuesFor("/admin/realms/{realm}/authentication/flows/{id}"));
+        assertEquals(List.of("r1", RealmSeeder.FLOW),
+                seeded.valuesFor("/admin/realms/{realm}/authentication/flows/{flowAlias}/executions"));
+        assertEquals(List.of("r1", "saml-uuid"),
+                seeded.valuesFor("/admin/realms/{realm}/clients/{client-uuid}/evaluate-scopes/generate-example-saml-response"));
+        assertEquals(List.of("r1", "client-uuid"),
+                seeded.valuesFor("/admin/realms/{realm}/clients/{client-uuid}/evaluate-scopes/generate-example-id-token"));
+    }
+
+    @Test
+    void nestedEntitiesAreBoundToTheirOwnSeeds() {
+        PathValues seeded = new PathValues(new SeededRealm(null, "r1", Map.of(
+                SeededRealm.CLIENT_ID, "client-uuid",
+                SeededRealm.CLIENT_SCOPE_ID, "scope-uuid",
+                SeededRealm.CLIENT_MAPPER_ID, "client-mapper",
+                SeededRealm.SCOPE_MAPPER_ID, "scope-mapper",
+                SeededRealm.EXECUTION_ID, "execution",
+                SeededRealm.AUTH_CONFIG_ID, "config"), List.of()));
+
+        assertEquals(List.of("r1", "client-uuid", "client-mapper"),
+                seeded.valuesFor("/admin/realms/{realm}/clients/{client-uuid}/protocol-mappers/models/{id}"));
+        assertEquals(List.of("r1", "scope-uuid", "scope-mapper"),
+                seeded.valuesFor("/admin/realms/{realm}/client-scopes/{client-scope-id}/protocol-mappers/models/{id}"));
+        assertEquals(List.of("r1", "execution", "config"),
+                seeded.valuesFor("/admin/realms/{realm}/authentication/executions/{executionId}/config/{id}"));
+    }
+
+    @Test
     void prefixCollapsesEarlierVariables() {
         assertEquals("/admin/realms/{}/clients/{}/roles/", PathValues.prefixBefore("/admin/realms/{a}/clients/{b}/roles/{c}", 2));
     }

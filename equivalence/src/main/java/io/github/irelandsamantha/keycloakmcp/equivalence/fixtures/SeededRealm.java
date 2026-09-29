@@ -22,14 +22,28 @@ public final class SeededRealm implements AutoCloseable {
     public static final String SUB_GROUP_ID = "subGroupId";
     public static final String CLIENT_SCOPE_ID = "clientScopeId";
     public static final String CLIENT_TEMPLATE_ID = "clientTemplateId";
+    /** The confidential client with authorization services every client-scoped path addresses. */
     public static final String CLIENT_ID = "clientUuid";
     public static final String CLIENT_ROLE = "clientRoleName";
+    public static final String PUBLIC_CLIENT_ID = "publicClientUuid";
+    public static final String BEARER_CLIENT_ID = "bearerOnlyClientUuid";
+    public static final String SAML_CLIENT_ID = "samlClientUuid";
+    public static final String CLIENT_MAPPER_ID = "clientProtocolMapperId";
+    public static final String SCOPE_MAPPER_ID = "clientScopeProtocolMapperId";
+    public static final String TEMPLATE_MAPPER_ID = "clientTemplateProtocolMapperId";
+    /** The disabled LDAP user-storage component: the only kind with sub-component types. */
     public static final String COMPONENT_ID = "componentId";
+    public static final String KEY_PROVIDER_ID = "keyProviderId";
+    public static final String FLOW_ID = "flowId";
+    /** An execution of the seeded flow that carries {@link #AUTH_CONFIG_ID}. */
     public static final String EXECUTION_ID = "executionId";
+    public static final String AUTH_CONFIG_ID = "authenticatorConfigId";
     public static final String IDP = "idpAlias";
+    public static final String IDP_MAPPER_ID = "idpMapperId";
     public static final String ORG_ID = "orgId";
     public static final String ORG_MEMBER = "orgMember";
     public static final String ORG_GROUP_ID = "orgGroupId";
+    public static final String INVITATION_ID = "invitationId";
     public static final String WORKFLOW_ID = "workflowId";
     public static final String RESOURCE_ID = "resourceId";
     public static final String SCOPE_ID = "scopeId";
