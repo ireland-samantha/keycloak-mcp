@@ -36,9 +36,12 @@ public final class GroupsFamily implements MutationFamily {
     private static final String CLIENT_MAPPINGS = "/admin/realms/{realm}/groups/{group-id}/role-mappings/clients/{client-id}";
     private static final String DEFAULT_GROUP = "/admin/realms/{realm}/default-groups/{groupId}";
 
-    /** Mapping a role, or making a group default, again changes nothing, so the inverse can undo more than was done. */
-    private static final String ASSOCIATION = "when the association already held, the inverse request would remove"
-            + " one that existed before the operation";
+    /**
+     * Mapping a role or making a group default when it already is, or the reverse when it is not, changes nothing;
+     * the inverse would.
+     */
+    private static final String ASSOCIATION = "a request that finds the association already as it asks changes nothing,"
+            + " yet its inverse would still change it";
 
     private static final Readback TOP_LEVEL = Readback.of("GET /admin/realms/{realm}/groups",
             r -> CaseArgs.path(r.realm()).withQuery("briefRepresentation", "false"));
@@ -115,6 +118,8 @@ public final class GroupsFamily implements MutationFamily {
                         .build(),
                 MutationCase.of(DELETE, "delete a group")
                         .args(r -> CaseArgs.path(r.realm(), r.id(group(GAMMA))))
+                        .compensatedBy(r -> new CaseRequest(CREATE, CaseArgs.path(r.realm()).withBody(Json.read("""
+                                {"name": "gamma"}"""))))
                         .readback(TOP_LEVEL)
                         .readback(groupById(GAMMA))
                         .irreversible("the group is gone with its memberships and role mappings; a re-created one has"
@@ -140,12 +145,15 @@ public final class GroupsFamily implements MutationFamily {
                         .build(),
                 MutationCase.of("PUT " + DEFAULT_GROUP, "make a group default")
                         .args(r -> CaseArgs.path(r.realm(), r.id(group(GAMMA))))
+                        .compensatedBy(GroupsFamily::makeGammaDefault)
                         .readback(DEFAULT_GROUPS)
-                        .irreversible(ASSOCIATION + " (RealmAdminResource.java:1259-1270)")
+                        .irreversible(ASSOCIATION + " (RealmAdminResource.java:1259-1270); the only compensation"
+                                + " keycloak-mcp takes for a PUT, one to the same path, makes the group default again")
                         .build(),
                 MutationCase.of("DELETE " + DEFAULT_GROUP, "stop a group being default")
                         .setup(r -> r.send("PUT", "default-groups/" + r.id(group(GAMMA)), null))
                         .args(r -> CaseArgs.path(r.realm(), r.id(group(GAMMA))))
+                        .compensatedBy(GroupsFamily::makeGammaDefault)
                         .readback(DEFAULT_GROUPS)
                         .irreversible(ASSOCIATION + " (RealmAdminResource.java:1282-1293)")
                         .build(),
@@ -159,6 +167,8 @@ public final class GroupsFamily implements MutationFamily {
                 MutationCase.of("DELETE " + REALM_MAPPINGS, "unmap a realm role")
                         .setup(r -> r.send("POST", "groups/" + r.id(group(ALPHA)) + "/role-mappings/realm", realmRoles(r)))
                         .args(r -> CaseArgs.path(r.realm(), r.id(group(ALPHA))).withBody(realmRoles(r)))
+                        .compensatedBy(r -> new CaseRequest("POST " + REALM_MAPPINGS,
+                                CaseArgs.path(r.realm(), r.id(group(ALPHA))).withBody(realmRoles(r))))
                         .readback(realmMappingsOf(ALPHA))
                         .irreversible(ASSOCIATION + " (RoleMapperResource.java:322-357)")
                         .build(),
@@ -173,9 +183,15 @@ public final class GroupsFamily implements MutationFamily {
                         .setup(r -> r.send("POST", "groups/" + r.id(group(ALPHA)) + "/role-mappings/clients/"
                                 + r.id(client(CLIENT)), clientRoles(r)))
                         .args(r -> CaseArgs.path(r.realm(), r.id(group(ALPHA)), r.id(client(CLIENT))).withBody(clientRoles(r)))
+                        .compensatedBy(r -> new CaseRequest("POST " + CLIENT_MAPPINGS,
+                                CaseArgs.path(r.realm(), r.id(group(ALPHA)), r.id(client(CLIENT))).withBody(clientRoles(r))))
                         .readback(clientMappingsOf(ALPHA))
                         .irreversible(ASSOCIATION + " (ClientRoleMappingsResource.java:211-243)")
                         .build());
+    }
+
+    private static CaseRequest makeGammaDefault(CaseContext realm) {
+        return new CaseRequest("PUT " + DEFAULT_GROUP, CaseArgs.path(realm.realm(), realm.id(group(GAMMA))));
     }
 
     private static Readback groupById(String path) {

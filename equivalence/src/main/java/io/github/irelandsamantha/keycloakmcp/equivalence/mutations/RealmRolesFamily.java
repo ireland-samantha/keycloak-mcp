@@ -27,9 +27,9 @@ public final class RealmRolesFamily implements MutationFamily {
     private static final String BY_NAME = "/admin/realms/{realm}/roles/{role-name}";
     private static final String BY_ID = "/admin/realms/{realm}/roles-by-id/{role-id}";
 
-    /** Adding a composite a role already has changes nothing, so the inverse DELETE can undo more than was done. */
-    private static final String ASSOCIATION = "when the composite was already there, the inverse request would remove"
-            + " one that existed before the operation (RoleResource.java:123-141, 157-174)";
+    /** Adding a composite a role already has, or removing one it lacks, changes nothing; the inverse would. */
+    private static final String ASSOCIATION = "a request that finds the composites already as it asks changes nothing,"
+            + " yet its inverse would still change them (RoleResource.java:123-141, 157-174)";
 
     /**
      * Paged, because only the paged query orders roles by name (RoleContainerResource.java:140-143,
@@ -88,6 +88,7 @@ public final class RealmRolesFamily implements MutationFamily {
                         .build(),
                 MutationCase.of("DELETE " + BY_NAME, "delete a role by name")
                         .args(r -> byName(r, AUDITOR))
+                        .compensatedBy(RealmRolesFamily::recreateAuditor)
                         .readback(ROLES)
                         .irreversible("the role is gone with every mapping and composite that used it; a re-created"
                                 + " one has a new id (RoleContainerResource.java:293-317)")
@@ -103,6 +104,8 @@ public final class RealmRolesFamily implements MutationFamily {
                 MutationCase.of("DELETE " + BY_NAME + "/composites", "remove composites by name")
                         .setup(RealmRolesFamily::writerComposites)
                         .args(r -> byName(r, WRITER).withBody(composites(r)))
+                        .compensatedBy(r -> new CaseRequest("POST " + BY_NAME + "/composites",
+                                byName(r, WRITER).withBody(composites(r))))
                         .readback(ROLES)
                         .readback(compositesOf(WRITER))
                         .irreversible(ASSOCIATION)
@@ -124,6 +127,7 @@ public final class RealmRolesFamily implements MutationFamily {
                         .build(),
                 MutationCase.of("DELETE " + BY_ID, "delete a role by id")
                         .args(r -> byId(r, AUDITOR))
+                        .compensatedBy(RealmRolesFamily::recreateAuditor)
                         .readback(ROLES)
                         .irreversible("the role is gone with every mapping and composite that used it; a re-created"
                                 + " one has a new id (RoleByIdResource.java:133-152)")
@@ -139,6 +143,8 @@ public final class RealmRolesFamily implements MutationFamily {
                 MutationCase.of("DELETE " + BY_ID + "/composites", "remove composites by id")
                         .setup(RealmRolesFamily::writerComposites)
                         .args(r -> byId(r, WRITER).withBody(composites(r)))
+                        .compensatedBy(r -> new CaseRequest("POST " + BY_ID + "/composites",
+                                byId(r, WRITER).withBody(composites(r))))
                         .readback(ROLES)
                         .readback(compositesOf(WRITER))
                         .irreversible(ASSOCIATION)
@@ -185,6 +191,12 @@ public final class RealmRolesFamily implements MutationFamily {
         return Json.read("""
                 [{"id": "%s", "name": "%s"}, {"id": "%s", "name": "%s"}]""".formatted(realm.id(role(READER)), READER,
                 realm.id(clientRole(CLIENT, CLIENT_ROLE)), CLIENT_ROLE));
+    }
+
+    /** The undo a client would offer for deleting {@code auditor}: creating a role of that name again. */
+    private static CaseRequest recreateAuditor(CaseContext realm) {
+        return new CaseRequest("POST /admin/realms/{realm}/roles", CaseArgs.path(realm.realm()).withBody(Json.read("""
+                {"name": "auditor"}""")));
     }
 
     private static void writerComposites(CaseContext realm) {
