@@ -1,9 +1,11 @@
 import { test } from 'node:test';
 import { assertRefusedOffline, startScenario, WRITER } from '../support/scenario.js';
+import { base64 } from '../support/encodings.js';
 import { createStep, readRealm } from '../support/steps.js';
 
 const IRREVERSIBLE = { ...WRITER, KEYCLOAK_MCP_ALLOW_IRREVERSIBLE: 'true' };
 const user = { 'user-id': 'user-1' };
+const password = JSON.stringify({ credentials: [{ type: 'password', value: 'Chosen-Password-1', temporary: false }] });
 const groupCreate = createStep('groups', 'group-id', { name: 'gated' });
 const groupDelete = { operation: 'DELETE /admin/realms/{realm}/groups/{group-id}', args: { path: { 'group-id': 'group-1' } } };
 const sameResourceUpdate = (operation, path, body, before = {}) =>
@@ -39,6 +41,14 @@ const bodyHazards = [
   ['G7 a password set through the user representation needs the irreversible override', 'SEC-2', WRITER,
     workflow(sameResourceUpdate('PUT /admin/realms/{realm}/users/{user-id}', user,
       { credentials: [{ type: 'password', value: 'Chosen-Password-1', temporary: false }] })), /^step 1 is irreversible and requires an explicit override: .*\[sets-credentials\]/],
+  ['G7 a password body sent as UTF-16 bodyBase64, which Keycloak reads, needs the irreversible override', 'SEC-2', WRITER,
+    workflow({ operation: 'PUT /admin/realms/{realm}/users/{user-id}', args: { path: user, bodyBase64: base64(Buffer.from(password, 'utf16le')) },
+      compensate: { operation: 'PUT /admin/realms/{realm}/users/{user-id}', args: { path: user, body: {} } } }),
+    /^step 1 is irreversible and requires an explicit override: .*\[sets-credentials\]/],
+  ['G7 a JSON body keycloak-mcp cannot read as Keycloak does needs the irreversible override', 'SEC-2', WRITER,
+    workflow({ operation: 'PUT /admin/realms/{realm}/users/{user-id}', args: { path: user, bodyBase64: base64(Buffer.from(`${password} trailing`)) },
+      compensate: { operation: 'PUT /admin/realms/{realm}/users/{user-id}', args: { path: user, body: {} } } }),
+    /^step 1 is irreversible and requires an explicit override: \[unreadable-body\]/],
   ['G7 a client secret set through the client representation needs the irreversible override', 'SEC-2', WRITER,
     workflow(sameResourceUpdate('PUT /admin/realms/{realm}/clients/{client-uuid}', { 'client-uuid': 'client-1' }, { secret: 'chosen-secret' })),
     /^step 1 is irreversible and requires an explicit override: .*\[sets-secret\]/],

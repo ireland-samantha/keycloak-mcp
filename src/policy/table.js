@@ -102,10 +102,10 @@ export const IRREVERSIBLE_PATHS = [
 
 // Request bodies that make an otherwise reversible write irreversible, keyed by rule name. A rule covers
 // the operations it lists, or every operation with one of its `methods`. `applies(request)` gets the
-// JSON the request sends as `body`, its path values as `path` (the configured realm as `path.realm`)
-// and `setsSecret()`, whether the body sets a field that SECRET_FIELDS holds secret. A body is judged
-// alone, without reading Keycloak's current state, so a field that would change something counts as
-// changing it: send only the fields an update changes.
+// JSON Keycloak reads from the request as `body`, its path values as `path` (the configured realm as
+// `path.realm`) and `setsSecret()`, whether the body sets a field that SECRET_FIELDS holds secret. A
+// body is judged alone, without reading Keycloak's current state, so a field that would change
+// something counts as changing it: send only the fields an update changes.
 const isSet = value => value !== undefined && value !== null;
 const numberOf = value => Number(JSON.isRawJSON(value) ? value.rawJSON : value);
 const configHas = (body, keys) => keys.some(key => isSet(body?.config?.[key]));
@@ -253,6 +253,15 @@ export const IRREVERSIBLE_BODIES = {
     reason: 'An update that sets a secret field replaces the stored secret, whose previous value keycloak-mcp never shows, so no compensation can put it back. Keycloak\'s own mask sets nothing only where MASKED_SECRET_HOLDERS says so.',
     source: `${RTM}:625-642, :1221-1245; services/resources/admin/IdentityProviderResource.java:212-214`,
   },
+};
+
+// Triggered, in place of the rules above, by a bodyBase64 body sent as JSON that keycloak-mcp cannot
+// read the way Keycloak does (see readJsonBytes), for any operation the rules above cover.
+export const UNREADABLE_BODY = {
+  name: 'unreadable-body',
+  summary: 'the body is not JSON that keycloak-mcp can read the way Keycloak does',
+  reason: 'Keycloak reads JSON bodies with a default Jackson ObjectMapper, which detects UTF-8, UTF-16 and UTF-32 with or without a byte-order mark, decodes overlong UTF-8 and ignores whatever follows the first document; a body the rules cannot read could set anything they look for (SEC-2).',
+  source: 'services/util/ObjectMapperResolver.java:43-67; quarkus/runtime/src/main/java/org/keycloak/quarkus/runtime/integration/jaxrs/QuarkusObjectMapperResolver.java:28-35',
 };
 
 // Holders in which Keycloak never stores its own mask as a secret: a config map keeps the stored value

@@ -1,9 +1,10 @@
 import { defaultCatalog, describeOperation } from '../catalog/index.js';
-import { jsonBodyOf } from '../internal/json.js';
+import { jsonBodyOf, UNREADABLE_JSON } from '../internal/json.js';
+import { isJsonType, requestContentType } from '../internal/media-type.js';
 import { setsSecret } from './redaction.js';
 import {
   GENERATED_ID_PARAMETER, IRREVERSIBLE_BODIES, IRREVERSIBLE_PATHS, NAMED_CREATE_TARGETS, OPERATION_OVERRIDES,
-  RECEIPT_SENSITIVE_PATH_PARAMETER, SENSITIVE_RESPONSE_PATHS, TOKEN_REFRESH_BEFORE_COMPENSATION, UPSERT_CREATES,
+  RECEIPT_SENSITIVE_PATH_PARAMETER, SENSITIVE_RESPONSE_PATHS, TOKEN_REFRESH_BEFORE_COMPENSATION, UNREADABLE_BODY, UPSERT_CREATES,
 } from './table.js';
 
 const READ_METHODS = ['GET', 'HEAD'];
@@ -40,13 +41,21 @@ export function bodyRuleNames(key, operationCatalog = defaultCatalog()) {
   return Object.entries(IRREVERSIBLE_BODIES).filter(([, rule]) => coversOperation(rule, op)).map(([name]) => name);
 }
 
-// The IRREVERSIBLE_BODIES rules that a call with `args` triggers, as [{ name, summary }]. The body is
-// judged as the JSON the request sends; `config` gives the realm and the operator's secret attributes.
-export function irreversibleBodyRules(key, args, config, operationCatalog = defaultCatalog()) {
+// Whether Keycloak reads the call's body as JSON, which decides whether an unreadable bodyBase64 counts.
+function sentAsJson(op, args) {
+  const type = requestContentType(op, args);
+  return typeof type === 'string' && isJsonType(type);
+}
+
+// The IRREVERSIBLE_BODIES rules that a call with `args` triggers, as [{ name, summary }], or UNREADABLE_BODY
+// alone when they cannot judge it. The body is judged as the JSON Keycloak reads; `config` gives the realm
+// and the operator's secret attributes.
+export function irreversibleBodyRules(key, args = {}, config, operationCatalog = defaultCatalog()) {
   const names = bodyRuleNames(key, operationCatalog);
   if (!names.length) return [];
-  const body = jsonBodyOf(args);
-  const request = { body, path: { ...args?.path, realm: config.realm }, setsSecret: () => setsSecret(body, config.secretAttributes) };
+  const body = jsonBodyOf(args, sentAsJson(describeOperation(key, operationCatalog), args));
+  if (body === UNREADABLE_JSON) return [{ name: UNREADABLE_BODY.name, summary: UNREADABLE_BODY.summary }];
+  const request = { body, path: { ...args.path, realm: config.realm }, setsSecret: () => setsSecret(body, config.secretAttributes) };
   return names.filter(name => IRREVERSIBLE_BODIES[name].applies(request)).map(name => ({ name, summary: IRREVERSIBLE_BODIES[name].summary }));
 }
 

@@ -3,6 +3,7 @@ import { test } from 'node:test';
 import { preflight } from '../../src/api.js';
 import { irreversibleBodyRules } from '../../src/policy/classify.js';
 import { testConfig } from '../support/config.js';
+import { base64, utf16be, utf32, withMark } from '../support/encodings.js';
 
 const writer = testConfig({ KEYCLOAK_MCP_ALLOW_WRITE: 'true', KEYCLOAK_MCP_SINGLE_WRITER: 'true', KEYCLOAK_MCP_SECRET_ATTRIBUTES: 'custom.api.key' });
 const override = testConfig({ KEYCLOAK_MCP_ALLOW_WRITE: 'true', KEYCLOAK_MCP_SINGLE_WRITER: 'true', KEYCLOAK_MCP_ALLOW_IRREVERSIBLE: 'true' });
@@ -101,14 +102,66 @@ test('a reversible update body passes preflight with a same-route compensation',
   assert.equal(preflight(writer, [selfCompensated(user, { firstName: 'Ada' })])[0].irreversible, false);
 });
 
-test('a body sent as bodyBase64 is judged by the JSON it carries', () => {
-  const bodyBase64 = Buffer.from(JSON.stringify({ credentials: [{ type: 'password', value: 'Chosen-1' }] })).toString('base64');
-  assert.throws(() => preflight(writer, [{ operation: user[0], args: { path: user[1], bodyBase64 },
-    compensate: { operation: user[0], args: { path: user[1], body: {} } } }]), /irreversible and requires an explicit override: .*\[sets-credentials\]/);
+const password = JSON.stringify({ credentials: [{ type: 'password', value: 'Chosen-1', temporary: false }] });
+const irreversibleCompensation = 'step 1 cannot use an irreversible compensation without a generated-ID or matching created-name binding: ';
+const passwordRules = '[sets-credentials] the body sets credentials; [sets-secret] the body sets a secret';
+const unreadableRule = '[unreadable-body] the body is not JSON that keycloak-mcp can read the way Keycloak does';
+
+// A step sending `bodyBase64` as a user update, compensated by a harmless update of the same user.
+const base64Step = (bodyBase64, compensate = { operation: user[0], args: { path: user[1], body: { firstName: 'Ada' } } }) =>
+  ({ operation: user[0], args: { path: user[1], bodyBase64 }, compensate });
+
+// Keycloak reads a password body in each of these encodings, and HEAD set the password for the byte-order
+// mark and UTF-16LE forms, so each triggers the same rules as the plain body.
+const encodedPasswords = {
+  'UTF-8': Buffer.from(password),
+  'UTF-8 with a byte-order mark': withMark([0xef, 0xbb, 0xbf], Buffer.from(password)),
+  'UTF-16LE': Buffer.from(password, 'utf16le'),
+  'UTF-16BE with a byte-order mark': withMark([0xfe, 0xff], utf16be(password)),
+  'UTF-32LE': utf32(password, 'LE'),
+};
+
+for (const [name, bytes] of Object.entries(encodedPasswords)) {
+  test(`a password sent as bodyBase64 in ${name} is judged by the JSON Keycloak reads`, () => {
+    assert.deepEqual(irreversibleBodyRules(user[0], { path: user[1], bodyBase64: base64(bytes) }, writer).map(rule => rule.name), ['sets-credentials', 'sets-secret']);
+    assert.throws(() => preflight(writer, [base64Step(base64(bytes))]), { message: `step 1 is irreversible and requires an explicit override: ${passwordRules}` });
+  });
+}
+
+// JSON bodies Jackson may read in a way a strict reader cannot follow; any of them could set a password.
+const unreadablePasswords = {
+  'an overlong UTF-8 key': Buffer.concat([Buffer.from('{"'), Buffer.from([0xc1, 0xa3]), Buffer.from(password.slice(3))]),
+  'text after the document': Buffer.from(`${password} trailing`),
+  'no JSON at all': Buffer.from('credentials=Chosen-1'),
+};
+
+for (const [name, bytes] of Object.entries(unreadablePasswords)) {
+  test(`a JSON body with ${name} fails closed as unreadable-body`, () => {
+    assert.deepEqual(irreversibleBodyRules(user[0], { path: user[1], bodyBase64: base64(bytes) }, writer).map(rule => rule.name), ['unreadable-body']);
+    assert.throws(() => preflight(writer, [base64Step(base64(bytes))]), { message: `step 1 is irreversible and requires an explicit override: ${unreadableRule}` });
+    assert.equal(preflight(override, [{ ...base64Step(base64(bytes)), irreversible: true }])[0].irreversible, true);
+  });
+}
+
+test('a UTF-16 body that sets nothing hazardous stays reversible', () => {
+  assert.equal(preflight(writer, [base64Step(base64(Buffer.from('{"firstName":"Ada"}', 'utf16le')))])[0].irreversible, false);
+});
+
+test('a text body sent as bodyBase64 is not judged as JSON', () => {
+  const label = ['PUT /admin/realms/{realm}/users/{user-id}/credentials/{credentialId}/userLabel', { 'user-id': 'u', credentialId: 'c' }];
+  const args = { path: label[1], bodyBase64: base64(Buffer.from('laptop key')) };
+  assert.deepEqual(irreversibleBodyRules(label[0], args, writer), []);
+  assert.equal(preflight(writer, [{ operation: label[0], args, compensate: { operation: label[0], args: { path: label[1], body: 'old label' } } }])[0].irreversible, false);
 });
 
 test('an update compensated by a body that is itself irreversible is refused', () => {
   assert.throws(() => preflight(writer, [{ operation: user[0], args: { path: user[1], body: { firstName: 'Ada' } },
     compensate: { operation: user[0], args: { path: user[1], body: { credentials: [{ type: 'password', value: 'Old-1' }] } } } }]),
-  { message: 'step 1 cannot use an irreversible compensation without a generated-ID or matching created-name binding: [sets-credentials] the body sets credentials; [sets-secret] the body sets a secret' });
+  { message: `${irreversibleCompensation}${passwordRules}` });
+});
+
+test('a compensation body is read as Keycloak reads it, and refused when it cannot be', () => {
+  const compensate = bytes => base64Step(base64(Buffer.from('{"firstName":"Ada"}')), { operation: user[0], args: { path: user[1], bodyBase64: base64(bytes) } });
+  assert.throws(() => preflight(writer, [compensate(Buffer.from(password, 'utf16le'))]), { message: `${irreversibleCompensation}${passwordRules}` });
+  assert.throws(() => preflight(writer, [compensate(unreadablePasswords['an overlong UTF-8 key'])]), { message: `${irreversibleCompensation}${unreadableRule}` });
 });
