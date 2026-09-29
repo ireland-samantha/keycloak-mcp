@@ -17,6 +17,13 @@ export function completedReceipt(completed) {
     status: item.status, compensation: item.compensate?.operation ?? null, compensationPath: receiptPath(item.compensate?.args) }));
 }
 
+// A rename is durable only once the directory holding it is: without this, a power loss can leave the
+// previous receipt, or none, in place of the one just written.
+function syncDirectory(directory) {
+  const fd = openSync(directory, 'r');
+  try { fsyncSync(fd); } finally { closeSync(fd); }
+}
+
 // A private receipt file per run, replaced atomically on every write so a crash leaves the last state.
 export function openJournal(config, plan) {
   const directory = config.journalDir || join(homedir(), '.local', 'state', 'keycloak-mcp');
@@ -35,6 +42,7 @@ export function openJournal(config, plan) {
         fsyncSync(fd);
       } finally { closeSync(fd); }
       renameSync(temporary, file);
+      syncDirectory(directory);
     },
   };
 }
