@@ -1,7 +1,7 @@
 import { readPrivateJson } from '../internal/private-file.js';
 import { loadBundled } from './bundled.js';
 import { pathParameterNames } from '../internal/path-template.js';
-import { correctionForDefinitionPath, correctionForPath, requestBodyCorrection } from './corrections.js';
+import { correctionForDefinitionPath, correctionForPath, operationParameters, requestBodyCorrection } from './corrections.js';
 import { parseExtensionCatalog } from './extension.js';
 
 function withCorrectedPath(version, op) {
@@ -68,14 +68,15 @@ export function describeOperation(key, operationCatalog = defaultCatalog()) {
   if (!op) throw new Error('operation is not in the pinned Keycloak catalog');
   if (op.extension) return op;
   const pathCorrection = correctionForPath(operationCatalog.version, op.path);
-  const path = operationCatalog.openapi.paths[pathCorrection?.definitionPath ?? op.path];
+  const definitionPath = pathCorrection?.definitionPath ?? op.path;
+  const path = operationCatalog.openapi.paths[definitionPath];
   const detail = path?.[op.method.toLowerCase()];
   if (!detail) throw new Error('operation is absent from the bundled OpenAPI definition');
   const correction = requestBodyCorrection(operationCatalog.version, key, detail);
   const correctedParameters = pathCorrection ? [{ name: pathCorrection.parameter, in: 'path', required: true, schema: { type: 'string' } }] : [];
   return {
     ...op,
-    parameters: [...(path.parameters ?? []), ...(detail.parameters ?? []), ...correctedParameters],
+    parameters: [...operationParameters(definitionPath, path, detail), ...correctedParameters],
     requestTypes: correction?.requestTypes ?? op.requestTypes,
     requestBody: detail.requestBody ?? correction?.requestBody ?? null,
     responses: detail.responses ?? {},

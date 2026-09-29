@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { PATH_PARAMETER_CORRECTIONS, REQUEST_BODY_CORRECTIONS } from '../../src/catalog/corrections.js';
+import { IGNORED_PATH_ITEM_PARAMETERS, PATH_PARAMETER_CORRECTIONS, REQUEST_BODY_CORRECTIONS } from '../../src/catalog/corrections.js';
 import { createCatalog } from '../../src/catalog/index.js';
 import * as table from '../../src/policy/table.js';
 import { catalogVersions } from '../support/catalog.js';
@@ -11,7 +11,8 @@ const rules = Object.entries(table).flatMap(([name, value]) => ('reason' in valu
 
 test('every policy and catalog-correction rule states its reason and the Keycloak source behind it', () => {
   const all = [...rules, ...REQUEST_BODY_CORRECTIONS.map((rule, index) => [`REQUEST_BODY_CORRECTIONS ${index}`, rule]),
-    ...PATH_PARAMETER_CORRECTIONS.map((rule, index) => [`PATH_PARAMETER_CORRECTIONS ${index}`, rule])];
+    ...PATH_PARAMETER_CORRECTIONS.map((rule, index) => [`PATH_PARAMETER_CORRECTIONS ${index}`, rule]),
+    ...IGNORED_PATH_ITEM_PARAMETERS.map((rule, index) => [`IGNORED_PATH_ITEM_PARAMETERS ${index}`, rule])];
   assert.ok(all.length > 30, `${all.length} rules`);
   for (const [name, rule] of all) {
     assert.ok(typeof rule.reason === 'string' && rule.reason.length > 10, `${name} reason`);

@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto';
 import { writeFile } from 'node:fs/promises';
+import { operationParameters } from '../src/catalog/corrections.js';
 const methods = new Set(['get', 'post', 'put', 'patch', 'delete', 'head', 'options', 'trace']);
 for (const [version, suffix] of [['latest', ''], ['26.3.5', '-26.3.5']]) {
   const source = `https://www.keycloak.org/docs-api/${version}/rest-api/openapi.json`;
@@ -11,7 +12,7 @@ for (const [version, suffix] of [['latest', ''], ['26.3.5', '-26.3.5']]) {
   const operations = Object.entries(spec.paths).flatMap(([path, item]) => Object.entries(item).filter(([method]) => methods.has(method)).map(([method, op]) => ({
     key: `${method.toUpperCase()} ${path}`, method: method.toUpperCase(), path,
     summary: op.summary ?? '', description: op.description ?? '', tags: op.tags ?? [],
-    parameters: [...(item.parameters ?? []), ...(op.parameters ?? [])].filter(p => p.name && p.in).map(p => ({ name: p.name, in: p.in, required: p.required ?? false, type: p.schema?.type ?? 'string' })),
+    parameters: operationParameters(path, item, op).filter(p => p.name && p.in).map(p => ({ name: p.name, in: p.in, required: p.required ?? false, type: p.schema?.type ?? 'string' })),
     requestTypes: Object.keys(op.requestBody?.content ?? {}),
     responseTypes: [...new Set(Object.values(op.responses ?? {}).flatMap(r => Object.keys(r.content ?? {})))].sort(),
   })));

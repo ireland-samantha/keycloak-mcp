@@ -51,6 +51,32 @@ export const PATH_PARAMETER_CORRECTIONS = [
   },
 ];
 
+// Query parameters a definition declares on a path item although the operations under it do not read
+// them. An operation that declares one itself keeps it; for the others it is dropped, so a caller is
+// refused instead of sending a filter Keycloak silently ignores.
+export const IGNORED_PATH_ITEM_PARAMETERS = [
+  {
+    pathPrefix: '/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/resource',
+    in: 'query',
+    names: ['_id', 'deep', 'exactName', 'first', 'matchingUri', 'max', 'name', 'owner', 'scope', 'type', 'uri'],
+    reason: 'Keycloak\'s generated definition copies the query parameters of ResourceSetService\'s public find overload, which has no HTTP-method annotation, onto every path item of the authorization resource collection. Only the collection GET, which declares them itself, reads them, and the search GET reads name alone; the create, the get, update and delete by ID and the attributes, scopes and permissions reads read none (surface-04).',
+    source: 'authorization/admin/ResourceSetService.java:105-116, :158-222, :231-360, :362-374, :391-422',
+  },
+];
+
+const coversPath = (prefix, path) => path === prefix || path.startsWith(`${prefix}/`);
+const isIgnored = (definitionPath, parameter) => IGNORED_PATH_ITEM_PARAMETERS.some(rule =>
+  coversPath(rule.pathPrefix, definitionPath) && rule.in === parameter.in && rule.names.includes(parameter.name));
+
+// The OpenAPI parameters of one operation: its path item's, less those the operation redeclares (a
+// parameter is identified by name and location, and the operation's own overrides the path item's) and
+// those IGNORED_PATH_ITEM_PARAMETERS drops, followed by the operation's own.
+export function operationParameters(definitionPath, pathItem, operation) {
+  const own = operation.parameters ?? [];
+  const redeclared = parameter => own.some(item => item.name === parameter.name && item.in === parameter.in);
+  return [...(pathItem.parameters ?? []).filter(parameter => !redeclared(parameter) && !isIgnored(definitionPath, parameter)), ...own];
+}
+
 const appliesTo = (correction, version) => correction.versions.includes(version);
 
 // The correction for an operation path as the bundled definition spells it.
