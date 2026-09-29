@@ -15,7 +15,6 @@ import io.github.irelandsamantha.keycloakmcp.equivalence.harness.EquivalenceEnvi
 import io.github.irelandsamantha.keycloakmcp.equivalence.harness.KeycloakMcpProcess;
 import io.github.irelandsamantha.keycloakmcp.equivalence.harness.KeycloakMcpReads;
 import io.github.irelandsamantha.keycloakmcp.equivalence.harness.KeycloakMcpReads.Classification;
-import io.github.irelandsamantha.keycloakmcp.equivalence.harness.McpStdioClient;
 import io.github.irelandsamantha.keycloakmcp.equivalence.harness.RawHttp;
 import io.github.irelandsamantha.keycloakmcp.equivalence.ledger.EquivalenceLedger.Check;
 import io.github.irelandsamantha.keycloakmcp.equivalence.ledger.Verdict;
@@ -70,10 +69,6 @@ class ReadEquivalenceIT {
 
     /** F1 outcome of a catalog operation keycloak-mcp neither accepts as a read nor refuses as a mutation. */
     private static final String CLASSIFICATION_UNKNOWN = "CLASSIFICATION_UNKNOWN";
-
-    /** Operations every catalog lists whose classification is beyond doubt; see {@link #requireClassificationSignals}. */
-    private static final String KNOWN_MUTATION = "DELETE /admin/realms/{realm}";
-    private static final String KNOWN_READ = "GET /admin/realms/{realm}";
 
     /**
      * One operation as F1 reads it: its reference definition, the catalog's when keycloak-mcp lists it, and the
@@ -161,14 +156,8 @@ class ReadEquivalenceIT {
      * a changed refusal text, check order or argument validation must stop the run, not turn mutations into reads.
      */
     private static void requireClassificationSignals() throws Exception {
-        JsonNode noArguments = McpStdioClient.JSON.createObjectNode();
-        Classification mutation = KeycloakMcpReads.classify(mcp.client(), KNOWN_MUTATION, noArguments);
-        Classification read = KeycloakMcpReads.classify(mcp.client(), KNOWN_READ, noArguments);
-        if (mutation.kind() != Classification.Kind.MUTATION || read.kind() != Classification.Kind.READ) {
-            fail("keycloak-mcp's dry run no longer tells a mutation from a read the way KeycloakMcpReads expects, so F1"
-                    + " sends nothing. " + KNOWN_MUTATION + " classified " + mutation.kind() + " (" + mutation.answer()
-                    + "), " + KNOWN_READ + " classified " + read.kind() + " (" + read.answer() + ")");
-        }
+        KeycloakMcpReads.brokenSignals(mcp.client()).ifPresent(answers -> fail("keycloak-mcp's dry run no longer tells a"
+                + " mutation from a read the way KeycloakMcpReads expects, so F1 sends nothing. " + answers));
     }
 
     /**

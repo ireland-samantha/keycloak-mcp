@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.github.irelandsamantha.keycloakmcp.equivalence.compare.Observation;
 
 import java.io.IOException;
+import java.util.Optional;
 import java.util.concurrent.TimeoutException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -30,6 +31,10 @@ public final class KeycloakMcpReads {
 
     private static final Pattern HTTP_STATUS = Pattern.compile("\\bHTTP (\\d{3})\\b");
 
+    /** Operations every catalog lists whose classification is beyond doubt; see {@link #brokenSignals}. */
+    private static final String KNOWN_MUTATION = "DELETE /admin/realms/{realm}";
+    private static final String KNOWN_READ = "GET /admin/realms/{realm}";
+
     /** How keycloak-mcp classified an operation, with its answer verbatim. */
     public record Classification(Kind kind, String answer) {
         public enum Kind { READ, MUTATION, UNKNOWN }
@@ -49,6 +54,22 @@ public final class KeycloakMcpReads {
         ObjectNode call = McpStdioClient.JSON.createObjectNode().put("execute", false);
         call.putArray("steps").addObject().put("operation", operation).set("args", args);
         return classification(mcp.callTool("keycloak_workflow", call));
+    }
+
+    /**
+     * Empty while keycloak-mcp's dry run still classifies a known mutation and a known read as such; otherwise both
+     * answers. A check that sends what {@link #classify} calls a read, or skips what it calls a mutation, must stop on
+     * a changed refusal text, check order or argument validation instead of misfiling operations.
+     */
+    public static Optional<String> brokenSignals(McpStdioClient mcp) throws IOException, InterruptedException, TimeoutException {
+        JsonNode noArguments = McpStdioClient.JSON.createObjectNode();
+        Classification mutation = classify(mcp, KNOWN_MUTATION, noArguments);
+        Classification read = classify(mcp, KNOWN_READ, noArguments);
+        if (mutation.kind() == Classification.Kind.MUTATION && read.kind() == Classification.Kind.READ) {
+            return Optional.empty();
+        }
+        return Optional.of(KNOWN_MUTATION + " classified " + mutation.kind() + " (" + mutation.answer() + "), "
+                + KNOWN_READ + " classified " + read.kind() + " (" + read.answer() + ")");
     }
 
     static Classification classification(McpStdioClient.ToolResult dryRun) {
