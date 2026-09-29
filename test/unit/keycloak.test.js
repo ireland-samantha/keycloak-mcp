@@ -7,18 +7,19 @@ import { buildRequest } from '../../src/http/request.js';
 import { execute } from '../../src/internal/capabilities.js';
 import { isMutation } from '../../src/policy/classify.js';
 import openclaw from '../../openclaw/index.js';
-import { samplePathArgs } from '../support/catalog.js';
+import { catalogVersions, samplePathArgs } from '../support/catalog.js';
 import { testConfig, testEnv } from '../support/config.js';
 import { jsonResponse, tokenResponse } from '../support/fetch.js';
 import { privateTempDir, writePrivateJson } from '../support/temp.js';
 
+// Operation counts are pinned once, in catalog-contract.test.js.
 test('catalog has one unique route for every pinned operation', () => {
   const page = listOperations({ limit: 100 });
-  assert.equal(page.total, 413);
+  assert.equal(page.total, createCatalog('', 'latest').operations.length);
   const keys = [];
   for (let offset = 0; offset < page.total; offset += 100) keys.push(...listOperations({ offset, limit: 100 }).operations.map(op => op.key));
   assert.equal(keys.length, new Set(keys).size);
-  assert.equal(keys.length, 413);
+  assert.equal(keys.length, page.total);
   assert.deepEqual(describeOperation('GET /admin/realms/{realm}/clients').tags, ['Clients']);
   const clientCreate = describeOperation('POST /admin/realms/{realm}/clients');
   assert.equal(clientCreate.requestBody.content['application/json'].schema.$ref, '#/components/schemas/ClientRepresentation');
@@ -29,20 +30,20 @@ test('catalog has one unique route for every pinned operation', () => {
 
 test('versioned Keycloak 26.3.5 catalog matches the deployed API shape', () => {
   const versioned = createCatalog('', '26.3.5');
-  assert.equal(listOperations({}, versioned).total, 374);
+  assert.equal(listOperations({}, versioned).total, versioned.operations.length);
   assert.equal(versioned.version, '26.3.5');
   assert.ok(describeOperation('GET /admin/realms/{realm}/clients/{client-uuid}/roles/{role-name}/composites/clients/{targetClientUuid}', versioned));
   assert.throws(() => describeOperation('GET /admin/realms/{realm}/workflows', versioned), /not in/);
   const config = testConfig({ KEYCLOAK_MCP_ALLOW_WRITE: 'true', KEYCLOAK_MCP_ALLOW_REALM_ADMIN: 'true', KEYCLOAK_MCP_CATALOG_VERSION: '26.3.5' });
   const admin = new KeycloakAdmin(config, () => { throw new Error('network not expected'); });
-  assert.equal(admin.catalog.operations.length, 374);
+  assert.deepEqual(admin.catalog.operations.map(op => op.key), versioned.operations.map(op => op.key));
   let built = 0;
   for (const op of versioned.operations) {
     const path = samplePathArgs(op);
     assert.equal(new URL(buildRequest(config, op.key, { path }, versioned).url).origin, 'https://id.example.com');
     built += 1;
   }
-  assert.equal(built, 374);
+  assert.equal(built, versioned.operations.length);
   assert.throws(() => createCatalog('', 'unreviewed'), /unsupported/);
 });
 
@@ -87,8 +88,9 @@ test('client description conversion is callable as a read without enabling write
 
 test('every catalog route can be built without leaving the configured Keycloak origin', () => {
   const config = testConfig({ KEYCLOAK_MCP_ALLOW_WRITE: 'true', KEYCLOAK_MCP_ALLOW_REALM_ADMIN: 'true' });
+  const { total } = listOperations({ limit: 1 });
   let built = 0;
-  for (let offset = 0; offset < 413; offset += 100) {
+  for (let offset = 0; offset < total; offset += 100) {
     for (const item of listOperations({ offset, limit: 100 }).operations) {
       const op = describeOperation(item.key);
       const path = samplePathArgs(op);
@@ -98,13 +100,13 @@ test('every catalog route can be built without leaving the configured Keycloak o
       built += 1;
     }
   }
-  assert.equal(built, 413);
+  assert.equal(built, total);
 });
 
 test('declared JSON, form, multipart, and text request types are serializable', () => {
   const config = testConfig({ KEYCLOAK_MCP_ALLOW_WRITE: 'true', KEYCLOAK_MCP_ALLOW_REALM_ADMIN: 'true' });
   const found = new Set();
-  for (let offset = 0; offset < 413; offset += 100) {
+  for (let offset = 0; offset < listOperations({ limit: 1 }).total; offset += 100) {
     for (const item of listOperations({ offset, limit: 100 }).operations) {
       const op = describeOperation(item.key);
       const path = samplePathArgs(op);
@@ -125,10 +127,10 @@ test('declared JSON, form, multipart, and text request types are serializable', 
   assert.equal(repeated.body, 'value=one&value=two');
 });
 
-test('every declared query and request type builds in both official catalogs', () => {
+test('every declared query and request type builds in every bundled catalog', () => {
   const config = testConfig({ KEYCLOAK_MCP_ALLOW_WRITE: 'true', KEYCLOAK_MCP_ALLOW_REALM_ADMIN: 'true' });
   const counts = {};
-  for (const version of ['latest', '26.3.5']) {
+  for (const version of catalogVersions) {
     const catalog = createCatalog('', version);
     let queryChecks = 0;
     let bodyChecks = 0;
@@ -149,8 +151,7 @@ test('every declared query and request type builds in both official catalogs', (
     }
     counts[version] = { queryChecks, bodyChecks };
   }
-  assert.ok(counts.latest.queryChecks > 0 && counts['26.3.5'].queryChecks > 0);
-  assert.ok(counts.latest.bodyChecks > 0 && counts['26.3.5'].bodyChecks > 0);
+  for (const version of catalogVersions) assert.ok(counts[version].queryChecks > 0 && counts[version].bodyChecks > 0, version);
 });
 
 test('private JSON config is loaded; group-readable credentials are rejected', () => {
@@ -181,7 +182,7 @@ test('private SPI catalog is realm pinned and excludes user-token routes from se
   const config = testConfig({ KEYCLOAK_MCP_EXTENSION_CATALOG: file });
   const admin = new KeycloakAdmin(config, async (url) => url.endsWith('/token')
     ? tokenResponse() : jsonResponse(200, { realm: 'test-realm' }));
-  assert.equal(listOperations({}, admin.catalog).total, 416);
+  assert.equal(listOperations({}, admin.catalog).total, createCatalog('', 'latest').operations.length + operations.length);
   assert.equal((await admin.invoke('GET /realms/{realm}/sample')).status, 200);
   await assert.rejects(() => admin.invoke('GET /realms/{realm}/sample/user'), /non-service-account/);
   await assert.rejects(() => admin.invoke('POST /realms/{realm}/sample/rotate'), /compensating workflow/);

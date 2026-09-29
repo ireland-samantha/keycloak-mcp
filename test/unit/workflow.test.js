@@ -138,10 +138,10 @@ test('named create rollback deletes the created role by ID and the identity prov
 });
 
 test('existing-resource deletes and external actions require an irreversible override', () => {
-  for (const [version, expectedDeletes] of [['latest', 63], ['26.3.5', 57]]) {
+  for (const version of catalogVersions) {
     const catalog = createCatalog('', version);
     const deletes = catalog.operations.filter(operation => operation.method === 'DELETE');
-    assert.equal(deletes.length, expectedDeletes);
+    assert.ok(deletes.length > 0, version);
     assert.ok(deletes.every(operation => isIrreversible(operation.key, catalog)));
     for (const key of [
       'GET /admin/realms/{realm}/identity-provider/instances/{alias}/reload-keys',
@@ -177,7 +177,7 @@ test('existing-resource deletes and external actions require an irreversible ove
 
 test('bodyless association PUTs cannot claim a repeated PUT as rollback', () => {
   const base = { KEYCLOAK_MCP_ALLOW_WRITE: 'true', KEYCLOAK_MCP_SINGLE_WRITER: 'true' };
-  for (const version of ['latest', '26.3.5']) {
+  for (const version of catalogVersions) {
     const catalog = createCatalog('', version);
     const associations = catalog.operations.filter(operation => operation.method === 'PUT' &&
       operation.requestTypes.length === 0 && catalog.byKey.has(`DELETE ${operation.path}`));

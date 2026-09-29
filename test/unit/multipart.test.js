@@ -3,13 +3,14 @@ import test from 'node:test';
 import { createCatalog, describeOperation } from '../../src/api.js';
 import { buildRequest } from '../../src/http/request.js';
 import { isMutation } from '../../src/policy/classify.js';
+import { catalogVersions } from '../support/catalog.js';
 import { testConfig } from '../support/config.js';
 
 const writable = { KEYCLOAK_MCP_ALLOW_WRITE: 'true' };
 const upload = 'POST /admin/realms/{realm}/clients/{client-uuid}/certificates/{attr}/upload-certificate';
 
-test('certificate uploads serialize a bounded multipart form on both pinned catalogs', async () => {
-  for (const version of ['latest', '26.3.5']) {
+test('certificate uploads serialize a bounded multipart form in every bundled catalog', async () => {
+  for (const version of catalogVersions) {
     const catalog = createCatalog('', version);
     assert.ok(describeOperation(upload, catalog).requestTypes.includes('multipart/form-data'));
     const request = buildRequest(testConfig(writable), upload, { path: {
