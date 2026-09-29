@@ -18,7 +18,7 @@ final class CaseRealm implements AutoCloseable {
         DisposableRealm realm = DisposableRealm.create(env.adminClient(), name, representation -> {
         });
         try {
-            CaseContext context = CaseContext.of(name, env.http());
+            CaseContext context = CaseContext.of(name, env.http(), env.systems());
             family.seed(context);
             mutation.setup().accept(context);
             return new CaseRealm(realm, context);

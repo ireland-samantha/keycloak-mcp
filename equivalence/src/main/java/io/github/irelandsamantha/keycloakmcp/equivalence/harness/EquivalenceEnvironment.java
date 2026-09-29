@@ -37,6 +37,8 @@ public final class EquivalenceEnvironment implements AutoCloseable {
 
     private final Settings settings;
     private final SmtpSink mail;
+    /** Where the server reaches {@link #mail}. */
+    private final ExternalSystems.Address smtp;
     private final KeycloakServer server;
     private final Keycloak bootstrapAdmin;
     private final ServiceAccount serviceAccount;
@@ -53,6 +55,7 @@ public final class EquivalenceEnvironment implements AutoCloseable {
         this.settings = settings;
         this.mail = mail;
         this.server = server;
+        this.smtp = server.systems().jvmPort(mail.port());
         this.bootstrapAdmin = bootstrapAdmin;
         this.serviceAccount = serviceAccount;
         this.http = new RawHttp(server.baseUrl(), serviceAccount);
@@ -71,7 +74,7 @@ public final class EquivalenceEnvironment implements AutoCloseable {
         KeycloakServer server = null;
         Keycloak admin = null;
         try {
-            server = KeycloakServer.start(settings, mail.port());
+            server = KeycloakServer.start(settings);
             admin = KeycloakBuilder.builder().serverUrl(server.baseUrl()).realm(ServiceAccount.AUTH_REALM)
                     .clientId("admin-cli").username(settings.adminUser()).password(settings.adminPassword()).build();
             return new EquivalenceEnvironment(settings, mail, server, admin, ServiceAccount.provision(admin));
@@ -111,11 +114,20 @@ public final class EquivalenceEnvironment implements AutoCloseable {
         return adminClient;
     }
 
-    /** The ledger, with a row for every reference operation. */
     /** Seeds disposable realms on this server; their mail goes to this run's SMTP sink. */
     public RealmSeeder seeder() {
-        return new RealmSeeder(adminClient, new RealmSeeder.Context(server.baseUrl(), server.callbackHost(), mail.port()));
+        return new RealmSeeder(adminClient, new RealmSeeder.Context(server.baseUrl(), smtp.host(), smtp.port()));
     }
+
+    /**
+     * Systems outside Keycloak that a check needs the server to reach (an LDAP container, an HTTP sink), addressed as
+     * the server sees them.
+     */
+    public ExternalSystems systems() {
+        return server.systems();
+    }
+
+    /** The ledger, with a row for every reference operation. */
 
     public EquivalenceLedger ledger() {
         reference();

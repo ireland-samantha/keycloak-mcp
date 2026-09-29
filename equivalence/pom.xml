@@ -55,6 +55,19 @@
     </repository>
   </repositories>
 
+  <dependencyManagement>
+    <dependencies>
+      <!-- Testcontainers' commons-compress 1.28.0 needs commons-io 2.20.0 (FileTimes) to copy a file into a container;
+           nearest-wins would pick the admin client's 2.11.0 (through resteasy-multipart-provider), and the copy then
+           fails in a background thread while the container starts without the file. -->
+      <dependency>
+        <groupId>commons-io</groupId>
+        <artifactId>commons-io</artifactId>
+        <version>2.20.0</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
   <dependencies>
     <!-- The oracle adapter; also brings the Jackson and Jakarta REST versions the suite uses. -->
     <dependency>
