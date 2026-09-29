@@ -60,7 +60,7 @@ test('M2 a PostgreSQL advisory lock serializes workflows across processes and is
   assert.equal((await run(other)).value.status, 'COMPLETED');
 });
 
-test('M3 losing the lock connection mid-run is reported instead of crashing the server', { ...withPostgres, todo: 'WF-02' }, async t => {
+test('M3 losing the lock connection mid-run is reported instead of crashing the server', withPostgres, async t => {
   const { mock, mcp, server } = await twoLockedServers(t);
   const { held, release } = holdGroupCreate(mock);
   const first = run(mcp, [groupCreate, missingUser]);
