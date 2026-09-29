@@ -51,7 +51,10 @@ function appendQuery(url, op, query) {
 export function buildRequest(config, key, args = {}, operationCatalog = catalogFor(config)) {
   const op = describeOperation(key, operationCatalog);
   assertOperationAllowed(config, op, operationCatalog);
-  const url = new URL(`${config.baseUrl}${expandPath(config, op.path, args.path ?? {})}`);
+  const path = expandPath(config, op.path, args.path ?? {});
+  const url = new URL(`${config.baseUrl}${path}`);
+  // A path the URL parser rewrites (dot segments, dropped whitespace) is not the path that was validated.
+  if (url.pathname !== `${new URL(config.baseUrl).pathname.replace(/\/$/, '')}${path}`) throw new Error('unsafe request path');
   appendQuery(url, op, args.query ?? {});
   let body;
   const headers = {};

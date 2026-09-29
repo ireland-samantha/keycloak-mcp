@@ -94,7 +94,7 @@ test('F6 the realm list does not reveal other realms', { todo: 'SEC-5' }, async 
   assert.equal(result.text.includes('other-realm'), false);
 });
 
-test('F7 an extension path hiding dot segments behind control characters cannot leave the realm', { todo: 'SEC-6' }, async t => {
+test('F7 an extension path hiding dot segments behind control characters cannot leave the realm', async t => {
   const operation = { method: 'GET', path: '/realms/{realm}/.\t./.\t./admin/realms/other-realm/users', readOnly: true, serviceAccountSupported: true };
   let scenario;
   try {

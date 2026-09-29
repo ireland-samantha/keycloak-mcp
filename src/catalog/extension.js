@@ -4,9 +4,11 @@ const METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD'];
 const NAME = /^[A-Za-z][A-Za-z0-9_-]*$/;
 const MEDIA_TYPE = /^[\w.+-]+\/[\w.+-]+$/;
 
+// The URL parser drops tabs and line breaks before resolving dot segments, so '/.<TAB>./' would pass
+// the dot-segment check and still climb out of the realm: whitespace and control characters are refused.
 function isRealmPinnedPath(path) {
   return typeof path === 'string' && /^\/(?:admin\/)?realms\/\{realm\}(?:\/|$)/.test(path) &&
-    !/[?#\\%:]/.test(path) && !/\/\.{1,2}(?:\/|$)/.test(path) && !path.includes('//');
+    !/[?#\\%:\s\u0000-\u001f\u007f]/.test(path) && !/\/\.{1,2}(?:\/|$)/.test(path) && !path.includes('//');
 }
 
 const isListOf = (value, valid) => Array.isArray(value ?? []) && (value ?? []).every(valid);
