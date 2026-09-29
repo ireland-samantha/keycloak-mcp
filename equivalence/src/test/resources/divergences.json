@@ -1457,6 +1457,189 @@
       "reason": "The JavaScript policy type only exists with the preview feature \"scripts\"; without it PolicyService treats \"js\" as a policy id and the unknown policy is the message-less 404. With \"scripts\" the typed resource exists, but a JS policy can only come from a deployed provider jar, so no seeded one can exist and reading one answers the same 404; the search finds none.",
       "evidence": "authz/policy/common/src/main/java/org/keycloak/authorization/policy/provider/js/JSPolicyProviderFactory.java:62-63,131-134; the route entries for the same operations",
       "since": "2026-09-29"
+    },
+    {
+      "key": "DELETE /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/resource/{resource-id}",
+      "kind": "query",
+      "sources": "catalog~openapi",
+      "observed": {
+        "openapi@path-item": [
+          "_id",
+          "deep",
+          "exactName",
+          "first",
+          "matchingUri",
+          "max",
+          "name",
+          "owner",
+          "scope",
+          "type",
+          "uri"
+        ]
+      },
+      "reason": "SmallRye hoists the query parameters of an unannotated public find(...) overload onto every path item of ResourceSetService; this resource method declares none of them and JAX-RS never binds them, so the catalog correctly omits them.",
+      "evidence": "services/src/main/java/org/keycloak/authorization/admin/ResourceSetService.java:412-422 (unannotated public find overload with @QueryParam); resource methods at :105-116, :158-166, :190-196, :211-222, :231-242, :281-292, :346-350 declare no query parameters",
+      "since": "2026-09-29"
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/resource/search",
+      "kind": "query",
+      "sources": "catalog~openapi",
+      "observed": {
+        "openapi@path-item": [
+          "_id",
+          "deep",
+          "exactName",
+          "first",
+          "matchingUri",
+          "max",
+          "owner",
+          "scope",
+          "type",
+          "uri"
+        ]
+      },
+      "reason": "SmallRye hoists the query parameters of an unannotated public overload onto the path item; the /search resource method reads only name, which the operation itself declares.",
+      "evidence": "services/src/main/java/org/keycloak/authorization/admin/ResourceSetService.java:362-374 (search reads @QueryParam name only); :412-422 (unannotated overload)",
+      "since": "2026-09-29"
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/resource/{resource-id}",
+      "kind": "query",
+      "sources": "catalog~openapi",
+      "observed": {
+        "openapi@path-item": [
+          "_id",
+          "deep",
+          "exactName",
+          "first",
+          "matchingUri",
+          "max",
+          "name",
+          "owner",
+          "scope",
+          "type",
+          "uri"
+        ]
+      },
+      "reason": "SmallRye hoists the query parameters of an unannotated public find(...) overload onto every path item of ResourceSetService; this resource method declares none of them and JAX-RS never binds them, so the catalog correctly omits them.",
+      "evidence": "services/src/main/java/org/keycloak/authorization/admin/ResourceSetService.java:412-422 (unannotated public find overload with @QueryParam); resource methods at :105-116, :158-166, :190-196, :211-222, :231-242, :281-292, :346-350 declare no query parameters",
+      "since": "2026-09-29"
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/resource/{resource-id}/attributes",
+      "kind": "query",
+      "sources": "catalog~openapi",
+      "observed": {
+        "openapi@path-item": [
+          "_id",
+          "deep",
+          "exactName",
+          "first",
+          "matchingUri",
+          "max",
+          "name",
+          "owner",
+          "scope",
+          "type",
+          "uri"
+        ]
+      },
+      "reason": "SmallRye hoists the query parameters of an unannotated public find(...) overload onto every path item of ResourceSetService; this resource method declares none of them and JAX-RS never binds them, so the catalog correctly omits them.",
+      "evidence": "services/src/main/java/org/keycloak/authorization/admin/ResourceSetService.java:412-422 (unannotated public find overload with @QueryParam); resource methods at :105-116, :158-166, :190-196, :211-222, :231-242, :281-292, :346-350 declare no query parameters",
+      "since": "2026-09-29"
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/resource/{resource-id}/permissions",
+      "kind": "query",
+      "sources": "catalog~openapi",
+      "observed": {
+        "openapi@path-item": [
+          "_id",
+          "deep",
+          "exactName",
+          "first",
+          "matchingUri",
+          "max",
+          "name",
+          "owner",
+          "scope",
+          "type",
+          "uri"
+        ]
+      },
+      "reason": "SmallRye hoists the query parameters of an unannotated public find(...) overload onto every path item of ResourceSetService; this resource method declares none of them and JAX-RS never binds them, so the catalog correctly omits them.",
+      "evidence": "services/src/main/java/org/keycloak/authorization/admin/ResourceSetService.java:412-422 (unannotated public find overload with @QueryParam); resource methods at :105-116, :158-166, :190-196, :211-222, :231-242, :281-292, :346-350 declare no query parameters",
+      "since": "2026-09-29"
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/resource/{resource-id}/scopes",
+      "kind": "query",
+      "sources": "catalog~openapi",
+      "observed": {
+        "openapi@path-item": [
+          "_id",
+          "deep",
+          "exactName",
+          "first",
+          "matchingUri",
+          "max",
+          "name",
+          "owner",
+          "scope",
+          "type",
+          "uri"
+        ]
+      },
+      "reason": "SmallRye hoists the query parameters of an unannotated public find(...) overload onto every path item of ResourceSetService; this resource method declares none of them and JAX-RS never binds them, so the catalog correctly omits them.",
+      "evidence": "services/src/main/java/org/keycloak/authorization/admin/ResourceSetService.java:412-422 (unannotated public find overload with @QueryParam); resource methods at :105-116, :158-166, :190-196, :211-222, :231-242, :281-292, :346-350 declare no query parameters",
+      "since": "2026-09-29"
+    },
+    {
+      "key": "POST /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/resource",
+      "kind": "query",
+      "sources": "catalog~openapi",
+      "observed": {
+        "openapi@path-item": [
+          "_id",
+          "deep",
+          "exactName",
+          "first",
+          "matchingUri",
+          "max",
+          "name",
+          "owner",
+          "scope",
+          "type",
+          "uri"
+        ]
+      },
+      "reason": "SmallRye hoists the query parameters of an unannotated public find(...) overload onto every path item of ResourceSetService; this resource method declares none of them and JAX-RS never binds them, so the catalog correctly omits them.",
+      "evidence": "services/src/main/java/org/keycloak/authorization/admin/ResourceSetService.java:412-422 (unannotated public find overload with @QueryParam); resource methods at :105-116, :158-166, :190-196, :211-222, :231-242, :281-292, :346-350 declare no query parameters",
+      "since": "2026-09-29"
+    },
+    {
+      "key": "PUT /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/resource/{resource-id}",
+      "kind": "query",
+      "sources": "catalog~openapi",
+      "observed": {
+        "openapi@path-item": [
+          "_id",
+          "deep",
+          "exactName",
+          "first",
+          "matchingUri",
+          "max",
+          "name",
+          "owner",
+          "scope",
+          "type",
+          "uri"
+        ]
+      },
+      "reason": "SmallRye hoists the query parameters of an unannotated public find(...) overload onto every path item of ResourceSetService; this resource method declares none of them and JAX-RS never binds them, so the catalog correctly omits them.",
+      "evidence": "services/src/main/java/org/keycloak/authorization/admin/ResourceSetService.java:412-422 (unannotated public find overload with @QueryParam); resource methods at :105-116, :158-166, :190-196, :211-222, :231-242, :281-292, :346-350 declare no query parameters",
+      "since": "2026-09-29"
     }
   ]
 }
