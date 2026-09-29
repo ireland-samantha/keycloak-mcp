@@ -145,6 +145,7 @@ const USER = 'PUT /admin/realms/{realm}/users/{user-id}';
 const CLIENT = 'PUT /admin/realms/{realm}/clients/{client-uuid}';
 const REALM = 'PUT /admin/realms/{realm}';
 const COMPONENT = 'PUT /admin/realms/{realm}/components/{id}';
+const IDP = 'PUT /admin/realms/{realm}/identity-provider/instances/{alias}';
 export const IRREVERSIBLE_BODIES = {
   'sets-credentials': {
     operations: [USER],
@@ -230,8 +231,15 @@ export const IRREVERSIBLE_BODIES = {
     reason: 'A generated key provider whose size or curve differs from its key generates a new key and discards the old one, which Keycloak never returns.',
     source: 'keys/AbstractGeneratedRsaKeyProviderFactory.java:99-113; AbstractGeneratedSecretKeyProviderFactory.java:41-54; AbstractGeneratedEcKeyProviderFactory.java:86-100; GeneratedEddsaKeyProviderFactory.java:104-117',
   },
+  'drops-idp-secret': {
+    operations: [IDP],
+    applies: ({ body }) => !isSet(body?.config?.clientSecret) || body.config.clientSecret === '',
+    summary: 'the body leaves out the identity provider\'s clientSecret, which deletes the stored secret',
+    reason: 'An identity-provider update replaces the whole config map and keeps the stored clientSecret only for a clientSecret that is exactly Keycloak\'s mask; without one, or with null or an empty string, which Keycloak drops, the stored secret is deleted, and Keycloak only ever returns it masked, so no compensation can restore it. The body\'s providerId does not name the stored provider, which the update keeps: kc-head applied a body naming saml to an OIDC provider, which stayed OIDC and lost its secret. So the rule holds whatever the providerId; Keycloak accepts the mask for a provider without a secret too (SEC-2).',
+    source: `services/resources/admin/IdentityProviderResource.java:195-217; ${RTM}:963-1002, :1833-1845; model/jpa/src/main/java/org/keycloak/models/jpa/JpaIdentityProviderStorageProvider.java:129-143`,
+  },
   'repoints-idp-secret': {
-    operations: ['PUT /admin/realms/{realm}/identity-provider/instances/{alias}'],
+    operations: [IDP],
     applies: ({ body }) => configHas(body, ['tokenUrl', 'tokenIntrospectionUrl']) && body.config.clientSecret === KEYCLOAK_OWN_MASKS.mask,
     summary: 'the body names a token endpoint while keeping the stored client secret',
     reason: 'A masked clientSecret keeps the stored secret, which Keycloak sends to the token and introspection endpoints, so a new address there receives it (SEC-3).',

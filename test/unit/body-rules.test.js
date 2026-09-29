@@ -76,6 +76,15 @@ const cases = [
   [idp, { alias: 'broker', config: { clientSecret: mask, tokenIntrospectionUrl: 'https://idp.example.invalid/introspect' } }, ['repoints-idp-secret']],
   [idp, { alias: 'broker', config: { clientSecret: mask, syncMode: 'IMPORT' } }, []],
   [idp, { alias: 'broker', config: { clientSecret: 'new-secret', tokenUrl: 'https://idp.example.invalid/token' } }, ['sets-secret']],
+  // Keycloak keeps the stored clientSecret only for the mask. The body's providerId does not name the stored
+  // provider: kc-head applied a body naming saml to an OIDC provider, which stayed OIDC and lost its secret.
+  [idp, { alias: 'broker', providerId: 'oidc', config: { clientId: 'kc', syncMode: 'IMPORT' } }, ['drops-idp-secret']],
+  [idp, { alias: 'broker', providerId: 'saml', config: { singleSignOnServiceUrl: 'https://idp.example.invalid/sso' } }, ['drops-idp-secret']],
+  [idp, { alias: 'broker', providerId: 'saml', config: { singleSignOnServiceUrl: 'https://idp.example.invalid/sso', clientSecret: mask } }, []],
+  [idp, { alias: 'broker', displayName: 'Broker' }, ['drops-idp-secret']],
+  [idp, { alias: 'broker', config: { clientSecret: null } }, ['drops-idp-secret']],
+  [idp, { alias: 'broker', config: { clientSecret: '' } }, ['drops-idp-secret', 'sets-secret']],
+  [idp, { alias: 'broker', config: { clientSecret: ' ' } }, ['sets-secret']],
   [authenticatorConfig, { alias: 'captcha', config: { 'secret.key': mask } }, []],
   [authenticatorConfig, { alias: 'captcha', config: { 'secret.key': 'new-key' } }, ['sets-secret']],
   [role, { name: 'viewer', description: 'd' }, []],

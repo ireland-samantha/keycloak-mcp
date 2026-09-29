@@ -390,7 +390,7 @@
  "PUT /admin/realms/{realm}/events/config": {"mutation":true,"irreversible":false,"sensitive":false,"bodyRules":["stops-events","sets-secret"]},
  "PUT /admin/realms/{realm}/groups/{group-id}": {"mutation":true,"irreversible":false,"sensitive":false,"bodyRules":["sets-secret"]},
  "PUT /admin/realms/{realm}/groups/{group-id}/management/permissions": {"mutation":true,"irreversible":false,"sensitive":false,"bodyRules":["disables-admin-permissions","sets-secret"]},
- "PUT /admin/realms/{realm}/identity-provider/instances/{alias}": {"mutation":true,"irreversible":false,"sensitive":false,"bodyRules":["repoints-idp-secret","sets-secret"]},
+ "PUT /admin/realms/{realm}/identity-provider/instances/{alias}": {"mutation":true,"irreversible":false,"sensitive":false,"bodyRules":["drops-idp-secret","repoints-idp-secret","sets-secret"]},
  "PUT /admin/realms/{realm}/identity-provider/instances/{alias}/management/permissions": {"mutation":true,"irreversible":false,"sensitive":false,"bodyRules":["disables-admin-permissions","sets-secret"]},
  "PUT /admin/realms/{realm}/identity-provider/instances/{alias}/mappers/{id}": {"mutation":true,"irreversible":false,"sensitive":false,"bodyRules":["sets-secret"]},
  "PUT /admin/realms/{realm}/localization/{locale}/{key}": {"mutation":true,"irreversible":false,"sensitive":false,"bodyRules":["sets-secret"]},
