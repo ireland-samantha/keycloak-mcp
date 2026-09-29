@@ -121,7 +121,7 @@ test('E6 writing back a redacted read never sends the redaction marker to Keyclo
   for (const request of mock.adminRequests()) assert.equal(request.text().includes('[REDACTED'), false, request.key);
 });
 
-test('E7 a JSON body with a mixed-case media type is still redacted', { todo: 'BC-11' }, async t => {
+test('E7 a JSON body with a mixed-case media type is still redacted', async t => {
   const { mock, mcp } = await startScenario(t);
   mock.on('GET /admin/realms/{realm}/clients', { ...withSecret(mock.fixture('clients.list')), headers: { 'content-type': 'Application/JSON' } });
   const result = await mcp.call('keycloak_read', { operation: 'GET /admin/realms/{realm}/clients' });
