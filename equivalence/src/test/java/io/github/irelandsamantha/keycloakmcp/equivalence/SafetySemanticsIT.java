@@ -21,8 +21,11 @@ import io.github.irelandsamantha.keycloakmcp.equivalence.harness.RecordingProxy;
 import io.github.irelandsamantha.keycloakmcp.equivalence.mutations.CaseContext;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Named;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.IOException;
 import java.net.URI;
@@ -47,6 +50,7 @@ import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static io.github.irelandsamantha.keycloakmcp.equivalence.harness.KeycloakMcpProcess.ALLOW_SENSITIVE_READS;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -64,10 +68,13 @@ class SafetySemanticsIT {
     private static final String ALLOW_WRITE = "KEYCLOAK_MCP_ALLOW_WRITE";
     private static final String SINGLE_WRITER = "KEYCLOAK_MCP_SINGLE_WRITER";
     private static final String ALLOW_IRREVERSIBLE = "KEYCLOAK_MCP_ALLOW_IRREVERSIBLE";
-    private static final String ALLOW_SENSITIVE_READS = "KEYCLOAK_MCP_ALLOW_SENSITIVE_READS";
     private static final Map<String, String> WRITER = Map.of(ALLOW_WRITE, "true", SINGLE_WRITER, "true");
     private static final Map<String, String> OVERRIDABLE = Map.of(ALLOW_WRITE, "true", SINGLE_WRITER, "true",
             ALLOW_IRREVERSIBLE, "true");
+    /** Redaction as keycloak-mcp ships it: the sensitive-reads switch left unset. */
+    private static final Map<String, String> SHIPPED_REDACTION = Collections.singletonMap(ALLOW_SENSITIVE_READS, null);
+    /** Redaction as an operator sets it explicitly. */
+    private static final Map<String, String> REDACTED = Map.of(ALLOW_SENSITIVE_READS, "false");
 
     private static final String READ_REALMS = "GET /admin/realms";
     private static final String READ_REALM = "GET /admin/realms/{realm}";
@@ -301,12 +308,18 @@ class SafetySemanticsIT {
         }
     }
 
-    @Test
-    void withRedactionOnNoSecretIsShown() throws Exception {
+    /** Redaction on: as keycloak-mcp ships it, and as an operator sets it. */
+    static Stream<Named<Map<String, String>>> redactionOn() {
+        return Stream.of(Named.of("switch unset (shipped default)", SHIPPED_REDACTION),
+                Named.of("switch set to false", REDACTED));
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("redactionOn")
+    void withRedactionOnNoSecretIsShown(Map<String, String> redaction) throws Exception {
         String secret = secret();
-        String client = confidentialClient("f4-redacted", secret);
-        try (RecordingProxy proxy = RecordingProxy.start(env.serverUrl());
-             KeycloakMcpProcess mcp = start(proxy, Map.of(ALLOW_SENSITIVE_READS, "false"))) {
+        String client = confidentialClient(unique("f4-redacted"), secret);
+        try (RecordingProxy proxy = RecordingProxy.start(env.serverUrl()); KeycloakMcpProcess mcp = start(proxy, redaction)) {
             JsonNode args = args(Map.of("client-uuid", client), null);
             ToolResult representation = read(mcp, READ_CLIENT, args);
             ToolResult secretEndpoint = read(mcp, READ_CLIENT_SECRET, args);
@@ -323,7 +336,7 @@ class SafetySemanticsIT {
     void withRedactionOnOnlySecretsAreHidden() throws Exception {
         String client = confidentialClient("f4-precise", secret());
         try (RecordingProxy proxy = RecordingProxy.start(env.serverUrl());
-             KeycloakMcpProcess mcp = start(proxy, Map.of(ALLOW_SENSITIVE_READS, "false"))) {
+             KeycloakMcpProcess mcp = start(proxy, SHIPPED_REDACTION)) {
             ReadComparison representation = compareRead(mcp, READ_CLIENT, Map.of("client-uuid", client), "clients/" + client);
             // The server masks the SMTP password itself (RealmAdminResource.java:431, ModelToRepresentation.java:692-694,
             // StripSecretsUtils.java:189-193), so nothing in the realm representation is left for keycloak-mcp to hide.
@@ -717,6 +730,11 @@ class SafetySemanticsIT {
         } catch (IOException e) {
             throw new AssertionError("Cannot read the permissions of " + path, e);
         }
+    }
+
+    /** {@code prefix} made unique within the pinned realm, for a check that runs more than once. */
+    private static String unique(String prefix) {
+        return prefix + "-" + secret().substring(0, 8);
     }
 
     private static String secret() {

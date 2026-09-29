@@ -117,7 +117,10 @@ public final class EquivalenceEnvironment implements AutoCloseable {
         return ledger;
     }
 
-    /** Starts keycloak-mcp pinned to {@code realm}, authenticated as the shared service account. */
+    /**
+     * Starts keycloak-mcp pinned to {@code realm}, authenticated as the shared service account, with {@code env} as
+     * {@link KeycloakMcpProcess#start} takes it.
+     */
     public KeycloakMcpProcess startKeycloakMcp(String realm, Map<String, String> env)
             throws IOException, InterruptedException, TimeoutException {
         return startKeycloakMcp(realm, env, server.baseUrl());

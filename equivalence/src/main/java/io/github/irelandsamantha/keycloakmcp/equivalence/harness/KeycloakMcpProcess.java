@@ -12,6 +12,7 @@ import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Stream;
 
@@ -21,6 +22,9 @@ import java.util.stream.Stream;
  * (0700) temporary directory so nothing leaks into the real home directory (TA-03).
  */
 public final class KeycloakMcpProcess implements AutoCloseable {
+
+    /** The redaction switch: {@code true} shows secrets as the server returns them. */
+    public static final String ALLOW_SENSITIVE_READS = "KEYCLOAK_MCP_ALLOW_SENSITIVE_READS";
 
     private static final Duration REQUEST_TIMEOUT = Duration.ofSeconds(60);
 
@@ -37,8 +41,10 @@ public final class KeycloakMcpProcess implements AutoCloseable {
     /**
      * Starts keycloak-mcp against {@code realm} and completes the MCP handshake.
      *
-     * @param env additional {@code KEYCLOAK_MCP_*} switches (e.g. {@code KEYCLOAK_MCP_ALLOW_WRITE=true}); sensitive
-     *            reads are allowed by default because equivalence compares unredacted values
+     * @param env additional {@code KEYCLOAK_MCP_*} switches (e.g. {@code KEYCLOAK_MCP_ALLOW_WRITE=true}); a
+     *            {@code null} value leaves that switch unset, so keycloak-mcp runs with the default it ships. Sensitive
+     *            reads are allowed unless {@code env} names {@value #ALLOW_SENSITIVE_READS}, because equivalence
+     *            compares unredacted values
      */
     public static KeycloakMcpProcess start(Settings settings, String baseUrl, ServiceAccount account, String realm,
                                            Map<String, String> env) throws IOException, InterruptedException, TimeoutException {
@@ -48,13 +54,7 @@ public final class KeycloakMcpProcess implements AutoCloseable {
             Path config = writeConfig(workDir, baseUrl, account, realm);
             Path journal = Files.createDirectory(workDir.resolve("journal"),
                     PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwx------")));
-            Map<String, String> processEnv = new LinkedHashMap<>();
-            processEnv.put("HOME", workDir.toString());
-            processEnv.put("KEYCLOAK_MCP_CONFIG", config.toString());
-            processEnv.put("KEYCLOAK_MCP_CATALOG_VERSION", settings.catalogVersion());
-            processEnv.put("KEYCLOAK_MCP_ALLOW_SENSITIVE_READS", "true");
-            processEnv.put("KEYCLOAK_MCP_JOURNAL_DIR", journal.toString());
-            processEnv.putAll(env);
+            Map<String, String> processEnv = environment(workDir, config, journal, settings.catalogVersion(), env);
             List<String> command = List.of(settings.node(), settings.keycloakMcpRoot().resolve("src/index.js").toString());
             McpStdioClient client = McpStdioClient.start(command, processEnv, REQUEST_TIMEOUT);
             try {
@@ -68,6 +68,23 @@ public final class KeycloakMcpProcess implements AutoCloseable {
             deleteRecursively(workDir);
             throw e;
         }
+    }
+
+    /**
+     * The process environment: private home, config and journal, the catalog version, then {@code switches} as
+     * {@link #start} documents them.
+     */
+    static Map<String, String> environment(Path home, Path config, Path journal, String catalogVersion,
+                                           Map<String, String> switches) {
+        Map<String, String> out = new LinkedHashMap<>();
+        out.put("HOME", home.toString());
+        out.put("KEYCLOAK_MCP_CONFIG", config.toString());
+        out.put("KEYCLOAK_MCP_CATALOG_VERSION", catalogVersion);
+        out.put(ALLOW_SENSITIVE_READS, "true");
+        out.put("KEYCLOAK_MCP_JOURNAL_DIR", journal.toString());
+        out.putAll(switches);
+        out.values().removeIf(Objects::isNull);
+        return out;
     }
 
     public McpStdioClient client() {
