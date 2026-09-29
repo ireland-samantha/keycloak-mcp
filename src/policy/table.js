@@ -138,6 +138,9 @@ const stopsRecording = (body, userEventsOff) => userEventsOff || mayTurn(body?.a
 const RTM = 'server-spi-private/src/main/java/org/keycloak/models/utils/RepresentationToModel.java';
 const REALM_UPDATE = 'model/storage-private/src/main/java/org/keycloak/storage/datastore/DefaultExportImportManager.java';
 const EVENT_PURGE = 'model/jpa/src/main/java/org/keycloak/events/jpa/JpaEventStoreProvider.java:90-111';
+const ADMIN_EVENT_PURGE = 'model/jpa/src/main/java/org/keycloak/events/jpa/JpaEventStoreProvider.java:242-275; ' +
+  'model/jpa/src/main/java/org/keycloak/models/jpa/entities/RealmAttributes.java:56; ' +
+  'model/storage-private/src/main/java/org/keycloak/storage/datastore/DefaultDatastoreProviderFactory.java:149';
 const USER = 'PUT /admin/realms/{realm}/users/{user-id}';
 const CLIENT = 'PUT /admin/realms/{realm}/clients/{client-uuid}';
 const REALM = 'PUT /admin/realms/{realm}';
@@ -201,10 +204,10 @@ export const IRREVERSIBLE_BODIES = {
   },
   'stops-realm-events': {
     operations: [REALM],
-    applies: ({ body }) => stopsRecording(body, mayTurn(body?.eventsEnabled, false)),
-    summary: 'the body turns off or narrows event recording, or schedules stored events for deletion',
-    reason: 'Events not recorded while recording is off or narrowed, or not passed to a removed listener, are lost for good, and a positive eventsExpiration makes Keycloak delete older stored events (SEC-7).',
-    source: `${REALM_UPDATE}:903-910; ${EVENT_PURGE}`,
+    applies: ({ body }) => stopsRecording(body, mayTurn(body?.eventsEnabled, false)) || mayBePositive(body?.attributes?.adminEventsExpiration),
+    summary: 'the body turns off or narrows event recording, or schedules stored events or admin events for deletion',
+    reason: 'Events not recorded while recording is off or narrowed, or not passed to a removed listener, are lost for good. A positive eventsExpiration makes Keycloak delete older stored events, and a positive adminEventsExpiration realm attribute, which a scheduled task reads with Long.parseLong, makes it delete older admin events, the delayed equivalent of DELETE /admin-events (SEC-7).',
+    source: `${REALM_UPDATE}:809-820, :903-910; ${EVENT_PURGE}; ${ADMIN_EVENT_PURGE}`,
   },
   'stops-events': {
     operations: ['PUT /admin/realms/{realm}/events/config'],

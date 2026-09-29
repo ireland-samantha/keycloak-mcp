@@ -51,6 +51,13 @@ const cases = [
   [realm, { eventsListeners: ['jboss-logging'] }, ['stops-realm-events']],
   [realm, { eventsExpiration: JSON.rawJSON('9007199254740993') }, ['stops-realm-events']],
   [realm, { eventsEnabled: true, adminEventsEnabled: true, eventsExpiration: 0 }, []],
+  // Admin events expire through a realm attribute, which Keycloak parses with Long.parseLong.
+  [realm, { attributes: { adminEventsExpiration: '1' } }, ['stops-realm-events']],
+  [realm, { attributes: { adminEventsExpiration: 1 } }, ['stops-realm-events']],
+  [realm, { attributes: { adminEventsExpiration: '+1' } }, ['stops-realm-events']],
+  [realm, { attributes: { adminEventsExpiration: '١' } }, ['stops-realm-events']],
+  [realm, { attributes: { adminEventsExpiration: '0' } }, []],
+  [realm, { attributes: { frontendUrl: 'https://sso.example.invalid' } }, []],
   [events, { eventsEnabled: true, adminEventsEnabled: true, adminEventsDetailsEnabled: true }, []],
   [events, { adminEventsEnabled: true }, ['stops-events']],
   [events, { eventsEnabled: true, adminEventsEnabled: false }, ['stops-events']],
