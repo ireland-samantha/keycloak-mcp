@@ -1,7 +1,7 @@
 import { defaultCatalog, describeOperation } from '../catalog/index.js';
 import {
-  FIELD_REDACTIONS, IRREVERSIBLE_PATHS, NAMED_CREATE_TARGETS, OPERATION_OVERRIDES, RECEIPT_SENSITIVE_PATH_PARAMETER,
-  SENSITIVE_FIELD, SENSITIVE_RESPONSE_PATHS, TOKEN_REFRESH_BEFORE_COMPENSATION,
+  FIELD_REDACTIONS, GENERATED_ID_PARAMETER, IRREVERSIBLE_PATHS, NAMED_CREATE_TARGETS, OPERATION_OVERRIDES,
+  RECEIPT_SENSITIVE_PATH_PARAMETER, SENSITIVE_FIELD, SENSITIVE_RESPONSE_PATHS, TOKEN_REFRESH_BEFORE_COMPENSATION,
 } from './table.js';
 
 const READ_METHODS = ['GET', 'HEAD'];
@@ -46,6 +46,10 @@ export function invalidatesServiceToken(key) {
 
 export function needsFreshTokenToCompensate(operation, compensation) {
   return TOKEN_REFRESH_BEFORE_COMPENSATION.some(pair => pair.operation === operation && pair.compensation === compensation);
+}
+
+export function isGeneratedIdParameter(name) {
+  return GENERATED_ID_PARAMETER.pattern.test(name);
 }
 
 export function namedCreateTarget(key) {

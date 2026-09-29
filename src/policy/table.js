@@ -133,6 +133,14 @@ export const NAMED_CREATE_TARGETS = {
   },
 };
 
+// Child path parameters that hold a server-generated ID, so a create compensation must bind them
+// to the ID the create returns rather than accept a caller-chosen value.
+export const GENERATED_ID_PARAMETER = {
+  pattern: /id|uuid/i,
+  reason: 'Creates answer with a Location ending in the generated ID ({user-id}, {client-uuid}, ...); a caller-chosen ID could name a resource that existed before the workflow.',
+  source: 'services/resources/admin/UsersResource.java:179, :226; ClientsResource.java:209, :276',
+};
+
 // A path parameter whose value spans several segments; any other value must stay one segment.
 export const MULTI_SEGMENT_PATH_PARAMETER = {
   name: 'path',
