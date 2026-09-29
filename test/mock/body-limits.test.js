@@ -17,11 +17,16 @@ test('N1 a request body over the limit is refused before any request', async t =
   await refusedOffline(mcp, mock, 'keycloak_workflow', { execute: true, steps: [createStep('groups', 'group-id', { name: 'x'.repeat(2048) })] });
 });
 
-test('N2 a response whose Content-Length exceeds the limit is refused', async t => {
+test('N2 a response whose Content-Length exceeds the limit is refused before its body is read', async t => {
   const { mock, mcp } = await startScenario(t, { settings: limit(1024) });
-  mock.on('GET /admin/realms/{realm}', { json: { padding: 'x'.repeat(4096) } });
+  // No body byte is ever sent, so only the Content-Length header can produce this answer;
+  // the streaming check (N3) would wait for body bytes that never come.
+  mock.on('GET /admin/realms/{realm}', { headers: { 'content-type': 'application/json', 'content-length': String(4 * 1024) }, hold: true });
   const result = await mcp.call('keycloak_read', readRealm);
   assert.equal(result.text, 'response exceeds configured limit (HTTP 200)');
+  const [request] = mock.adminRequests();
+  await request.settled;
+  assert.equal(request.closedEarly, true);
 });
 
 test('N3 a chunked response over the limit is cut off while streaming', async t => {

@@ -89,8 +89,9 @@ class MockKeycloak {
   created(path) { return { status: 201, headers: { location: this.location(path) } }; }
 
   // Responses are served in order; the last one repeats. A response is a spec object or a
-  // function (request, mock) returning one, or a promise of one: { status, headers, json | body | stream }.
+  // function (request, mock) returning one, or a promise of one: { status, headers, json | body | stream, hold }.
   // `json` may be a string to send exact JSON text; `stream` is { chunks, chunkBytes, intervalMs }.
+  // `hold: true` sends only the status and headers and keeps the response open until the client hangs up.
   on(route, ...responses) {
     this.routes.unshift({ matches: compileRoute(route, this.realm), responses });
     return this;
@@ -158,20 +159,23 @@ class MockKeycloak {
     return { ...recordedToken, json: { ...recordedToken.json, access_token: accessToken, expires_in: expiresIn } };
   }
 
-  async #respond(outgoing, request, { status = 200, headers = {}, json, body, stream } = {}) {
+  async #respond(outgoing, request, { status = 200, headers = {}, json, body, stream, hold = false } = {}) {
     if (json !== undefined) {
-      outgoing.writeHead(status, { 'content-type': 'application/json', ...headers });
-      return outgoing.end(typeof json === 'string' ? json : JSON.stringify(json));
+      headers = { 'content-type': 'application/json', ...headers };
+      body = typeof json === 'string' ? json : JSON.stringify(json);
     }
+    outgoing.writeHead(status, headers);
     if (stream) {
-      outgoing.writeHead(status, headers);
       for (let index = 0; index < stream.chunks && !request.closedEarly; index += 1) {
         outgoing.write(Buffer.alloc(stream.chunkBytes, 0x61));
         await delay(stream.intervalMs ?? 5);
       }
       return outgoing.end();
     }
-    outgoing.writeHead(status, headers);
+    if (hold) {
+      outgoing.flushHeaders();
+      return request.settled;
+    }
     outgoing.end(body);
   }
 }
