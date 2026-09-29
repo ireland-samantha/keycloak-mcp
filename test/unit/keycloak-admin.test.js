@@ -27,9 +27,15 @@ test('retryDelaysMs bounds how often a transient failure is retried', async () =
   await assert.rejects(admin.invoke(readRealm), /HTTP 503; attempts 2/);
 });
 
-test('token and request timeouts abort a Keycloak call that never answers', async () => {
+// Far below the 15 s token and 30 s request defaults, so a test fails if its injected timeout is ignored.
+const injectedTimeoutBound = { timeout: 2_000 };
+
+test('an injected tokenTimeoutMs aborts a token request that never answers', injectedTimeoutBound, async () => {
   const tokenHangs = new KeycloakAdmin(testConfig(), fakeKeycloak(() => jsonResponse(200, {}), { token: hang }), { tokenTimeoutMs: 20 });
   await assert.rejects(tokenHangs.invoke(readRealm), { name: 'TimeoutError' });
+});
+
+test('an injected requestTimeoutMs aborts a Keycloak call that never answers', injectedTimeoutBound, async () => {
   const readHangs = new KeycloakAdmin(testConfig(), fakeKeycloak(hang), { requestTimeoutMs: 20 });
   await assert.rejects(readHangs.invoke(readRealm), { name: 'TimeoutError' });
 });
