@@ -50,3 +50,12 @@ test('WorkflowBuilder can mark a step irreversible, as runWorkflow steps can', a
   assert.deepEqual(await new WorkflowBuilder(admin).step(...remove, null, { irreversible: true }).plan(),
     { status: 'PREFLIGHT_OK', steps: [{ operation: remove[0], compensation: null }] });
 });
+
+test('a step stopped before its request is sent is not reported as possibly committed', async () => {
+  const admin = new KeycloakAdmin(testConfig(writer), fakeKeycloak(() => jsonResponse(201, null, { location: createdUser }),
+    { token: () => jsonResponse(503, { error: 'temporarily_unavailable' }) }));
+  const result = await runWorkflow(admin, [userCreate()], { dryRun: false });
+  assert.equal(result.status, 'IN_DOUBT');
+  assert.match(result.error, /token request failed \(HTTP 503\)/);
+  assert.equal(result.failedStepMayHaveCommitted, false);
+});

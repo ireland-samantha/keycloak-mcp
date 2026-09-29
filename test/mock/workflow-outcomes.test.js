@@ -55,7 +55,7 @@ test('J4 a committed create whose compensation cannot be bound still reports wha
   assert.ok(text.includes(created), text);
 });
 
-test('J5 a mutation that was never sent is not reported as possibly committed', { todo: 'WF-07' }, async t => {
+test('J5 a mutation that was never sent is not reported as possibly committed', async t => {
   const { mock, result } = await executeWorkflow(t, [readRealm, userCreate], { program: mock =>
     mock.onToken(() => mock.issueToken({ expiresIn: 0 }), { status: 503, json: { error: 'temporarily_unavailable' } }) });
   assert.deepEqual(mock.adminRequests().map(request => request.method), ['GET']);
