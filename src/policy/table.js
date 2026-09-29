@@ -106,11 +106,35 @@ export const IRREVERSIBLE_PATHS = [
 // `path.realm`) and `setsSecret()`, whether the body sets a field that SECRET_FIELDS holds secret. A
 // body is judged alone, without reading Keycloak's current state, so a field that would change
 // something counts as changing it: send only the fields an update changes.
+//
+// Keycloak reads bodies with a default Jackson ObjectMapper, which coerces scalars into the field's type
+// (services/util/ObjectMapperResolver.java:43-67; jackson-databind StdDeserializer#_parseBoolean). A
+// Boolean reads true, "true", "True" or "TRUE", trimmed as Java trims, or an integer other than 0 as true;
+// the same spellings of false, or 0, as false; and null, "", a blank string or "null" as no value. kc-head
+// applied each of these to adminEventsEnabled. booleanOf gives true, false, null for no value, or REFUSED
+// for a value Jackson rejects, which a rule counts as the state it guards against, so a spelling missing
+// here fails closed. A Long reads numeric strings too, Arabic-Indic digits included, so a value the rules
+// cannot show to be at most 0 counts as positive.
+const REFUSED = Symbol('refused boolean');
+const BOOLEAN_TEXTS = new Map([['true', true], ['True', true], ['TRUE', true], ['false', false], ['False', false], ['FALSE', false], ['', null], ['null', null]]);
+const javaTrim = text => text.replace(/^[\u0000-\u0020]+|[\u0000-\u0020]+$/g, '');
+function booleanOf(value) {
+  if (value === undefined || value === null || typeof value === 'boolean') return value ?? null;
+  if (typeof value === 'string') {
+    const text = javaTrim(value);
+    return BOOLEAN_TEXTS.has(text) ? BOOLEAN_TEXTS.get(text) : REFUSED;
+  }
+  const integer = JSON.isRawJSON(value) ? value.rawJSON : typeof value === 'number' ? JSON.stringify(value) : '';
+  return /^-?\d+$/.test(integer) ? !/^-?0$/.test(integer) : REFUSED;
+}
+const mayTurn = (value, state) => [state, REFUSED].includes(booleanOf(value));
+const keepsTrue = value => booleanOf(value) === true;
 const isSet = value => value !== undefined && value !== null;
 const numberOf = value => Number(JSON.isRawJSON(value) ? value.rawJSON : value);
+const mayBePositive = value => isSet(value) && !(numberOf(value) <= 0);
 const configHas = (body, keys) => keys.some(key => isSet(body?.config?.[key]));
-const stopsRecording = (body, userEventsOff) => userEventsOff || body?.adminEventsEnabled === false || body?.adminEventsDetailsEnabled === false ||
-  isSet(body?.eventsListeners) || isSet(body?.enabledEventTypes) || numberOf(body?.eventsExpiration) > 0;
+const stopsRecording = (body, userEventsOff) => userEventsOff || mayTurn(body?.adminEventsEnabled, false) || mayTurn(body?.adminEventsDetailsEnabled, false) ||
+  isSet(body?.eventsListeners) || isSet(body?.enabledEventTypes) || mayBePositive(body?.eventsExpiration);
 const RTM = 'server-spi-private/src/main/java/org/keycloak/models/utils/RepresentationToModel.java';
 const REALM_UPDATE = 'model/storage-private/src/main/java/org/keycloak/storage/datastore/DefaultExportImportManager.java';
 const EVENT_PURGE = 'model/jpa/src/main/java/org/keycloak/events/jpa/JpaEventStoreProvider.java:90-111';
@@ -135,21 +159,21 @@ export const IRREVERSIBLE_BODIES = {
   },
   'unlocks-user': {
     operations: [USER],
-    applies: ({ body }) => body?.enabled === true,
+    applies: ({ body }) => mayTurn(body?.enabled, true),
     summary: 'the body enables the user, which clears a brute-force lockout',
     reason: 'Enabling a temporarily or permanently locked-out user deletes its login-failure record, which cannot be recreated.',
     source: 'services/resources/admin/UserResource.java:201-213, :236-238',
   },
   'disables-service-account': {
     operations: [CLIENT],
-    applies: ({ body }) => body?.serviceAccountsEnabled === false,
+    applies: ({ body }) => mayTurn(body?.serviceAccountsEnabled, false),
     summary: 'the body turns serviceAccountsEnabled off, which deletes the service-account user',
     reason: 'Turning service accounts off deletes the service-account user with its role mappings; turning them on again creates a different user.',
     source: 'services/resources/admin/ClientResource.java:851; services/managers/ClientManager.java:179-186, :247-258',
   },
   'drops-authorization': {
     operations: [CLIENT],
-    applies: ({ body }) => body?.authorizationServicesEnabled !== true || body?.bearerOnly === true || body?.publicClient === true,
+    applies: ({ body }) => !keepsTrue(body?.authorizationServicesEnabled) || mayTurn(body?.bearerOnly, true) || mayTurn(body?.publicClient, true),
     summary: 'the body does not keep authorizationServicesEnabled true, which deletes any authorization settings',
     reason: 'A client update whose body does not set authorizationServicesEnabled to true, leaving it out included, or that makes the client public or bearer-only, deletes the client\'s authorization resource server with all its resources, scopes and policies.',
     source: 'services/resources/admin/ClientResource.java:861-867, :893-907; authorization/admin/AuthorizationService.java:73-77',
@@ -177,14 +201,14 @@ export const IRREVERSIBLE_BODIES = {
   },
   'stops-realm-events': {
     operations: [REALM],
-    applies: ({ body }) => stopsRecording(body, body?.eventsEnabled === false),
+    applies: ({ body }) => stopsRecording(body, mayTurn(body?.eventsEnabled, false)),
     summary: 'the body turns off or narrows event recording, or schedules stored events for deletion',
     reason: 'Events not recorded while recording is off or narrowed, or not passed to a removed listener, are lost for good, and a positive eventsExpiration makes Keycloak delete older stored events (SEC-7).',
     source: `${REALM_UPDATE}:903-910; ${EVENT_PURGE}`,
   },
   'stops-events': {
     operations: ['PUT /admin/realms/{realm}/events/config'],
-    applies: ({ body }) => stopsRecording(body, body?.eventsEnabled !== true),
+    applies: ({ body }) => stopsRecording(body, !keepsTrue(body?.eventsEnabled)),
     summary: 'the body turns off or narrows event recording, or schedules stored events for deletion',
     reason: 'As for the realm update, with one difference: eventsEnabled is a plain boolean in this body, so leaving it out turns user events off (SEC-7).',
     source: `services/managers/RealmManager.java:337-360; core/src/main/java/org/keycloak/representations/idm/RealmEventsConfigRepresentation.java:27; ${EVENT_PURGE}`,
@@ -231,7 +255,7 @@ export const IRREVERSIBLE_BODIES = {
       'PUT /admin/realms/{realm}/roles-by-id/{role-id}/management/permissions', 'PUT /admin/realms/{realm}/roles/{role-name}/management/permissions',
       'PUT /admin/realms/{realm}/users-management-permissions',
     ],
-    applies: ({ body }) => body?.enabled !== true,
+    applies: ({ body }) => !keepsTrue(body?.enabled),
     summary: 'the body does not keep enabled true, which deletes the permissions',
     reason: 'With fine-grained admin permissions (version 1), disabling deletes the permission policies configured for the object; enabled is a plain boolean, so leaving it out disables.',
     source: 'core/src/main/java/org/keycloak/representations/idm/ManagementPermissionReference.java:26; services/resources/admin/fgap/ClientPermissions.java:197-226; GroupPermissions.java:168-173; RolePermissions.java:83-88; IdentityProviderPermissions.java:118-123; UserPermissions.java:175-180',
