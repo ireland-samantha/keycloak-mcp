@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { generateKeyPairSync } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
 import { describeOperation } from '../../src/api.js';
@@ -96,6 +97,19 @@ test('recorded HEAD representations lose nothing but their planted secrets', asy
       assert.ok(typeof before.get(path) === 'string' && isPlanted(before.get(path)), `${name} ${path} changed from ${JSON.stringify(before.get(path))}`);
     }
   }
+});
+
+// Keycloak writes keys as base64 DER without the PEM header and footer (BCPemUtilsProvider.java:48-60).
+const keyPair = generateKeyPairSync('rsa', { modulusLength: 2048 });
+const headerless = (key, type) => key.export({ type, format: 'der' }).toString('base64');
+const recordedCertificate = recorded['components.list'].body.find(component => component.name === 'fixture-imported-rsa').config.certificate[0];
+
+test('the private key of an uploaded keystore is redacted; its certificate and public key are not', async () => {
+  // CertificateInfoHelper.java:303-305 returns the keystore's private key next to its certificate.
+  const op = describeOperation('POST /admin/realms/{realm}/identity-provider/upload-certificate');
+  const uploaded = { privateKey: headerless(keyPair.privateKey, 'pkcs1'), publicKey: headerless(keyPair.publicKey, 'spki'), certificate: recordedCertificate };
+  const response = new Response(JSON.stringify(uploaded), { status: 200, headers: { 'content-type': 'application/json' } });
+  assert.deepEqual((await readResult(response, { op, config: testConfig() })).value, { ...uploaded, privateKey: MARKER });
 });
 
 async function survivingSecrets(settings) {

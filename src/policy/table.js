@@ -99,8 +99,9 @@ export const SECRET_FIELDS = [
   { field: 'clientSecret', in: 'config', reason: 'IdentityProviderRepresentation.config.clientSecret, which Keycloak masks.', source: `${STRIP_SECRETS}:184-187` },
   { field: 'bindCredential', in: 'config', reason: 'The LDAP bind password, a secret provider property that Keycloak masks.',
     source: 'federation/ldap/src/main/java/org/keycloak/storage/ldap/LDAPStorageProviderFactory.java:166-169' },
-  { field: 'privateKey', in: 'config', reason: 'An imported RSA key provider\'s private key, a secret provider property that Keycloak masks.',
-    source: 'keys/Attributes.java:47-48' },
+  { field: 'privateKey', reason: 'A private key in any representation: CertificateRepresentation.privateKey, which POST .../identity-provider/upload-certificate returns in clear and without a PEM header for an uploaded keystore; a key provider\'s imported key, a secret provider property that Keycloak masks; and RealmRepresentation.privateKey.',
+    source: 'services/util/CertificateInfoHelper.java:303-305; services/resources/admin/IdentityProvidersResource.java:146-171; keys/Attributes.java:47-48; ' +
+      'core/src/main/java/org/keycloak/representations/idm/CertificateRepresentation.java:27; RealmRepresentation.java:107' },
   { field: 'keystorePassword', in: 'config', reason: 'A Java keystore key provider\'s store password, a secret provider property.',
     source: 'keys/JavaKeystoreKeyProviderFactory.java:75-76' },
   { field: 'keyPassword', in: 'config', reason: 'A Java keystore key provider\'s key password, a secret provider property.',
