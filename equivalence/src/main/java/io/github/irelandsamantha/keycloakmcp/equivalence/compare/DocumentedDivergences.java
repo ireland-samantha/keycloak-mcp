@@ -27,20 +27,31 @@ import java.util.function.Predicate;
  * one observation: same operation, kind, sources and, unless the kind is {@code route}, the same observed values.
  * Entries that no longer match anything are stale and must be removed, so the file cannot silently outlive the
  * behaviour it explains.
+ *
+ * <p>A {@value #MUTATION_GATE} entry (sources {@value #ENVIRONMENT}) observes nothing: it records that a mutation
+ * cannot be exercised in this environment because it needs a system the harness does not provide, with the reason
+ * and evidence; the mutation checks read it through {@link #ofKind}.
  */
 public final class DocumentedDivergences {
 
     public static final String RESOURCE = "/divergences.json";
 
+    /** Kind of an entry that records a mutation the environment cannot exercise. */
+    public static final String MUTATION_GATE = "mutation-gate";
+    /** The only sources of a {@value #MUTATION_GATE} entry: what it documents is missing from the environment. */
+    public static final String ENVIRONMENT = "environment";
+
     /**
      * @param key      {@code METHOD /named/{path}}
-     * @param observed required except for {@code route}, where the server's answer may vary with enabled features
+     * @param observed required except for {@code route}, where the server's answer may vary with enabled features,
+     *                 and absent for {@value #MUTATION_GATE}, which observes nothing
      * @param since    ISO date the divergence was first documented
      */
     public record Entry(String key, String kind, String sources, SortedMap<String, SortedSet<String>> observed,
                         String reason, String evidence, String since) {
 
-        String operationKey() {
+        /** Name-free key, as the ledger and every surface join on. */
+        public String operationKey() {
             int space = key.indexOf(' ');
             return PathTemplates.operationKey(key.substring(0, space), key.substring(space + 1));
         }
@@ -115,6 +126,11 @@ public final class DocumentedDivergences {
         return new Assessment(documented, List.copyOf(undocumented), stale);
     }
 
+    /** Every entry of {@code kind}, in file order. */
+    public List<Entry> ofKind(String kind) {
+        return entries.stream().filter(e -> e.kind().equals(kind)).toList();
+    }
+
     /** An entry skeleton for an undocumented observation, ready to be completed and pasted into the file. */
     public static String skeleton(Divergence d) {
         Map<String, Object> e = new LinkedHashMap<>();
@@ -140,16 +156,21 @@ public final class DocumentedDivergences {
         } catch (DateTimeParseException e) {
             throw new IllegalArgumentException("Divergence " + key + ": since must be an ISO date: " + since, e);
         }
+        String sources = required(n, "sources");
+        if (kind.equals(MUTATION_GATE) && (n.has("observed") || !sources.equals(ENVIRONMENT))) {
+            throw new IllegalArgumentException("Divergence " + key + " (" + MUTATION_GATE + ") observes nothing: it takes"
+                    + " sources '" + ENVIRONMENT + "' and no 'observed'");
+        }
         SortedMap<String, SortedSet<String>> observed = null;
         if (n.has("observed")) {
             observed = new TreeMap<>();
             for (Map.Entry<String, JsonNode> side : n.path("observed").properties()) {
                 observed.put(side.getKey(), new TreeSet<>(Json.texts(side.getValue())));
             }
-        } else if (!kind.equals("route")) {
+        } else if (!kind.equals("route") && !kind.equals(MUTATION_GATE)) {
             throw new IllegalArgumentException("Divergence " + key + " (" + kind + ") must pin what was observed");
         }
-        return new Entry(key, kind, required(n, "sources"), observed, required(n, "reason"), required(n, "evidence"), since);
+        return new Entry(key, kind, sources, observed, required(n, "reason"), required(n, "evidence"), since);
     }
 
     private static String required(JsonNode n, String field) {

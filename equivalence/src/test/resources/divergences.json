@@ -1,5 +1,5 @@
 {
-  "description": "Documented, reasoned disagreements between the sources the checks compare, and operations the running server refuses for lack of a feature or provider (kinds route and read-gate, sources server). Each entry pins exactly what was observed; an entry that stops matching is stale and fails the build, except route and read-gate entries, which a different feature profile legitimately leaves unused. Server citations are relative to the keycloak/keycloak repository.",
+  "description": "Documented, reasoned disagreements between the sources the checks compare, operations the running server refuses for lack of a feature or provider (kinds route and read-gate, sources server), and mutations this environment cannot exercise because they need a system the harness does not provide (kind mutation-gate, sources environment, no observed; the ledger reports them ROUTED_ONLY with the reason). Each entry pins exactly what was observed; an entry that stops matching is stale and fails the build, except route and read-gate entries, which a different feature profile legitimately leaves unused, and mutation-gate entries whose operation a case now exercises, which are reported. Server citations are relative to the keycloak/keycloak repository.",
   "divergences": [
     {
       "key": "POST /admin/realms/{realm}/clients/{client-uuid}/certificates/{attr}/upload",

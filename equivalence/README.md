@@ -36,7 +36,22 @@ Every verdict and the run's provenance go to `target/equivalence-ledger.json`. P
 
 ## Mutation families
 
-F2 owns every reference operation keycloak-mcp classifies as a mutation (a dry run with writes off refuses it with `writes are disabled`), and every non-GET operation its catalog lacks. An operation gets its `F2:mutation` verdict from its cases, and its `F3:compensation` outcome with it. An operation without a case is `ROUTED_ONLY` ("no mutation case") until a family covers it. `target/mutation-coverage.json` lists those operations, the operations each family covers, and any case for an operation F2 does not own.
+F2 owns every reference operation keycloak-mcp classifies as a mutation (a dry run with writes off refuses it with `writes are disabled`), and every non-GET operation its catalog lacks. An operation gets its `F2:mutation` verdict from its cases, and its `F3:compensation` outcome with it. An operation without a case is `ROUTED_ONLY` ("no mutation case") until a family covers it. `target/mutation-coverage.json` lists those operations, the operations each family covers, the documented mutation gates, and any case for an operation F2 does not own.
+
+Some mutations cannot be performed in this environment at all, because the server would need a system the harness does not provide. Prefer providing it; where that is not possible, document the operation in `divergences.json` as a mutation gate, and the ledger reports it `ROUTED_ONLY` with the gate's reason:
+
+```json
+{
+  "key": "POST /admin/realms/{realm}/...",
+  "kind": "mutation-gate",
+  "sources": "environment",
+  "reason": "what the server needs and why the harness cannot provide it",
+  "evidence": "server source file:line, or the observed failure",
+  "since": "2026-09-29"
+}
+```
+
+A gate observes nothing, so it takes no `observed`, and `reason` and `evidence` are required. A gate whose operation F2 does not own (not a reference operation, or one keycloak-mcp classifies as a read) fails `every mutation gate names a mutation`. A gate whose operation a case now exercises is stale: the cases decide the verdict, and the log line `documented mutation gates now exercised` names the gate to remove, as S3 does for `route` entries.
 
 Cases live in `src/main/java/.../mutations/*Family.java`. Each case runs in fresh twin realms (`equivalence-f2-<family>-<run>-<n>-a`, `-b`, and `-c` for the F3 frame), which are deleted afterwards. keycloak-mcp runs them with `KEYCLOAK_MCP_ALLOW_WRITE`, `KEYCLOAK_MCP_SINGLE_WRITER` and `KEYCLOAK_MCP_ALLOW_IRREVERSIBLE`, and with `KEYCLOAK_MCP_ALLOW_REALM_ADMIN` only for a case whose operation has no `{realm}`.
 
@@ -70,6 +85,7 @@ Sources may disagree only through `src/test/resources/divergences.json`. Each en
 
 - **Undocumented observations** fail the check. The failure message prints a ready-to-complete entry.
 - **Entries that no longer match anything** are stale and also fail. The exceptions are `route` and `read-gate` entries (sources `server`): the server refuses the operation for lack of a feature or provider, and a different feature profile legitimately lifts the gate. F1 reports a documented `read-gate` as `ROUTED_ONLY` with its reason.
+- **`mutation-gate` entries** (sources `environment`) record a mutation this environment cannot exercise; F2 reports the operation `ROUTED_ONLY` with the reason (see [Mutation families](#mutation-families)).
 
 The admin client trails HEAD, so its typed reads may differ from raw HTTP only as `src/test/resources/admin-client-known-lag.json` records: one entry per operation, JSON path and difference kind, with a reason, evidence and the date it was first seen. Array order is not compared where the adapter's own model holds the array in a `Set`. Known-lag and volatility entries that explain nothing in a full run are stale and fail.
 

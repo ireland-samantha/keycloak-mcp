@@ -1,6 +1,7 @@
 package io.github.irelandsamantha.keycloakmcp.equivalence;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import io.github.irelandsamantha.keycloakmcp.equivalence.compare.DocumentedDivergences;
 import io.github.irelandsamantha.keycloakmcp.equivalence.harness.EquivalenceEnvironment;
 import io.github.irelandsamantha.keycloakmcp.equivalence.harness.KeycloakMcpPair;
 import io.github.irelandsamantha.keycloakmcp.equivalence.harness.KeycloakMcpReads;
@@ -48,9 +49,11 @@ import static org.junit.jupiter.api.DynamicTest.dynamicTest;
  * does not have yet run under the {@value RequiresNodeFixes#TAG} tag and fail until the fixes land.
  *
  * <p>F2 owns the reference operations keycloak-mcp classifies as mutations (its dry run refuses them with writes
- * off), and the non-GET operations its catalog lacks. Each one gets an {@code F2:mutation} verdict: its cases' result,
- * or {@code ROUTED_ONLY} ("no mutation case") until a family covers it; {@code target/mutation-coverage.json} lists
- * those. Every other reference operation is out of F2's scope.
+ * off), and the non-GET operations its catalog lacks. Each one gets an {@code F2:mutation} verdict: its cases' result;
+ * {@code ROUTED_ONLY} with the reason of its {@value DocumentedDivergences#MUTATION_GATE} entry in
+ * {@code divergences.json} when it needs a system this environment lacks; or {@code ROUTED_ONLY} ("no mutation case")
+ * until a family covers it. {@code target/mutation-coverage.json} lists those. Every other reference operation is out
+ * of F2's scope.
  *
  * <p>{@code -Dequivalence.families=a,b} runs only the named families. An operation some other family covers is then
  * {@value Verdict#NOT_SELECTED}, and has no verdict in this run.
@@ -77,6 +80,7 @@ class MutationEquivalenceIT {
     private static Map<String, Owner> owners;
     private static MutationCoverage coverage;
     private static List<MutationFamily> selected;
+    private static Map<String, DocumentedDivergences.Entry> gates;
     private static AdminClientOracle adapter;
     private static MutationRunner runner;
     private static final Map<String, List<CaseOutcome>> outcomes = new ConcurrentHashMap<>();
@@ -95,14 +99,18 @@ class MutationEquivalenceIT {
                 mutations.put(key, op.method() + " " + op.path());
             }
         });
-        coverage = MutationCoverage.of(env.catalog().version(), mutations, MutationFamilies.all());
+        List<DocumentedDivergences.Entry> gateEntries = DocumentedDivergences.load().ofKind(DocumentedDivergences.MUTATION_GATE);
+        gates = gateEntries.stream().collect(Collectors.toMap(DocumentedDivergences.Entry::operationKey, e -> e));
+        coverage = MutationCoverage.of(env.catalog().version(), mutations, MutationFamilies.all(), gateEntries);
         selected = MutationFamilies.select(env.settings().families());
         Map<String, List<Endpoint>> bindings = env.adminClientSurface().endpoints().stream()
                 .collect(Collectors.groupingBy(Endpoint::key));
         adapter = new AdminClientOracle(env.serverUrl(), env.serviceAccount());
         runner = new MutationRunner(env, catalog, bindings, adapter);
-        System.out.printf("F2: %d of %d mutation operations have cases; %d are ROUTED_ONLY ('no mutation case'), listed in %s%n",
-                coverage.covered(), coverage.mutationOperations(), coverage.uncovered().size(), COVERAGE);
+        System.out.printf("F2: %d of %d mutation operations have cases; %d are documented mutation gates; %d are ROUTED_ONLY"
+                        + " ('no mutation case'), listed in %s; documented mutation gates now exercised: %s%n",
+                coverage.covered(), coverage.mutationOperations(), coverage.gated().size(), coverage.uncovered().size(),
+                COVERAGE, coverage.gatesExercised());
         if (!env.settings().families().isEmpty()) {
             System.out.printf("F2: running the families %s only (equivalence.families)%n",
                     selected.stream().map(MutationFamily::name).toList());
@@ -126,7 +134,9 @@ class MutationEquivalenceIT {
 
     @TestFactory
     Stream<DynamicTest> everyCaseMatchesTheReference() {
-        return Stream.concat(Stream.of(dynamicTest("every case exercises a mutation", MutationEquivalenceIT::casesAreMutations)),
+        return Stream.concat(Stream.of(
+                        dynamicTest("every case exercises a mutation", MutationEquivalenceIT::casesAreMutations),
+                        dynamicTest("every mutation gate names a mutation", MutationEquivalenceIT::gatesAreMutations)),
                 tests(c -> c.requires().isEmpty()));
     }
 
@@ -151,6 +161,12 @@ class MutationEquivalenceIT {
     private static void casesAreMutations() {
         assertTrue(coverage.notMutations().isEmpty(), () -> "Cases for operations F2 does not own (keycloak-mcp"
                 + " classifies them as reads, so F1 covers them): " + coverage.notMutations());
+    }
+
+    private static void gatesAreMutations() {
+        assertTrue(coverage.gatesNotMutations().isEmpty(), () -> DocumentedDivergences.MUTATION_GATE + " entries in"
+                + " divergences.json for operations F2 does not own (not a reference operation, or keycloak-mcp classifies"
+                + " it as a read): " + coverage.gatesNotMutations());
     }
 
     /**
@@ -210,10 +226,15 @@ class MutationEquivalenceIT {
         });
     }
 
-    /** The operation's verdict from all of its cases; a case that did not run leaves it unproven. */
+    /**
+     * The operation's verdict from all of its cases; a case that did not run leaves it unproven. Without a case, a
+     * mutation gate gives the reason it is only routed.
+     */
     private static void recordMutation(String key, List<MutationCase> cases) {
         if (cases.isEmpty()) {
-            env.ledger().record(key, Verdict.F2_MUTATION, Verdict.Outcome.ROUTED_ONLY.name(), true, "no mutation case");
+            DocumentedDivergences.Entry gate = gates.get(key);
+            env.ledger().record(key, Verdict.F2_MUTATION, Verdict.Outcome.ROUTED_ONLY.name(), true,
+                    gate == null ? "no mutation case" : MutationCoverage.reason(gate));
             return;
         }
         List<CaseOutcome> ran = outcomes.getOrDefault(key, List.of());
