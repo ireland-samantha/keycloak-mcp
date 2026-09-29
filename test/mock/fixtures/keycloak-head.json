@@ -1,0 +1,885 @@
+{
+ "provenance": {
+  "image": "quay.io/keycloak/keycloak:nightly",
+  "imageDigest": "sha256:6184d6c6fb25c9f013e2e803b56001e91efff023633c797f7114405aa0f98c94",
+  "serverVersion": "999.0.0-SNAPSHOT",
+  "recordedAt": "2026-09-29",
+  "recorder": "scripts/record-mock-fixtures.mjs",
+  "placeholders": "{origin} and {realm} stand for the server origin and realm; <scrubbed-jwt> and <scrubbed-secret> replace tokens and planted secrets"
+ },
+ "responses": {
+  "realm.create": {
+   "operation": "POST /admin/realms",
+   "status": 201,
+   "headers": {
+    "location": "{origin}/admin/realms/{realm}"
+   },
+   "body": null
+  },
+  "realm.get": {
+   "operation": "GET /admin/realms/{realm}",
+   "status": 200,
+   "headers": {
+    "content-type": "application/json;charset=UTF-8"
+   },
+   "body": {
+    "id": "cd7ade85-3b28-4dc9-9859-fccb81e0bc15",
+    "realm": "{realm}",
+    "notBefore": 0,
+    "defaultSignatureAlgorithm": "RS256",
+    "revokeRefreshToken": false,
+    "refreshTokenMaxReuse": 0,
+    "accessTokenLifespan": 300,
+    "accessTokenLifespanForImplicitFlow": 900,
+    "ssoSessionIdleTimeout": 1800,
+    "ssoSessionMaxLifespan": 36000,
+    "ssoSessionIdleTimeoutRememberMe": 0,
+    "ssoSessionMaxLifespanRememberMe": 0,
+    "offlineSessionIdleTimeout": 2592000,
+    "offlineSessionMaxLifespanEnabled": false,
+    "offlineSessionMaxLifespan": 5184000,
+    "clientSessionIdleTimeout": 0,
+    "clientSessionMaxLifespan": 0,
+    "clientOfflineSessionIdleTimeout": 0,
+    "clientOfflineSessionMaxLifespan": 0,
+    "accessCodeLifespan": 60,
+    "accessCodeLifespanUserAction": 300,
+    "accessCodeLifespanLogin": 1800,
+    "actionTokenGeneratedByAdminLifespan": 43200,
+    "actionTokenGeneratedByUserLifespan": 300,
+    "oauth2DeviceCodeLifespan": 600,
+    "oauth2DevicePollingInterval": 5,
+    "enabled": true,
+    "sslRequired": "external",
+    "registrationAllowed": false,
+    "registrationEmailAsUsername": false,
+    "rememberMe": false,
+    "verifyEmail": false,
+    "loginWithEmailAllowed": true,
+    "duplicateEmailsAllowed": false,
+    "resetPasswordAllowed": false,
+    "editUsernameAllowed": false,
+    "bruteForceProtected": false,
+    "permanentLockout": false,
+    "maxTemporaryLockouts": 0,
+    "bruteForceStrategy": "MULTIPLE",
+    "maxFailureWaitSeconds": 900,
+    "minimumQuickLoginWaitSeconds": 60,
+    "waitIncrementSeconds": 60,
+    "quickLoginCheckMilliSeconds": 1000,
+    "maxDeltaTimeSeconds": 43200,
+    "failureFactor": 30,
+    "maxSecondaryAuthFailures": 0,
+    "defaultRole": {
+     "id": "35a5e11a-6fd9-4aa9-a3b5-99293b30891c",
+     "name": "default-roles-{realm}",
+     "description": "${role_default-roles}",
+     "composite": true,
+     "clientRole": false,
+     "containerId": "cd7ade85-3b28-4dc9-9859-fccb81e0bc15"
+    },
+    "requiredCredentials": [
+     "password"
+    ],
+    "otpPolicyType": "totp",
+    "otpPolicyAlgorithm": "HmacSHA1",
+    "otpPolicyInitialCounter": 0,
+    "otpPolicyDigits": 6,
+    "otpPolicyLookAheadWindow": 1,
+    "otpPolicyPeriod": 30,
+    "otpPolicyCodeReusable": false,
+    "otpSupportedApplications": [
+     "totpAppFreeOTPName",
+     "totpAppGoogleName",
+     "totpAppMicrosoftAuthenticatorName"
+    ],
+    "webAuthnPolicyRpEntityName": "keycloak",
+    "webAuthnPolicySignatureAlgorithms": [
+     "ES256",
+     "RS256"
+    ],
+    "webAuthnPolicyRpId": "",
+    "webAuthnPolicyAttestationConveyancePreference": "not specified",
+    "webAuthnPolicyAuthenticatorAttachment": "not specified",
+    "webAuthnPolicyRequireResidentKey": "not specified",
+    "webAuthnPolicyResidentKey": "not specified",
+    "webAuthnPolicyUserVerificationRequirement": "not specified",
+    "webAuthnPolicyCreateTimeout": 0,
+    "webAuthnPolicyAvoidSameAuthenticatorRegister": false,
+    "webAuthnPolicyAcceptableAaguids": [],
+    "webAuthnPolicyExtraOrigins": [],
+    "webAuthnPolicyPasswordlessRpEntityName": "keycloak",
+    "webAuthnPolicyPasswordlessSignatureAlgorithms": [
+     "ES256",
+     "RS256"
+    ],
+    "webAuthnPolicyPasswordlessRpId": "",
+    "webAuthnPolicyPasswordlessAttestationConveyancePreference": "not specified",
+    "webAuthnPolicyPasswordlessAuthenticatorAttachment": "not specified",
+    "webAuthnPolicyPasswordlessRequireResidentKey": "not specified",
+    "webAuthnPolicyPasswordlessResidentKey": "required",
+    "webAuthnPolicyPasswordlessUserVerificationRequirement": "required",
+    "webAuthnPolicyPasswordlessCreateTimeout": 0,
+    "webAuthnPolicyPasswordlessAvoidSameAuthenticatorRegister": false,
+    "webAuthnPolicyPasswordlessAcceptableAaguids": [],
+    "webAuthnPolicyPasswordlessExtraOrigins": [],
+    "browserSecurityHeaders": {
+     "contentSecurityPolicyReportOnly": "",
+     "xContentTypeOptions": "nosniff",
+     "referrerPolicy": "no-referrer",
+     "xRobotsTag": "none",
+     "xFrameOptions": "SAMEORIGIN",
+     "contentSecurityPolicy": "frame-src 'self'; frame-ancestors 'self'; object-src 'none';",
+     "strictTransportSecurity": "max-age=31536000; includeSubDomains"
+    },
+    "smtpServer": {
+     "host": "smtp.example.invalid",
+     "password": "**********",
+     "from": "noreply@example.invalid",
+     "port": "25",
+     "auth": "true",
+     "user": "mailer"
+    },
+    "eventsEnabled": false,
+    "eventsListeners": [
+     "jboss-logging"
+    ],
+    "enabledEventTypes": [],
+    "adminEventsEnabled": true,
+    "adminEventsDetailsEnabled": true,
+    "internationalizationEnabled": false,
+    "browserFlow": "browser",
+    "registrationFlow": "registration",
+    "directGrantFlow": "direct grant",
+    "resetCredentialsFlow": "reset credentials",
+    "clientAuthenticationFlow": "clients",
+    "dockerAuthenticationFlow": "docker auth",
+    "firstBrokerLoginFlow": "first broker login",
+    "attributes": {
+     "cibaBackchannelTokenDeliveryMode": "poll",
+     "cibaExpiresIn": "120",
+     "cibaAuthRequestedUserHint": "login_hint",
+     "oauth2DeviceCodeLifespan": "600",
+     "oauth2DevicePollingInterval": "5",
+     "parRequestUriLifespan": "60",
+     "cibaInterval": "5",
+     "realmReusableOtpCode": "false"
+    },
+    "userManagedAccessAllowed": false,
+    "organizationsEnabled": false,
+    "verifiableCredentialsEnabled": false,
+    "adminPermissionsEnabled": false,
+    "scimApiEnabled": false,
+    "clientProfiles": {
+     "profiles": []
+    },
+    "clientPolicies": {
+     "policies": []
+    }
+   }
+  },
+  "realm.update": {
+   "operation": "PUT /admin/realms/{realm}",
+   "status": 204,
+   "headers": {},
+   "body": null
+  },
+  "clients.create": {
+   "operation": "POST /admin/realms/{realm}/clients",
+   "status": 201,
+   "headers": {
+    "location": "{origin}/admin/realms/{realm}/clients/12d1a76e-c357-4eab-8f60-c56eeeecf0a4"
+   },
+   "body": null
+  },
+  "clients.list": {
+   "operation": "GET /admin/realms/{realm}/clients",
+   "status": 200,
+   "headers": {
+    "content-type": "application/json;charset=UTF-8"
+   },
+   "body": [
+    {
+     "id": "12d1a76e-c357-4eab-8f60-c56eeeecf0a4",
+     "clientId": "fixture-service",
+     "surrogateAuthRequired": false,
+     "enabled": true,
+     "alwaysDisplayInConsole": false,
+     "clientAuthenticatorType": "client-secret",
+     "secret": "<scrubbed-secret>",
+     "redirectUris": [],
+     "webOrigins": [],
+     "notBefore": 0,
+     "bearerOnly": false,
+     "consentRequired": false,
+     "standardFlowEnabled": false,
+     "implicitFlowEnabled": false,
+     "directAccessGrantsEnabled": false,
+     "serviceAccountsEnabled": true,
+     "authorizationServicesEnabled": true,
+     "publicClient": false,
+     "frontchannelLogout": false,
+     "protocol": "openid-connect",
+     "attributes": {
+      "realm_client": "false"
+     },
+     "authenticationFlowBindingOverrides": {},
+     "fullScopeAllowed": true,
+     "nodeReRegistrationTimeout": -1,
+     "defaultClientScopes": [
+      "web-origins",
+      "service_account",
+      "acr",
+      "roles",
+      "profile",
+      "basic",
+      "email"
+     ],
+     "optionalClientScopes": [
+      "address",
+      "phone",
+      "offline_access",
+      "organization",
+      "microprofile-jwt"
+     ],
+     "access": {
+      "view": true,
+      "configure": true,
+      "manage": true
+     }
+    }
+   ]
+  },
+  "client.get": {
+   "operation": "GET /admin/realms/{realm}/clients/{client-uuid}",
+   "status": 200,
+   "headers": {
+    "content-type": "application/json;charset=UTF-8"
+   },
+   "body": {
+    "id": "12d1a76e-c357-4eab-8f60-c56eeeecf0a4",
+    "clientId": "fixture-service",
+    "surrogateAuthRequired": false,
+    "enabled": true,
+    "alwaysDisplayInConsole": false,
+    "clientAuthenticatorType": "client-secret",
+    "secret": "<scrubbed-secret>",
+    "redirectUris": [],
+    "webOrigins": [],
+    "notBefore": 0,
+    "bearerOnly": false,
+    "consentRequired": false,
+    "standardFlowEnabled": false,
+    "implicitFlowEnabled": false,
+    "directAccessGrantsEnabled": false,
+    "serviceAccountsEnabled": true,
+    "authorizationServicesEnabled": true,
+    "publicClient": false,
+    "frontchannelLogout": false,
+    "protocol": "openid-connect",
+    "attributes": {
+     "realm_client": "false"
+    },
+    "authenticationFlowBindingOverrides": {},
+    "fullScopeAllowed": true,
+    "nodeReRegistrationTimeout": -1,
+    "defaultClientScopes": [
+     "web-origins",
+     "service_account",
+     "acr",
+     "roles",
+     "profile",
+     "basic",
+     "email"
+    ],
+    "optionalClientScopes": [
+     "address",
+     "phone",
+     "offline_access",
+     "organization",
+     "microprofile-jwt"
+    ],
+    "access": {
+     "view": true,
+     "configure": true,
+     "manage": true
+    }
+   }
+  },
+  "client.secret": {
+   "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/client-secret",
+   "status": 200,
+   "headers": {
+    "content-type": "application/json;charset=UTF-8"
+   },
+   "body": {
+    "type": "secret",
+    "value": "<scrubbed-secret>"
+   }
+  },
+  "client.installation.json": {
+   "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/installation/providers/{providerId}",
+   "status": 200,
+   "headers": {
+    "content-type": "text/plain"
+   },
+   "body": "{\n  \"realm\" : \"{realm}\",\n  \"auth-server-url\" : \"{origin}/\",\n  \"ssl-required\" : \"external\",\n  \"resource\" : \"fixture-service\",\n  \"verify-token-audience\" : true,\n  \"credentials\" : {\n    \"secret\" : \"<scrubbed-secret>\"\n  },\n  \"confidential-port\" : 0,\n  \"policy-enforcer\" : {\n    \"credentials\" : { }\n  }\n}"
+  },
+  "client.installation.xml": {
+   "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/installation/providers/{providerId}",
+   "status": 200,
+   "headers": {
+    "content-type": "text/plain"
+   },
+   "body": "<secure-deployment name=\"WAR MODULE NAME.war\">\n    <realm>{realm}</realm>\n    <auth-server-url>{origin}/</auth-server-url>\n    <ssl-required>EXTERNAL</ssl-required>\n    <resource>fixture-service</resource>\n    <verify-token-audience>true</verify-token-audience>\n    <credential name=\"secret\"><scrubbed-secret></credential>\n    <use-resource-role-mappings>true</use-resource-role-mappings>\n</secure-deployment>\n"
+  },
+  "client.certificate": {
+   "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/certificates/{attr}",
+   "status": 200,
+   "headers": {
+    "content-type": "application/json;charset=UTF-8"
+   },
+   "body": {}
+  },
+  "token.ok": {
+   "operation": "POST /realms/{realm}/protocol/openid-connect/token",
+   "status": 200,
+   "headers": {
+    "content-type": "application/json"
+   },
+   "body": {
+    "access_token": "<scrubbed-jwt>",
+    "expires_in": 300,
+    "refresh_expires_in": 0,
+    "token_type": "Bearer",
+    "not-before-policy": 0,
+    "scope": "email profile"
+   }
+  },
+  "token.invalidClient": {
+   "operation": "POST /realms/{realm}/protocol/openid-connect/token",
+   "status": 401,
+   "headers": {
+    "content-type": "application/json"
+   },
+   "body": {
+    "error": "unauthorized_client",
+    "error_description": "Invalid client or Invalid client credentials"
+   }
+  },
+  "admin.unauthorized": {
+   "operation": "GET /admin/realms/{realm}",
+   "status": 401,
+   "headers": {
+    "content-type": "application/json"
+   },
+   "body": {
+    "error": "HTTP 401 Unauthorized"
+   }
+  },
+  "route.notFound": {
+   "operation": "GET /admin/realms/{realm}/no-such-route",
+   "status": 404,
+   "headers": {
+    "content-type": "application/json"
+   },
+   "body": {
+    "error": "HTTP 404 Not Found"
+   }
+  },
+  "users.create": {
+   "operation": "POST /admin/realms/{realm}/users",
+   "status": 201,
+   "headers": {
+    "location": "{origin}/admin/realms/{realm}/users/9375b86b-9d65-4712-9383-82d98626ed51"
+   },
+   "body": null
+  },
+  "users.list": {
+   "operation": "GET /admin/realms/{realm}/users",
+   "status": 200,
+   "headers": {
+    "content-type": "application/json;charset=UTF-8"
+   },
+   "body": [
+    {
+     "id": "9375b86b-9d65-4712-9383-82d98626ed51",
+     "username": "fixture-user",
+     "firstName": "Fixture",
+     "lastName": "User",
+     "email": "fixture-user@example.invalid",
+     "emailVerified": false,
+     "enabled": true,
+     "createdTimestamp": 1790654297394,
+     "access": {
+      "manage": true
+     }
+    }
+   ]
+  },
+  "users.count": {
+   "operation": "GET /admin/realms/{realm}/users/count",
+   "status": 200,
+   "headers": {
+    "content-type": "application/json;charset=UTF-8"
+   },
+   "body": 1
+  },
+  "user.get": {
+   "operation": "GET /admin/realms/{realm}/users/{user-id}",
+   "status": 200,
+   "headers": {
+    "content-type": "application/json;charset=UTF-8"
+   },
+   "body": {
+    "id": "9375b86b-9d65-4712-9383-82d98626ed51",
+    "username": "fixture-user",
+    "firstName": "Fixture",
+    "lastName": "User",
+    "email": "fixture-user@example.invalid",
+    "emailVerified": false,
+    "enabled": true,
+    "createdTimestamp": 1790654297394,
+    "totp": false,
+    "disableableCredentialTypes": [],
+    "requiredActions": [],
+    "notBefore": 0,
+    "access": {
+     "manageGroupMembership": true,
+     "delegate": false,
+     "resetPassword": true,
+     "view": true,
+     "mapRoles": true,
+     "impersonate": true,
+     "manage": true
+    }
+   }
+  },
+  "user.notFound": {
+   "operation": "GET /admin/realms/{realm}/users/{user-id}",
+   "status": 404,
+   "headers": {
+    "content-type": "application/json"
+   },
+   "body": {
+    "error": "User not found"
+   }
+  },
+  "user.credentials": {
+   "operation": "GET /admin/realms/{realm}/users/{user-id}/credentials",
+   "status": 200,
+   "headers": {
+    "content-type": "application/json;charset=UTF-8"
+   },
+   "body": [
+    {
+     "id": "870bfc0d-7065-4f8b-a9bc-9b065cc55aec",
+     "type": "password",
+     "createdDate": 1790654297486,
+     "credentialData": "{\"hashIterations\":5,\"algorithm\":\"argon2\",\"additionalParameters\":{\"hashLength\":[\"32\"],\"memory\":[\"7168\"],\"type\":[\"id\"],\"version\":[\"1.3\"],\"parallelism\":[\"1\"]}}"
+    }
+   ]
+  },
+  "example.accessToken": {
+   "operation": "GET /admin/realms/{realm}/clients/{client-uuid}/evaluate-scopes/generate-example-access-token",
+   "status": 200,
+   "headers": {
+    "content-type": "application/json;charset=UTF-8"
+   },
+   "body": {
+    "exp": 1790654597,
+    "iat": 1790654297,
+    "jti": "onrtna:0ede1da9-7802-850b-35c0-0b6b0cc0fe46",
+    "iss": "{origin}/realms/{realm}",
+    "aud": "account",
+    "sub": "9375b86b-9d65-4712-9383-82d98626ed51",
+    "typ": "Bearer",
+    "azp": "fixture-service",
+    "sid": "6TmmGBDgyqRdOJ_5uxLHfu--",
+    "acr": "1",
+    "realm_access": {
+     "roles": [
+      "offline_access",
+      "default-roles-{realm}",
+      "uma_authorization"
+     ]
+    },
+    "resource_access": {
+     "account": {
+      "roles": [
+       "manage-account",
+       "manage-account-links",
+       "view-profile"
+      ]
+     }
+    },
+    "scope": "email profile",
+    "email_verified": false,
+    "name": "Fixture User",
+    "preferred_username": "fixture-user",
+    "given_name": "Fixture",
+    "family_name": "User",
+    "email": "fixture-user@example.invalid"
+   }
+  },
+  "groups.create": {
+   "operation": "POST /admin/realms/{realm}/groups",
+   "status": 201,
+   "headers": {
+    "location": "{origin}/admin/realms/{realm}/groups/08acff9e-87e7-4bdd-a290-b7e7f0502ee9"
+   },
+   "body": null
+  },
+  "groups.conflict": {
+   "operation": "POST /admin/realms/{realm}/groups",
+   "status": 409,
+   "headers": {
+    "content-type": "application/json"
+   },
+   "body": {
+    "errorMessage": "Top level group named 'fixture-group' already exists."
+   }
+  },
+  "groups.list": {
+   "operation": "GET /admin/realms/{realm}/groups",
+   "status": 200,
+   "headers": {
+    "content-type": "application/json;charset=UTF-8"
+   },
+   "body": [
+    {
+     "id": "08acff9e-87e7-4bdd-a290-b7e7f0502ee9",
+     "name": "fixture-group",
+     "path": "/fixture-group",
+     "subGroupCount": 0,
+     "subGroups": [],
+     "access": {
+      "view": true,
+      "viewMembers": true,
+      "manageMembers": true,
+      "manage": true,
+      "manageMembership": true
+     }
+    }
+   ]
+  },
+  "roles.create": {
+   "operation": "POST /admin/realms/{realm}/roles",
+   "status": 201,
+   "headers": {
+    "location": "{origin}/admin/realms/{realm}/roles/fixture-role"
+   },
+   "body": null
+  },
+  "idp.create": {
+   "operation": "POST /admin/realms/{realm}/identity-provider/instances",
+   "status": 201,
+   "headers": {
+    "location": "{origin}/admin/realms/{realm}/identity-provider/instances/fixture-idp"
+   },
+   "body": null
+  },
+  "idp.get": {
+   "operation": "GET /admin/realms/{realm}/identity-provider/instances/{alias}",
+   "status": 200,
+   "headers": {
+    "content-type": "application/json;charset=UTF-8"
+   },
+   "body": {
+    "alias": "fixture-idp",
+    "internalId": "fab8b812-adf9-4b6c-a95f-f95bce6ae20e",
+    "providerId": "oidc",
+    "enabled": false,
+    "config": {
+     "clientSecret": "**********",
+     "clientId": "fixture-broker",
+     "tokenUrl": "https://idp.example.invalid/token",
+     "clientAuthMethod": "client_secret_post",
+     "authorizationUrl": "https://idp.example.invalid/auth"
+    },
+    "types": [
+     "USER_AUTHENTICATION",
+     "CLIENT_ASSERTION",
+     "TRUST_MATERIAL",
+     "EXCHANGE_EXTERNAL_TOKEN",
+     "JWT_AUTHORIZATION_GRANT"
+    ]
+   }
+  },
+  "authz.scope.create": {
+   "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/scope",
+   "status": 201,
+   "headers": {
+    "content-type": "application/json;charset=UTF-8"
+   },
+   "body": {
+    "id": "638458b3-ebfc-4494-8864-d0f0f3b52421",
+    "name": "fixture-scope"
+   }
+  },
+  "authz.scope.createExisting": {
+   "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/scope",
+   "status": 201,
+   "headers": {
+    "content-type": "application/json;charset=UTF-8"
+   },
+   "body": {
+    "id": "638458b3-ebfc-4494-8864-d0f0f3b52421",
+    "name": "fixture-scope"
+   }
+  },
+  "authz.resource.create": {
+   "operation": "POST /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/resource",
+   "status": 201,
+   "headers": {
+    "content-type": "application/json;charset=UTF-8"
+   },
+   "body": {
+    "name": "fixture-resource",
+    "owner": {
+     "id": "12d1a76e-c357-4eab-8f60-c56eeeecf0a4",
+     "name": "fixture-service"
+    },
+    "ownerManagedAccess": false,
+    "attributes": {},
+    "_id": "53a52e7b-2726-4957-89d6-f7bed040a5d5",
+    "uris": []
+   }
+  },
+  "initialAccess.create": {
+   "operation": "POST /admin/realms/{realm}/clients-initial-access",
+   "status": 201,
+   "headers": {
+    "content-type": "application/json;charset=UTF-8",
+    "location": "{origin}/admin/realms/{realm}/clients-initial-access/56008f63-88d9-4f9b-b799-66c2d7d3d840"
+   },
+   "body": {
+    "id": "56008f63-88d9-4f9b-b799-66c2d7d3d840",
+    "token": "<scrubbed-jwt>",
+    "timestamp": 1790654297,
+    "expiration": 60,
+    "count": 1,
+    "remainingCount": 1
+   }
+  },
+  "initialAccess.list": {
+   "operation": "GET /admin/realms/{realm}/clients-initial-access",
+   "status": 200,
+   "headers": {
+    "content-type": "application/json;charset=UTF-8"
+   },
+   "body": [
+    {
+     "id": "56008f63-88d9-4f9b-b799-66c2d7d3d840",
+     "timestamp": 1790654297,
+     "expiration": 60,
+     "count": 1,
+     "remainingCount": 1
+    }
+   ]
+  },
+  "workflows.default": {
+   "operation": "GET /admin/realms/{realm}/workflows",
+   "status": 200,
+   "headers": {
+    "content-type": "application/yaml;charset=UTF-8"
+   },
+   "body": "--- []\n"
+  },
+  "workflows.json": {
+   "operation": "GET /admin/realms/{realm}/workflows",
+   "status": 200,
+   "headers": {
+    "content-type": "application/json;charset=UTF-8"
+   },
+   "body": []
+  },
+  "events.config": {
+   "operation": "GET /admin/realms/{realm}/events/config",
+   "status": 200,
+   "headers": {
+    "content-type": "application/json;charset=UTF-8"
+   },
+   "body": {
+    "eventsEnabled": false,
+    "eventsListeners": [
+     "jboss-logging"
+    ],
+    "enabledEventTypes": [
+     "LOGIN",
+     "LOGIN_ERROR",
+     "REGISTER",
+     "REGISTER_ERROR",
+     "LOGOUT",
+     "LOGOUT_ERROR",
+     "CODE_TO_TOKEN",
+     "CODE_TO_TOKEN_ERROR",
+     "CLIENT_LOGIN",
+     "CLIENT_LOGIN_ERROR",
+     "FEDERATED_IDENTITY_LINK",
+     "FEDERATED_IDENTITY_LINK_ERROR",
+     "REMOVE_FEDERATED_IDENTITY",
+     "REMOVE_FEDERATED_IDENTITY_ERROR",
+     "UPDATE_EMAIL",
+     "UPDATE_EMAIL_ERROR",
+     "UPDATE_PROFILE",
+     "UPDATE_PROFILE_ERROR",
+     "UPDATE_PASSWORD",
+     "UPDATE_PASSWORD_ERROR",
+     "UPDATE_TOTP",
+     "UPDATE_TOTP_ERROR",
+     "VERIFY_EMAIL",
+     "VERIFY_EMAIL_ERROR",
+     "VERIFY_PROFILE",
+     "VERIFY_PROFILE_ERROR",
+     "REMOVE_TOTP",
+     "REMOVE_TOTP_ERROR",
+     "GRANT_CONSENT",
+     "GRANT_CONSENT_ERROR",
+     "UPDATE_CONSENT",
+     "UPDATE_CONSENT_ERROR",
+     "REVOKE_GRANT",
+     "REVOKE_GRANT_ERROR",
+     "SEND_VERIFY_EMAIL",
+     "SEND_VERIFY_EMAIL_ERROR",
+     "SEND_RESET_PASSWORD",
+     "SEND_RESET_PASSWORD_ERROR",
+     "SEND_IDENTITY_PROVIDER_LINK",
+     "SEND_IDENTITY_PROVIDER_LINK_ERROR",
+     "RESET_PASSWORD",
+     "RESET_PASSWORD_ERROR",
+     "RESTART_AUTHENTICATION",
+     "RESTART_AUTHENTICATION_ERROR",
+     "IDENTITY_PROVIDER_LINK_ACCOUNT",
+     "IDENTITY_PROVIDER_LINK_ACCOUNT_ERROR",
+     "IDENTITY_PROVIDER_LOGIN",
+     "IDENTITY_PROVIDER_LOGIN_ERROR",
+     "IDENTITY_PROVIDER_FIRST_LOGIN",
+     "IDENTITY_PROVIDER_FIRST_LOGIN_ERROR",
+     "IDENTITY_PROVIDER_POST_LOGIN",
+     "IDENTITY_PROVIDER_POST_LOGIN_ERROR",
+     "IMPERSONATE",
+     "IMPERSONATE_ERROR",
+     "CUSTOM_REQUIRED_ACTION",
+     "CUSTOM_REQUIRED_ACTION_ERROR",
+     "EXECUTE_ACTIONS",
+     "EXECUTE_ACTIONS_ERROR",
+     "EXECUTE_ACTION_TOKEN_ERROR",
+     "CLIENT_REGISTER",
+     "CLIENT_REGISTER_ERROR",
+     "CLIENT_UPDATE",
+     "CLIENT_UPDATE_ERROR",
+     "CLIENT_DELETE",
+     "CLIENT_DELETE_ERROR",
+     "CLIENT_INITIATED_ACCOUNT_LINKING",
+     "CLIENT_INITIATED_ACCOUNT_LINKING_ERROR",
+     "TOKEN_EXCHANGE",
+     "TOKEN_EXCHANGE_ERROR",
+     "OAUTH2_DEVICE_AUTH",
+     "OAUTH2_DEVICE_AUTH_ERROR",
+     "OAUTH2_DEVICE_VERIFY_USER_CODE",
+     "OAUTH2_DEVICE_VERIFY_USER_CODE_ERROR",
+     "OAUTH2_DEVICE_CODE_TO_TOKEN",
+     "OAUTH2_DEVICE_CODE_TO_TOKEN_ERROR",
+     "AUTHREQID_TO_TOKEN",
+     "AUTHREQID_TO_TOKEN_ERROR",
+     "PERMISSION_TOKEN",
+     "DELETE_ACCOUNT",
+     "DELETE_ACCOUNT_ERROR",
+     "USER_DISABLED_BY_PERMANENT_LOCKOUT",
+     "USER_DISABLED_BY_TEMPORARY_LOCKOUT",
+     "OAUTH2_EXTENSION_GRANT",
+     "OAUTH2_EXTENSION_GRANT_ERROR",
+     "FEDERATED_IDENTITY_OVERRIDE_LINK",
+     "FEDERATED_IDENTITY_OVERRIDE_LINK_ERROR",
+     "UPDATE_CREDENTIAL",
+     "UPDATE_CREDENTIAL_ERROR",
+     "REMOVE_CREDENTIAL",
+     "REMOVE_CREDENTIAL_ERROR",
+     "INVITE_ORG",
+     "INVITE_ORG_ERROR",
+     "VERIFIABLE_CREDENTIAL_REQUEST",
+     "VERIFIABLE_CREDENTIAL_REQUEST_ERROR",
+     "VERIFIABLE_CREDENTIAL_OFFER_REQUEST",
+     "VERIFIABLE_CREDENTIAL_OFFER_REQUEST_ERROR",
+     "VERIFIABLE_CREDENTIAL_CREATE_OFFER",
+     "VERIFIABLE_CREDENTIAL_CREATE_OFFER_ERROR",
+     "VERIFIABLE_CREDENTIAL_PRE_AUTHORIZED_GRANT",
+     "VERIFIABLE_CREDENTIAL_PRE_AUTHORIZED_GRANT_ERROR",
+     "JWT_AUTHORIZATION_GRANT",
+     "JWT_AUTHORIZATION_GRANT_ERROR"
+    ],
+    "adminEventsEnabled": true,
+    "adminEventsDetailsEnabled": true
+   }
+  },
+  "groups.delete": {
+   "operation": "DELETE /admin/realms/{realm}/groups/{group-id}",
+   "status": 204,
+   "headers": {},
+   "body": null
+  },
+  "adminEvents.list": {
+   "operation": "GET /admin/realms/{realm}/admin-events",
+   "status": 200,
+   "headers": {
+    "content-type": "application/json;charset=UTF-8"
+   },
+   "body": [
+    {
+     "id": "bd14efe9-ae53-4c12-ad12-106eaf359ee2",
+     "time": 1790654298121,
+     "realmId": "cd7ade85-3b28-4dc9-9859-fccb81e0bc15",
+     "authDetails": {
+      "realmId": "20c0387b-e120-493d-aea7-5a14b084b4b6",
+      "clientId": "a7822776-1f66-474b-916d-9b8be96faf64",
+      "userId": "65f83da4-1368-49ea-95e5-89e73ef12df0",
+      "ipAddress": "172.17.0.1"
+     },
+     "operationType": "DELETE",
+     "resourceType": "GROUP",
+     "resourcePath": "groups/08acff9e-87e7-4bdd-a290-b7e7f0502ee9",
+     "representation": "{\"id\":\"08acff9e-87e7-4bdd-a290-b7e7f0502ee9\",\"name\":\"fixture-group\",\"subGroups\":[]}"
+    },
+    {
+     "id": "c8edaa50-2cb8-4907-9638-ffbcbc68ca34",
+     "time": 1790654297991,
+     "realmId": "cd7ade85-3b28-4dc9-9859-fccb81e0bc15",
+     "authDetails": {
+      "realmId": "20c0387b-e120-493d-aea7-5a14b084b4b6",
+      "clientId": "a7822776-1f66-474b-916d-9b8be96faf64",
+      "userId": "65f83da4-1368-49ea-95e5-89e73ef12df0",
+      "ipAddress": "172.17.0.1"
+     },
+     "operationType": "CREATE",
+     "resourceType": "CLIENT_INITIAL_ACCESS_MODEL",
+     "resourcePath": "clients-initial-access/56008f63-88d9-4f9b-b799-66c2d7d3d840",
+     "representation": "{\"expiration\":60,\"count\":1}"
+    },
+    {
+     "id": "b813ee22-2df5-4f00-9dd9-373eae18eb3b",
+     "time": 1790654297963,
+     "realmId": "cd7ade85-3b28-4dc9-9859-fccb81e0bc15",
+     "authDetails": {
+      "realmId": "20c0387b-e120-493d-aea7-5a14b084b4b6",
+      "clientId": "a7822776-1f66-474b-916d-9b8be96faf64",
+      "userId": "65f83da4-1368-49ea-95e5-89e73ef12df0",
+      "ipAddress": "172.17.0.1"
+     },
+     "operationType": "CREATE",
+     "resourceType": "AUTHORIZATION_RESOURCE",
+     "resourcePath": "clients/12d1a76e-c357-4eab-8f60-c56eeeecf0a4/authz/resource-server/resource/53a52e7b-2726-4957-89d6-f7bed040a5d5",
+     "representation": "{\"name\":\"fixture-resource\",\"owner\":{\"id\":\"12d1a76e-c357-4eab-8f60-c56eeeecf0a4\"},\"_id\":\"53a52e7b-2726-4957-89d6-f7bed040a5d5\"}"
+    }
+   ]
+  },
+  "logoutAll": {
+   "operation": "POST /admin/realms/{realm}/logout-all",
+   "status": 200,
+   "headers": {
+    "content-type": "application/json;charset=UTF-8"
+   },
+   "body": {}
+  }
+ }
+}
