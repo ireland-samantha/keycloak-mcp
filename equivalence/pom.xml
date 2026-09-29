@@ -109,4 +109,32 @@
     </plugins>
   </build>
 
+  <profiles>
+    <!-- mvn -f equivalence/pom.xml -Psupplement : regenerate ../data/admin-client-supplement-nightly.json -->
+    <profile>
+      <id>supplement</id>
+      <build>
+        <defaultGoal>process-classes exec:java</defaultGoal>
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>exec-maven-plugin</artifactId>
+            <version>3.6.4</version>
+            <configuration>
+              <mainClass>io.github.irelandsamantha.keycloakmcp.equivalence.supplement.SupplementGenerator</mainClass>
+              <arguments>
+                <argument>${keycloakmcp.root}/data/admin-client-supplement-nightly.json</argument>
+              </arguments>
+              <systemProperties>
+                <systemProperty>
+                  <key>keycloakmcp.root</key>
+                  <value>${keycloakmcp.root}</value>
+                </systemProperty>
+              </systemProperties>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>

@@ -15,17 +15,18 @@ import java.util.stream.Stream;
  * timestamped version, the jar digest and the keycloak-client commit it was built from are what make a run
  * reproducible.
  *
+ * @param version         the version the build asked for, e.g. {@code 999.0.0-SNAPSHOT}
  * @param resolvedVersion e.g. {@code 999.0.0-20260928.023246-474}
  * @param scmRevision     {@code Scm-Revision} of the jar manifest (a keycloak/keycloak-client commit)
  */
-public record AdminClientArtifact(Path jar, String resolvedVersion, String sha256, String scmRevision) {
+public record AdminClientArtifact(Path jar, String version, String resolvedVersion, String sha256, String scmRevision) {
 
     private static final String ARTIFACT = "keycloak-admin-client-";
 
     public static AdminClientArtifact inspect(Path jar) {
         try {
             String sha256 = Digests.sha256(jar);
-            return new AdminClientArtifact(jar, resolvedVersion(jar, sha256), sha256, scmRevision(jar));
+            return new AdminClientArtifact(jar, version(jar), resolvedVersion(jar, sha256), sha256, scmRevision(jar));
         } catch (IOException e) {
             throw new UncheckedIOException("Cannot inspect " + jar, e);
         }
