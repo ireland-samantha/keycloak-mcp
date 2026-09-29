@@ -87,7 +87,8 @@ public final class ExternalSystems implements AutoCloseable {
             container.withNetwork(network).withNetworkAliases(alias);
         }
         container.start();
-        Address fromServer = network != null ? new Address(alias, port) : new Address(callbackHost, container.getMappedPort(port));
+        Address fromServer = network != null ? new Address(alias, port)
+                : new Address(callbackHost, container.getMappedPort(port));
         started = new Sidecar(container, fromServer);
         sidecars.put(alias, started);
         return started;

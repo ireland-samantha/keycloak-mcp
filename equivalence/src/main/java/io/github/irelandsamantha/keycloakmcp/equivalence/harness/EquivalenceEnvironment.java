@@ -128,7 +128,6 @@ public final class EquivalenceEnvironment implements AutoCloseable {
     }
 
     /** The ledger, with a row for every reference operation. */
-
     public EquivalenceLedger ledger() {
         reference();
         return ledger;

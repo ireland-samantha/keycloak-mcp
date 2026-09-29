@@ -75,8 +75,8 @@ class DocumentedDivergencesTest {
                 {"divergences": [{"key": "POST /admin/realms/{realm}/components", "kind": "mutation-gate", %s
                   "reason": "needs a directory", "evidence": "X.java:1", "since": "2026-09-29"}]}""";
         DocumentedDivergences file = load(gate.formatted("\"sources\": \"environment\","));
-        assertEquals(List.of("POST /admin/realms/{}/components"),
-                file.ofKind(DocumentedDivergences.MUTATION_GATE).stream().map(DocumentedDivergences.Entry::operationKey).toList());
+        assertEquals(List.of("POST /admin/realms/{}/components"), file.ofKind(DocumentedDivergences.MUTATION_GATE).stream()
+                .map(DocumentedDivergences.Entry::operationKey).toList());
         assertThrows(IllegalArgumentException.class, () -> load(gate.formatted("\"sources\": \"server\",")));
         assertThrows(IllegalArgumentException.class, () -> load(gate.formatted(
                 "\"sources\": \"environment\", \"observed\": {\"server\": [\"x\"]},")));

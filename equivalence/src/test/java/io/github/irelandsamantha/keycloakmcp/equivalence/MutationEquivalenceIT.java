@@ -197,8 +197,8 @@ class MutationEquivalenceIT {
         return switch (classification.kind()) {
             case MUTATION -> new Owner(Scope.MUTATION, "keycloak-mcp classifies it as a mutation");
             case READ -> new Owner(Scope.READ, "keycloak-mcp classifies it as a read; F1 covers it");
-            case UNKNOWN, REALM_ADMINISTRATION_DISABLED -> new Owner(Scope.UNKNOWN, "keycloak-mcp's dry run neither accepted it as a read nor refused"
-                    + " it as a mutation: " + classification.answer());
+            case UNKNOWN, REALM_ADMINISTRATION_DISABLED -> new Owner(Scope.UNKNOWN, "keycloak-mcp's dry run neither"
+                    + " accepted it as a read nor refused it as a mutation: " + classification.answer());
         };
     }
 

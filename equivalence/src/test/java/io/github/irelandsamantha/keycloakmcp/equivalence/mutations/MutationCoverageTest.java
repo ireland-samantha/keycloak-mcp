@@ -60,7 +60,8 @@ class MutationCoverageTest {
                   {"key": "DELETE /admin/realms/{realm}/roles/{name}", "kind": "mutation-gate", "sources": "environment",
                    "reason": "stale", "evidence": "X.java:1", "since": "2026-09-29"},
                   {"key": "GET /admin/realms/{realm}/roles", "kind": "mutation-gate", "sources": "environment",
-                   "reason": "a read", "evidence": "X.java:1", "since": "2026-09-29"}]}""")).ofKind(DocumentedDivergences.MUTATION_GATE);
+                   "reason": "a read", "evidence": "X.java:1", "since": "2026-09-29"}]}"""))
+                .ofKind(DocumentedDivergences.MUTATION_GATE);
         MutationCoverage coverage = MutationCoverage.of("nightly", mutations, List.of(new Family()), gates);
         assertEquals(1, coverage.covered());
         assertEquals(Map.of("POST /admin/realms/{realm}/components",

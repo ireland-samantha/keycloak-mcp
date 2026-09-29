@@ -90,9 +90,11 @@ class ExternalSystemsIT {
     /** The configuration the server parsed from the discovery document it fetched at {@code address}. */
     private static JsonNode imported(ExternalSystems.Address address) throws Exception {
         String body = """
-                {"providerId": "oidc", "fromUrl": "http://%s/.well-known/openid-configuration"}""".formatted(address.hostAndPort());
-        RawHttp.Response r = env.http().send("POST", "/admin/realms/" + RawHttp.segment(realm.name()) + "/identity-provider/import-config",
-                Map.of("Content-Type", "application/json", "Accept", "application/json"), body.getBytes(StandardCharsets.UTF_8));
+                {"providerId": "oidc", "fromUrl": "http://%s/.well-known/openid-configuration"}"""
+                .formatted(address.hostAndPort());
+        String path = "/admin/realms/" + RawHttp.segment(realm.name()) + "/identity-provider/import-config";
+        RawHttp.Response r = env.http().send("POST", path, Map.of("Content-Type", "application/json", "Accept", "application/json"),
+                body.getBytes(StandardCharsets.UTF_8));
         assertEquals(200, r.status(), () -> "import-config from " + address.hostAndPort() + ": " + r.text());
         return r.json();
     }
