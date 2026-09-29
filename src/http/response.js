@@ -2,8 +2,7 @@ import { DEFAULT_BODY_BYTES } from '../config.js';
 import { redactKeys, REDACTED_ENDPOINT } from '../internal/redaction.js';
 import { isSensitiveEndpoint, isSensitiveField } from '../policy/classify.js';
 import { readLimitedBody } from './body.js';
-
-const isText = contentType => contentType.startsWith('text/') || contentType.includes('xml') || contentType.includes('yaml');
+import { isTextType } from './media-type.js';
 
 function decodeValue(bytes, contentType, op, config) {
   if (!bytes.length) return null;
@@ -13,7 +12,7 @@ function decodeValue(bytes, contentType, op, config) {
     try { value = JSON.parse(bytes.toString('utf8')); } catch { throw new Error('Keycloak returned invalid JSON'); }
     return config.allowSensitiveReads ? value : redactKeys(value, name => isSensitiveField(op, name));
   }
-  if (isText(contentType)) return bytes.toString('utf8');
+  if (isTextType(contentType)) return bytes.toString('utf8');
   return { base64: bytes.toString('base64'), contentType };
 }
 
