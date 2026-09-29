@@ -6,7 +6,9 @@ import { completedReceipt, openJournal, receiptPath } from './journal.js';
 import { acquireRealmLock } from './locks.js';
 import { preflight } from './preflight.js';
 
-const summary = completed => completed.map(item => ({ operation: item.step.operation, status: item.status }));
+// Each completed step with Keycloak's Location, when it sent one, and the ID of what it created.
+const summary = completed => completed.map(({ step, status, location, created }) =>
+  ({ operation: step.operation, status, ...(location ? { location } : {}), ...(created ? { id: created.id } : {}) }));
 const journalFailures = journal => (journal.failures.length ? { journalErrors: [...journal.failures] } : {});
 
 async function compensateStep(admin, lock, done) {
@@ -52,8 +54,8 @@ async function runStep(admin, lock, journal, step, completed) {
   }
   try {
     const result = await execute(admin, step.operation, step.args);
-    const compensate = resolveCompensation(admin.config, admin.catalog, step, result);
-    return { done: { step, compensate, status: result.status } };
+    const { compensate, created } = resolveCompensation(admin.config, admin.catalog, step, result);
+    return { done: { step, status: result.status, location: result.location, created, compensate } };
   } catch (error) {
     return { failure: { step, error, sent: !wasNotSent(error) } };
   }

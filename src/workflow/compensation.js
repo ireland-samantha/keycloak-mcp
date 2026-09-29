@@ -31,15 +31,15 @@ function responseId(config, operationCatalog, step, result) {
   return id;
 }
 
-// The step's compensation with its ID marker, if any, replaced by the ID the step's result returned.
+// The step's compensation with its ID marker, if any, replaced by the ID the step's result returned,
+// and that ID as `created`: { parameter, id }, the path parameter it fills and its value.
 export function resolveCompensation(config, operationCatalog, step, result) {
   const compensate = step.compensate;
-  if (!compensate) return null;
-  const bindings = idBindings(compensate.args);
-  if (!bindings.length) return compensate;
-  const [name, marker] = bindings[0];
+  const bindings = idBindings(compensate?.args);
+  if (!bindings.length) return { compensate, created: null };
+  const [parameter, marker] = bindings[0];
   const id = marker === LOCATION_ID ? locationId(config, operationCatalog, step, result) : responseId(config, operationCatalog, step, result);
-  const resolved = { operation: compensate.operation, args: { ...compensate.args, path: { ...compensate.args?.path, [name]: id } } };
+  const resolved = { operation: compensate.operation, args: { ...compensate.args, path: { ...compensate.args?.path, [parameter]: id } } };
   buildRequest(config, resolved.operation, resolved.args, operationCatalog);
-  return resolved;
+  return { compensate: resolved, created: { parameter, id } };
 }

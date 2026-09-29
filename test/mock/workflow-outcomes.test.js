@@ -37,10 +37,12 @@ test('J2 a Location that does not name one child of the collection is not truste
 });
 
 test('J3 an IN_DOUBT result has the documented shape', async t => {
-  const { result } = await executeWorkflow(t, [userCreate, missingUser]);
+  const { mock, result } = await executeWorkflow(t, [userCreate, missingUser], { program: mock =>
+    mock.on('POST /admin/realms/{realm}/users', mock.created(`${mock.realmPath}/users/${createdId}`)) });
   assert.deepEqual(Object.keys(result), ['runId', 'status', 'failedOperation', 'error', 'failedStepMayHaveCommitted',
     'priorStepsCompensated', 'rollback', 'completed']);
-  assert.deepEqual(result.completed, [{ operation: 'POST /admin/realms/{realm}/users', status: 201 }]);
+  assert.deepEqual(result.completed, [{ operation: 'POST /admin/realms/{realm}/users', status: 201,
+    location: mock.location(`${mock.realmPath}/users/${createdId}`), id: createdId }]);
 });
 
 test('J4 a committed create whose compensation cannot be bound still reports what it created', { todo: 'WF-05' }, async t => {

@@ -11,10 +11,20 @@ export function receiptPath(args = {}) {
   return Object.fromEntries(Object.entries(args.path ?? {}).map(([name, value]) => [name, isSensitiveReceiptParameter(name) ? REDACTED : String(value)]));
 }
 
-// `completed` holds { step, compensate, status } for each step that succeeded, compensate resolved.
+// A completed step's Location and created ID as the receipt keeps them. The Location repeats the step's
+// path, so it is withheld whenever one of the step's path parameters is, and the ID whenever the
+// parameter it fills is.
+function createdReceipt({ step, location, created }) {
+  const hidesId = Boolean(created) && isSensitiveReceiptParameter(created.parameter);
+  const hidesPath = hidesId || Object.keys(step.args.path ?? {}).some(isSensitiveReceiptParameter);
+  return { ...(location ? { location: hidesPath ? REDACTED : location } : {}), ...(created ? { id: hidesId ? REDACTED : created.id } : {}) };
+}
+
+// `completed` holds { step, status, location, created, compensate } for each step that succeeded,
+// compensate resolved.
 export function completedReceipt(completed) {
-  return completed.map(item => ({ operation: item.step.operation, path: receiptPath(item.step.args),
-    status: item.status, compensation: item.compensate?.operation ?? null, compensationPath: receiptPath(item.compensate?.args) }));
+  return completed.map(item => ({ operation: item.step.operation, path: receiptPath(item.step.args), status: item.status,
+    ...createdReceipt(item), compensation: item.compensate?.operation ?? null, compensationPath: receiptPath(item.compensate?.args) }));
 }
 
 // A rename is durable only once the directory holding it is: without this, a power loss can leave the

@@ -27,7 +27,7 @@ test('H1 without execute the workflow is only preflighted: no request, no receip
 test('H2 execute:true completes and leaves a 0600 receipt named by the runId in a 0700 directory', async t => {
   const { result, journalDir } = await executeWorkflow(t, [realmUpdate, groupCreate], { transport: 'stdio' });
   assert.equal(result.status, 'COMPLETED');
-  assert.deepEqual(result.completed, [{ operation: 'PUT /admin/realms/{realm}', status: 204 },
+  assert.deepEqual(result.completed.map(({ operation, status }) => ({ operation, status })), [{ operation: 'PUT /admin/realms/{realm}', status: 204 },
     { operation: 'POST /admin/realms/{realm}/groups', status: 201 }]);
   const [receipt] = receipts(journalDir);
   assert.equal(receipt.file, `${result.runId}.json`);
@@ -36,10 +36,14 @@ test('H2 execute:true completes and leaves a 0600 receipt named by the runId in 
   assert.equal(modeOf(join(journalDir, receipt.file)), 0o600);
 });
 
-test('H2 a completed create reports the resource it created', { todo: 'MCPLIVE-12' }, async t => {
-  const { text } = await executeWorkflow(t, [groupCreate], {
+test('H2 a completed create reports the resource it created, in the result and the receipt', async t => {
+  const { mock, result, journalDir } = await executeWorkflow(t, [realmUpdate, groupCreate], {
     program: mock => mock.on('POST /admin/realms/{realm}/groups', mock.created(`${mock.realmPath}/groups/${groupId}`)) });
-  assert.ok(text.includes(groupId), text);
+  const location = mock.location(`${mock.realmPath}/groups/${groupId}`);
+  assert.deepEqual(result.completed, [{ operation: 'PUT /admin/realms/{realm}', status: 204 },
+    { operation: 'POST /admin/realms/{realm}/groups', status: 201, location, id: groupId }]);
+  const [receipt] = receipts(journalDir);
+  assert.deepEqual(receipt.completed.map(item => [item.location, item.id]), [[undefined, undefined], [location, groupId]]);
 });
 
 test('I1 completed steps are compensated in reverse order after a failed mutation', async t => {
