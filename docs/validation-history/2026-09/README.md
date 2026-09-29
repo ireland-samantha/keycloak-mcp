@@ -15,8 +15,8 @@ The record is historical. Most of it predates the source it now ships with, and 
 
 ## What replaces it
 
-Reproducible suites that run on every change:
+Reproducible suites, described with what each proves and does not prove in [TESTING.md](../../../TESTING.md):
 
-- `npm run test:unit`: behaviour tests, plus golden masters of catalog, request building, preflight and workflow receipts.
-- `npm run test:mock`: the real stdio server driven over MCP against a mock Keycloak whose default bodies were recorded from a Keycloak HEAD server.
-- The Testcontainers equivalence suite in `equivalence/`, which checks keycloak-mcp against a live Keycloak and the Java admin client and writes a per-run ledger as a CI artifact.
+- `npm run test:unit`: behaviour tests, plus golden masters of catalog, request building, preflight and workflow receipts. CI runs it.
+- `npm run test:mock`: the real stdio server driven over MCP against a mock Keycloak whose default bodies were recorded from a Keycloak HEAD server. CI runs it.
+- `npm run test:equivalence`: the Testcontainers equivalence suite in `equivalence/`. It checks keycloak-mcp against a live Keycloak HEAD server and the Java admin client, and writes a per-run ledger to `equivalence/target/equivalence-ledger.json`. It needs Docker and is run outside the CI workflow.
