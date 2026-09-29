@@ -94,14 +94,17 @@ test('I5 compensating a realm create uses a token minted after the realm existed
   assert.equal(mock.tokenRequests().length, 2);
 });
 
-test('I6 an unwritable journal does not stop the rollback', { todo: 'WF-03' }, async t => {
-  const { mock } = await executeWorkflow(t, [groupCreate, missingUser], { program: (mock, { journalDir }) =>
+test('I6 an unwritable journal does not stop the rollback', async t => {
+  const { mock, result } = await executeWorkflow(t, [groupCreate, missingUser], { program: (mock, { journalDir }) =>
     mock.on('POST /admin/realms/{realm}/groups', () => {
       renameSync(journalDir, `${journalDir}.moved`);
       writeFileSync(journalDir, 'not a directory');
       return mock.created(`${mock.realmPath}/groups/${groupId}`);
     }) });
   assert.ok(writes(mock).includes(`DELETE ${mock.realmPath}/groups/${groupId}`), 'created group was not deleted');
+  assert.equal(result.status, 'IN_DOUBT');
+  assert.deepEqual(result.rollback.map(item => item.outcome), ['COMPENSATED']);
+  assert.ok(result.journalErrors.length > 0, 'the receipt failures are reported');
 });
 
 test('I7 rollback never deletes an authorization scope that existed before the workflow', { todo: 'WF-01' }, async t => {

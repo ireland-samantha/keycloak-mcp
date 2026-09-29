@@ -75,3 +75,33 @@ test('M3 losing the lock connection mid-run is reported instead of crashing the 
   assert.equal(result.value.status, 'IN_DOUBT');
   assert.equal(server.child.exitCode, null, 'server exited');
 });
+
+// A lock connection string for a role without superuser rights, so the test can take pg_advisory_unlock
+// away from it, and the administrator connection that can.
+async function unprivilegedLock(t) {
+  const admin = new pg.Client({ connectionString: databaseUrl });
+  await admin.connect();
+  t.after(async () => {
+    await admin.query('GRANT EXECUTE ON FUNCTION pg_advisory_unlock(bigint) TO PUBLIC');
+    await admin.query('DROP ROLE IF EXISTS keycloak_mcp_m4_lock');
+    await admin.end();
+  });
+  await admin.query('DROP ROLE IF EXISTS keycloak_mcp_m4_lock');
+  await admin.query("CREATE ROLE keycloak_mcp_m4_lock LOGIN PASSWORD 'm4-lock'");
+  const url = new URL(databaseUrl);
+  url.username = 'keycloak_mcp_m4_lock';
+  url.password = 'm4-lock';
+  return { admin, lockUrl: url.href };
+}
+
+test('M4 a lock that fails to release after every step committed is reported with the result', withPostgres, async t => {
+  const { admin, lockUrl } = await unprivilegedLock(t);
+  const { mock, mcp } = await startScenario(t, { settings: { KEYCLOAK_MCP_ALLOW_WRITE: 'true', KEYCLOAK_MCP_LOCK_DATABASE_URL: lockUrl } });
+  mock.on('POST /admin/realms/{realm}/groups', async (request, keycloak) => {
+    await admin.query('REVOKE EXECUTE ON FUNCTION pg_advisory_unlock(bigint) FROM PUBLIC');
+    return keycloak.created(`${keycloak.realmPath}/groups/m4`);
+  });
+  const { value } = await run(mcp);
+  assert.equal(value.status, 'COMPLETED');
+  assert.match(value.lockReleaseError, /permission denied for function pg_advisory_unlock/);
+});

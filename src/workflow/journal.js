@@ -25,6 +25,9 @@ function syncDirectory(directory) {
 }
 
 // A private receipt file per run, replaced atomically on every write so a crash leaves the last state.
+// write() throws, for the receipt a step needs before its request is sent; record() is for receipts
+// written after Keycloak has changed, which must never stop the compensation that follows, and keeps
+// its failures in `failures` for the result instead.
 export function openJournal(config, plan) {
   const directory = config.journalDir || join(homedir(), '.local', 'state', 'keycloak-mcp');
   ensurePrivateDirectory(directory, 'journal directory');
@@ -32,17 +35,23 @@ export function openJournal(config, plan) {
   const file = join(directory, `${id}.json`);
   const planReceipt = () => plan.map(step => ({ operation: step.operation, path: receiptPath(step.args),
     compensation: step.compensate?.operation ?? null, compensationPath: receiptPath(step.compensate?.args) }));
+  const failures = [];
+  const write = record => {
+    const temporary = `${file}.tmp`;
+    const fd = openSync(temporary, 'w', 0o600);
+    try {
+      writeFileSync(fd, JSON.stringify({ runId: id, at: new Date().toISOString(), realm: config.realm, plan: planReceipt(), ...record }, null, 2) + '\n');
+      fsyncSync(fd);
+    } finally { closeSync(fd); }
+    renameSync(temporary, file);
+    syncDirectory(directory);
+  };
   return {
     id,
-    write(record) {
-      const temporary = `${file}.tmp`;
-      const fd = openSync(temporary, 'w', 0o600);
-      try {
-        writeFileSync(fd, JSON.stringify({ runId: id, at: new Date().toISOString(), realm: config.realm, plan: planReceipt(), ...record }, null, 2) + '\n');
-        fsyncSync(fd);
-      } finally { closeSync(fd); }
-      renameSync(temporary, file);
-      syncDirectory(directory);
+    failures,
+    write,
+    record(record) {
+      try { write(record); } catch (error) { failures.push(`${record.status}: ${error.message}`); }
     },
   };
 }
