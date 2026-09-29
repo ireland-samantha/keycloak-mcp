@@ -25,17 +25,31 @@ function baseUrl(value) {
   return url.href.replace(/\/$/, '');
 }
 
+// '.' and '..' pass the character check but are dot segments: the token URL /realms/../protocol/...
+// would resolve to /protocol/....
 function realm(name, label) {
   if (!REALM_NAME.test(name)) throw new Error(`${label} has invalid characters`);
+  if (name === '.' || name === '..') throw new Error(`${label} cannot be '.' or '..'`);
   return name;
 }
 
-// A KEYCLOAK_MCP_CONFIG file supplies defaults; the environment wins over it.
+// A switch is on for JSON true or the string 'true'; any other value than those or false is a mistake.
+function flag(values, name) {
+  const value = values[name];
+  if (value === true || value === 'true') return true;
+  if (value === undefined || value === false || value === 'false') return false;
+  throw new Error(`${name} must be true or false`);
+}
+
+// Empty environment values count as unset. A KEYCLOAK_MCP_CONFIG file is authoritative for every
+// setting it defines, so an ambient variable cannot retarget the realm or drop the lock; the
+// environment only supplies the settings the file leaves out.
 function settings(env) {
-  if (!env.KEYCLOAK_MCP_CONFIG) return env;
-  const file = readPrivateJson(env.KEYCLOAK_MCP_CONFIG, 'KEYCLOAK_MCP_CONFIG');
+  const fromEnv = Object.fromEntries(Object.entries(env).filter(([, value]) => value !== ''));
+  if (!fromEnv.KEYCLOAK_MCP_CONFIG) return fromEnv;
+  const file = readPrivateJson(fromEnv.KEYCLOAK_MCP_CONFIG, 'KEYCLOAK_MCP_CONFIG');
   if (!file || Array.isArray(file) || typeof file !== 'object') throw new Error('KEYCLOAK_MCP_CONFIG must be a JSON object');
-  return { ...file, ...env };
+  return { ...fromEnv, ...file };
 }
 
 export function configFromEnv(env = process.env) {
@@ -46,12 +60,12 @@ export function configFromEnv(env = process.env) {
     authRealm: realm(values.KEYCLOAK_AUTH_REALM || 'master', 'KEYCLOAK_AUTH_REALM'),
     clientId: required('KEYCLOAK_CLIENT_ID', values.KEYCLOAK_CLIENT_ID),
     clientSecret: required('KEYCLOAK_CLIENT_SECRET', values.KEYCLOAK_CLIENT_SECRET),
-    allowWrite: values.KEYCLOAK_MCP_ALLOW_WRITE === 'true',
-    allowRealmAdmin: values.KEYCLOAK_MCP_ALLOW_REALM_ADMIN === 'true',
-    allowSensitiveReads: values.KEYCLOAK_MCP_ALLOW_SENSITIVE_READS === 'true',
-    allowIrreversible: values.KEYCLOAK_MCP_ALLOW_IRREVERSIBLE === 'true',
+    allowWrite: flag(values, 'KEYCLOAK_MCP_ALLOW_WRITE'),
+    allowRealmAdmin: flag(values, 'KEYCLOAK_MCP_ALLOW_REALM_ADMIN'),
+    allowSensitiveReads: flag(values, 'KEYCLOAK_MCP_ALLOW_SENSITIVE_READS'),
+    allowIrreversible: flag(values, 'KEYCLOAK_MCP_ALLOW_IRREVERSIBLE'),
     lockDatabaseUrl: values.KEYCLOAK_MCP_LOCK_DATABASE_URL || '',
-    singleWriter: values.KEYCLOAK_MCP_SINGLE_WRITER === 'true',
+    singleWriter: flag(values, 'KEYCLOAK_MCP_SINGLE_WRITER'),
     journalDir: values.KEYCLOAK_MCP_JOURNAL_DIR || '',
     extensionCatalogPath: values.KEYCLOAK_MCP_EXTENSION_CATALOG || '',
     catalogVersion: values.KEYCLOAK_MCP_CATALOG_VERSION || 'latest',

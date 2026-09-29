@@ -27,7 +27,7 @@ Create a confidential Keycloak client with **service accounts enabled**. Grant i
 }
 ```
 
-Set file mode `0600`. The runtime rejects group-readable or world-readable configuration files. `KEYCLOAK_AUTH_REALM` names the realm that issues the service-account token; `KEYCLOAK_REALM` is the administered realm. The base URL must use HTTPS, except for loopback development.
+Set file mode `0600`. The runtime rejects group-readable or world-readable configuration files. `KEYCLOAK_AUTH_REALM` names the realm that issues the service-account token; `KEYCLOAK_REALM` is the administered realm. The base URL must use HTTPS, except for loopback development. When `KEYCLOAK_MCP_CONFIG` names this file, it is authoritative for every setting it defines: environment variables only supply settings the file leaves out, and an empty environment value counts as unset. Switches such as `KEYCLOAK_MCP_ALLOW_WRITE` accept `true` or `"true"` and `false` or `"false"`; any other value stops startup with an error.
 
 ### Claude Code
 
