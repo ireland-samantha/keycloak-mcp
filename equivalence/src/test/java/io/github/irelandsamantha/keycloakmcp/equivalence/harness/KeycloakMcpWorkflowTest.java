@@ -1,9 +1,13 @@
 package io.github.irelandsamantha.keycloakmcp.equivalence.harness;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import io.github.irelandsamantha.keycloakmcp.equivalence.harness.KeycloakMcpWorkflow.Compensation;
 import io.github.irelandsamantha.keycloakmcp.equivalence.harness.KeycloakMcpWorkflow.Result;
 import io.github.irelandsamantha.keycloakmcp.equivalence.harness.KeycloakMcpWorkflow.Step;
+import io.github.irelandsamantha.keycloakmcp.equivalence.harness.KeycloakMcpWorkflow.StepRun;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -33,6 +37,8 @@ class KeycloakMcpWorkflowTest {
         Result refused = new Result(true, "writes are disabled");
         assertNull(refused.status());
         assertTrue(refused.report().isMissingNode());
+        assertEquals(List.of(), refused.completed());
+        assertEquals(List.of(), refused.rollback());
     }
 
     @Test
@@ -40,19 +46,23 @@ class KeycloakMcpWorkflowTest {
         Result run = new Result(false, """
                 {"runId": "r", "status": "COMPLETED", "completed": [{"operation": "%s", "status": 201}]}""".formatted(CREATE));
         assertEquals(KeycloakMcpWorkflow.COMPLETED, run.status());
-        assertEquals(201, run.completedStatus(0));
-        assertEquals(0, run.completedStatus(1));
+        assertEquals(List.of(new StepRun(CREATE, 201)), run.completed());
+        assertNull(run.failedOperation());
+        assertEquals(List.of(), run.rollback());
     }
 
     @Test
     void anInDoubtRunNamesTheFailureAndItsRollback() {
         Result run = new Result(false, """
-                {"status": "IN_DOUBT", "error": "Keycloak operation failed (HTTP 409; attempts 1)",
-                 "rollback": [{"outcome": "COMPENSATED"}, {"outcome": "FAILED"}]}""");
+                {"status": "IN_DOUBT", "failedOperation": "%1$s", "error": "Keycloak operation failed (HTTP 409; attempts 1)",
+                 "completed": [{"operation": "%1$s", "status": 201}],
+                 "rollback": [{"operation": "%2$s", "outcome": "COMPENSATED"}, {"operation": "%2$s", "outcome": "FAILED"}]}"""
+                .formatted(CREATE, DELETE));
+        assertEquals(CREATE, run.failedOperation());
         assertEquals(409, run.failureStatus());
-        assertFalse(run.everyCompensationSucceeded());
-        assertTrue(new Result(false, "{\"status\": \"IN_DOUBT\", \"rollback\": [{\"outcome\": \"COMPENSATED\"}]}")
-                .everyCompensationSucceeded());
+        assertEquals(List.of(new StepRun(CREATE, 201)), run.completed());
+        assertEquals(List.of(new Compensation(DELETE, KeycloakMcpWorkflow.COMPENSATED), new Compensation(DELETE, "FAILED")),
+                run.rollback());
     }
 
     @Test

@@ -41,6 +41,18 @@ class CaseVerdictsTest {
     }
 
     @Test
+    void onlyAnExercisedFrameMakesTheOperationSound() {
+        CaseOutcome created = outcome("create", ok(CaseOutcome.SOUND), ok(CaseOutcome.EQUIVALENT));
+        CaseOutcome conflict = outcome("taken", ok(CaseOutcome.NOT_EXERCISED), ok(CaseOutcome.EQUIVALENT));
+        CaseOutcome refused = outcome("move", ok(CaseOutcome.IRREVERSIBLE), ok(CaseOutcome.REFUSED));
+        assertEquals(CaseOutcome.SOUND, CaseVerdicts.compensation(List.of(conflict, created)).outcome());
+        Check unexercised = CaseVerdicts.compensation(List.of(refused, conflict));
+        assertEquals(CaseOutcome.NOT_EXERCISED, unexercised.outcome(), "keycloak-mcp accepts a compensation nothing exercised");
+        assertTrue(unexercised.accepted());
+        assertEquals(CaseOutcome.IRREVERSIBLE, CaseVerdicts.compensation(List.of(refused)).outcome());
+    }
+
+    @Test
     void oneFailingCaseLeavesTheOperationUnaccounted() {
         List<CaseOutcome> cases = List.of(outcome("update", ok(CaseOutcome.SOUND), ok(CaseOutcome.EQUIVALENT)),
                 outcome("rename", new Check(CaseOutcome.MISCLASSIFIED, false, "counterexample"), ok(CaseOutcome.EQUIVALENT)));

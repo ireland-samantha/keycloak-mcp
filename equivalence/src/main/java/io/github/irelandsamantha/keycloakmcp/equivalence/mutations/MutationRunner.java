@@ -22,8 +22,9 @@ import java.util.concurrent.atomic.AtomicInteger;
  *   <li>A dry run in A shows whether keycloak-mcp accepts the operation as reversible with the case's
  *       compensation.</li>
  *   <li>F3: if it does, a third twin C runs the operation followed by a step that always fails; keycloak-mcp must
- *       compensate, and C's readbacks must equal those taken before. A case that expects the operation to be
- *       irreversible makes that acceptance a misclassification, and the frame its counterexample.</li>
+ *       compensate, and C's readbacks must equal those taken before ({@link ForcedFailureFrame} says when a frame
+ *       proves that). A case that expects the operation to be irreversible makes that acceptance a
+ *       misclassification, and the frame its counterexample.</li>
  *   <li>F2: keycloak-mcp runs the operation in A (with the compensation it accepts, else with the irreversible
  *       override); the reference performs it in B. Both must answer in the same status class, and A's and B's
  *       readbacks must be equal once generated ids are replaced by natural keys.</li>
@@ -38,9 +39,6 @@ public final class MutationRunner {
     /** A step that fails without writing anything: a read of a group that does not exist. */
     private static final String FORCED_FAILURE = "GET /admin/realms/{realm}/groups/{group-id}";
     private static final String ABSENT_GROUP = "equivalence-forced-failure";
-
-    private record Frame(boolean restored, String detail) {
-    }
 
     private final EquivalenceEnvironment env;
     private final McpSteps steps;
@@ -96,28 +94,24 @@ public final class MutationRunner {
                     : new Check(CaseOutcome.NOT_COMPENSABLE, true, "keycloak-mcp accepts no compensation for it ("
                     + plan.text() + "), so F2 runs it with the irreversible override");
         }
-        Frame frame = forcedFailure(family, mutation, realm);
+        Check frame = forcedFailure(family, mutation, realm);
         if (mutation.expectedIrreversible()) {
             return new Check(CaseOutcome.MISCLASSIFIED, false, "keycloak-mcp accepts it as reversible, but "
-                    + mutation.expectation() + ". Forced-failure frame: " + frame.detail());
+                    + mutation.expectation() + ". Forced-failure frame, " + frame.outcome() + ": " + frame.detail());
         }
-        return new Check(frame.restored() ? CaseOutcome.SOUND : CaseOutcome.UNSOUND, frame.restored(), frame.detail());
+        return frame;
     }
 
     /** Runs the operation and then a failing step in a fresh twin; keycloak-mcp must restore the pre-state. */
-    private Frame forcedFailure(MutationFamily family, MutationCase mutation, String name) throws Exception {
+    private Check forcedFailure(MutationFamily family, MutationCase mutation, String name) throws Exception {
         try (CaseRealm c = CaseRealm.create(env, name, family, mutation);
              KeycloakMcpProcess mcp = env.startKeycloakMcp(c.name(), WRITER)) {
             Readbacks readbacks = Readbacks.resolve(mutation, c.context());
+            Step operation = reversibleStep(mutation, c.context());
             Step failing = steps.step(new CaseRequest(FORCED_FAILURE, CaseArgs.path(c.name(), ABSENT_GROUP)));
-            List<Step> plan = List.of(reversibleStep(mutation, c.context()), failing);
             State before = readbacks.read();
-            Result run = KeycloakMcpWorkflow.call(mcp.client(), plan, true);
-            List<String> changed = before.differences(readbacks.read());
-            boolean compensated = KeycloakMcpWorkflow.IN_DOUBT.equals(run.status()) && run.everyCompensationSucceeded();
-            return new Frame(compensated && changed.isEmpty(), "keycloak-mcp answered " + run.text()
-                    + (changed.isEmpty() ? "; the readbacks equal the pre-state"
-                    : "; the readbacks differ from the pre-state: " + changed));
+            Result run = KeycloakMcpWorkflow.call(mcp.client(), List.of(operation, failing), true);
+            return ForcedFailureFrame.judge(operation, failing, run, before, readbacks.read());
         }
     }
 
@@ -131,7 +125,7 @@ public final class MutationRunner {
                     "keycloak-mcp refuses it even with the irreversible override: " + run.text());
         }
         boolean completed = KeycloakMcpWorkflow.COMPLETED.equals(run.status());
-        int status = completed ? run.completedStatus(0) : run.failureStatus();
+        int status = completed ? run.completed().getFirst().status() : run.failureStatus();
         ReferenceCall.Answer answer = reference.perform(referenceRequest);
         List<String> differences = subject.read().differences(twin.read());
         boolean equivalent = status / 100 == answer.status() / 100 && differences.isEmpty();

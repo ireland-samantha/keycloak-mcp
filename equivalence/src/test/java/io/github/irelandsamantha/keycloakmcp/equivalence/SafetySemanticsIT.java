@@ -13,6 +13,7 @@ import io.github.irelandsamantha.keycloakmcp.equivalence.harness.KeycloakMcpRead
 import io.github.irelandsamantha.keycloakmcp.equivalence.harness.KeycloakMcpWorkflow;
 import io.github.irelandsamantha.keycloakmcp.equivalence.harness.KeycloakMcpWorkflow.Result;
 import io.github.irelandsamantha.keycloakmcp.equivalence.harness.KeycloakMcpWorkflow.Step;
+import io.github.irelandsamantha.keycloakmcp.equivalence.harness.KeycloakMcpWorkflow.StepRun;
 import io.github.irelandsamantha.keycloakmcp.equivalence.harness.McpStdioClient;
 import io.github.irelandsamantha.keycloakmcp.equivalence.harness.McpStdioClient.ToolResult;
 import io.github.irelandsamantha.keycloakmcp.equivalence.harness.RawHttp;
@@ -379,7 +380,7 @@ class SafetySemanticsIT {
                     () -> assertTrue(report.path("failedStepMayHaveCommitted").asBoolean(false), "failedStepMayHaveCommitted"),
                     () -> assertTrue(report.path("priorStepsCompensated").asBoolean(false), "priorStepsCompensated"),
                     () -> assertEquals(List.of(UPDATE_GROUP + " COMPENSATED", DELETE_GROUP + " COMPENSATED"), rollback(report)),
-                    () -> assertEquals(List.of(201, 204), List.of(run.completedStatus(0), run.completedStatus(1))),
+                    () -> assertEquals(List.of(new StepRun(CREATE_GROUP, 201), new StepRun(UPDATE_GROUP, 204)), run.completed()),
                     () -> assertEquals(before.groups(), state().groups(), "groups after compensation"),
                     () -> assertEquals(groupBefore, pinned.get("groups/" + group), "the updated group after compensation"),
                     () -> assertEquals(List.of("CREATE", "UPDATE", "UPDATE", "DELETE"),

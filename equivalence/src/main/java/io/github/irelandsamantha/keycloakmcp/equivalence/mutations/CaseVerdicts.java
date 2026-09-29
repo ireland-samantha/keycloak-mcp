@@ -21,10 +21,15 @@ public final class CaseVerdicts {
         return combine(outcomes, CaseOutcome::equivalence, CaseOutcome.EQUIVALENT, Verdict.Outcome.ROUTED_ONLY.name());
     }
 
-    /** F3: {@code SOUND} when a frame restored the state and no case failed; else the first failing case's outcome. */
+    /**
+     * F3: {@code SOUND} when every case is accepted and a frame exercised the compensation and restored the state;
+     * {@code NOT_EXERCISED} when keycloak-mcp accepts a compensation no frame exercised; otherwise the first case's
+     * outcome (e.g. {@code IRREVERSIBLE}), or the first failing case's outcome, not accepted.
+     */
     public static Check compensation(List<CaseOutcome> outcomes) {
-        return combine(outcomes, CaseOutcome::compensation, CaseOutcome.SOUND,
-                outcomes.isEmpty() ? null : outcomes.getFirst().compensation().outcome());
+        boolean unexercised = outcomes.stream().anyMatch(o -> o.compensation().outcome().equals(CaseOutcome.NOT_EXERCISED));
+        return combine(outcomes, CaseOutcome::compensation, CaseOutcome.SOUND, unexercised ? CaseOutcome.NOT_EXERCISED
+                : outcomes.isEmpty() ? null : outcomes.getFirst().compensation().outcome());
     }
 
     private static Check combine(List<CaseOutcome> outcomes, Function<CaseOutcome, Check> check, String proven,

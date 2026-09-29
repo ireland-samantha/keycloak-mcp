@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.node.MissingNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
 
@@ -86,9 +87,18 @@ public final class KeycloakMcpWorkflow {
             return status.isTextual() ? status.asText() : null;
         }
 
-        /** HTTP status of completed step {@code index}, 0 when that step did not complete. */
-        public int completedStatus(int index) {
-            return report().path("completed").path(index).path("status").asInt(0);
+        /** The steps that ran to completion, in order; empty for a refusal or a plan. */
+        public List<StepRun> completed() {
+            List<StepRun> out = new ArrayList<>();
+            report().path("completed").forEach(step -> out.add(
+                    new StepRun(step.path("operation").asText(), step.path("status").asInt(0))));
+            return out;
+        }
+
+        /** The step an {@code IN_DOUBT} run failed on; {@code null} for any other answer. */
+        public String failedOperation() {
+            JsonNode failed = report().path("failedOperation");
+            return failed.isTextual() ? failed.asText() : null;
         }
 
         /** HTTP status named by the failure of an {@code IN_DOUBT} run, 0 when it names none. */
@@ -96,16 +106,21 @@ public final class KeycloakMcpWorkflow {
             return KeycloakMcpReads.httpStatus(report().path("error").asText(""));
         }
 
-        /** Whether every compensation of an {@code IN_DOUBT} run succeeded. */
-        public boolean everyCompensationSucceeded() {
-            JsonNode rollback = report().path("rollback");
-            for (JsonNode entry : rollback) {
-                if (!COMPENSATED.equals(entry.path("outcome").asText())) {
-                    return false;
-                }
-            }
-            return true;
+        /** The compensations an {@code IN_DOUBT} run attempted, in the order it ran them; empty when none ran. */
+        public List<Compensation> rollback() {
+            List<Compensation> out = new ArrayList<>();
+            report().path("rollback").forEach(entry -> out.add(
+                    new Compensation(entry.path("operation").asText(), entry.path("outcome").asText())));
+            return out;
         }
+    }
+
+    /** A step that completed, as a run's {@code completed} names it: its operation key and HTTP status. */
+    public record StepRun(String operation, int status) {
+    }
+
+    /** A compensation a failed run attempted, as its {@code rollback} names it: operation key and outcome. */
+    public record Compensation(String operation, String outcome) {
     }
 
     private KeycloakMcpWorkflow() {
