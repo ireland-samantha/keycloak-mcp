@@ -56,7 +56,7 @@ To add a family:
    - `requires("<finding id>")`: add this only when the correct behavior needs a keycloak-mcp fix that is not in yet. Such cases run in the `requires-node-fixes` factory and fail until the fix lands.
 3. Add the family to `MutationFamilies.all()`.
 4. `NaturalKeys.index` maps ids to natural keys for the realm itself, realm roles, clients, client roles, users and groups. If a readback shows ids of another kind, index that kind there, or the twins will differ.
-5. Run `mvn -B test` (it includes `MutationFamiliesTest`), then `mvn -B verify -Dit.test=MutationEquivalenceIT`. The coverage count in the log goes up.
+5. Run `mvn -B test` (it includes `MutationFamiliesTest`), then `mvn -B verify -Dit.test=MutationEquivalenceIT -Dequivalence.families=<name>`. The coverage count in the log goes up.
 
 ## Checks awaiting keycloak-mcp fixes
 
@@ -79,6 +79,7 @@ mvn -B verify                                  # + ITs on a Testcontainers Keycl
 mvn -B verify -Dkeycloak.url=http://127.0.0.1:18080   # + ITs against a running server (dev loop)
 mvn -B verify -Dit.test='ReadEquivalenceIT,LedgerCompletenessIT'   # F1 and the ledger check only
 mvn -B verify -Dit.test='SafetySemanticsIT,MutationEquivalenceIT'   # F4, F2 and F3 only
+mvn -B verify -Dit.test=MutationEquivalenceIT -Dequivalence.families=groups,realm-roles   # F2 and F3 of two families
 mvn -f equivalence/pom.xml -Psupplement        # regenerate ../data/admin-client-supplement-nightly.json
 ```
 
@@ -92,5 +93,6 @@ mvn -f equivalence/pom.xml -Psupplement        # regenerate ../data/admin-client
 | `keycloakmcp.root` | `..` | keycloak-mcp checkout to spawn |
 | `keycloakmcp.catalog` | `nightly` | `KEYCLOAK_MCP_CATALOG_VERSION` under test |
 | `node.executable` | `node` | Node.js binary |
+| `equivalence.families` | empty | Comma-separated `MutationFamily.name()`s that `MutationEquivalenceIT` runs; empty runs every family. A name no family has fails the run. An operation that another family covers is recorded `NOT_SELECTED` and has no verdict, so `LedgerCompletenessIT` reports the ledger incomplete |
 
 Each run creates a confidential service-account client in `master` (`equivalence-<hex>`) and realms for the live checks: `equivalence-s3-<millis>`, `equivalence-f1-<millis>`, `equivalence-f4-<millis>` (and `-other`), and twin realms per mutation case. All of them are removed when their check ends. Seeded realms send mail to an SMTP sink in the test JVM, which accepts and discards it: an organization invitation only exists once its mail went out.

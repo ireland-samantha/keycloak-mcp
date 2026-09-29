@@ -87,6 +87,11 @@ public final class EquivalenceEnvironment implements AutoCloseable {
         }
     }
 
+    /** The run configuration. */
+    public Settings settings() {
+        return settings;
+    }
+
     public String serverUrl() {
         return server.baseUrl();
     }

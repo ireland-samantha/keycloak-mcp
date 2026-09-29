@@ -51,6 +51,9 @@ import static org.junit.jupiter.api.DynamicTest.dynamicTest;
  * off), and the non-GET operations its catalog lacks. Each one gets an {@code F2:mutation} verdict: its cases' result,
  * or {@code ROUTED_ONLY} ("no mutation case") until a family covers it; {@code target/mutation-coverage.json} lists
  * those. Every other reference operation is out of F2's scope.
+ *
+ * <p>{@code -Dequivalence.families=a,b} runs only the named families. An operation some other family covers is then
+ * {@value Verdict#NOT_SELECTED}, and has no verdict in this run.
  */
 @ExtendWith(EquivalenceExtension.class)
 class MutationEquivalenceIT {
@@ -73,6 +76,7 @@ class MutationEquivalenceIT {
     private static ReferenceSurface reference;
     private static Map<String, Owner> owners;
     private static MutationCoverage coverage;
+    private static List<MutationFamily> selected;
     private static AdminClientOracle adapter;
     private static MutationRunner runner;
     private static final Map<String, List<CaseOutcome>> outcomes = new ConcurrentHashMap<>();
@@ -92,12 +96,17 @@ class MutationEquivalenceIT {
             }
         });
         coverage = MutationCoverage.of(env.catalog().version(), mutations, MutationFamilies.all());
+        selected = MutationFamilies.select(env.settings().families());
         Map<String, List<Endpoint>> bindings = env.adminClientSurface().endpoints().stream()
                 .collect(Collectors.groupingBy(Endpoint::key));
         adapter = new AdminClientOracle(env.serverUrl(), env.serviceAccount());
         runner = new MutationRunner(env, catalog, bindings, adapter);
         System.out.printf("F2: %d of %d mutation operations have cases; %d are ROUTED_ONLY ('no mutation case'), listed in %s%n",
                 coverage.covered(), coverage.mutationOperations(), coverage.uncovered().size(), COVERAGE);
+        if (!env.settings().families().isEmpty()) {
+            System.out.printf("F2: running the families %s only (equivalence.families)%n",
+                    selected.stream().map(MutationFamily::name).toList());
+        }
     }
 
     @AfterAll
@@ -127,8 +136,8 @@ class MutationEquivalenceIT {
         return tests(c -> !c.requires().isEmpty());
     }
 
-    private static Stream<DynamicTest> tests(Predicate<MutationCase> selected) {
-        return MutationFamilies.all().stream().flatMap(family -> family.cases().stream().filter(selected)
+    private static Stream<DynamicTest> tests(Predicate<MutationCase> which) {
+        return selected.stream().flatMap(family -> family.cases().stream().filter(which)
                 .map(c -> dynamicTest(c.displayName(), () -> check(family, c))));
     }
 
@@ -178,11 +187,23 @@ class MutationEquivalenceIT {
     private static void record() {
         Map<String, List<MutationCase>> cases = MutationFamilies.all().stream().flatMap(f -> f.cases().stream())
                 .collect(Collectors.groupingBy(MutationCase::operationKey));
+        List<String> ran = selected.stream().map(MutationFamily::name).toList();
+        Map<String, List<String>> deselected = new TreeMap<>();
+        MutationFamilies.all().stream().filter(f -> !ran.contains(f.name())).forEach(f -> f.cases().forEach(
+                c -> deselected.computeIfAbsent(c.operationKey(), k -> new ArrayList<>()).add(f.name())));
         owners.forEach((key, owner) -> {
             switch (owner.scope()) {
                 case READ -> env.ledger().record(key, Verdict.F2_MUTATION, Verdict.OUT_OF_SCOPE, true, owner.reason());
                 case UNKNOWN -> env.ledger().record(key, Verdict.F2_MUTATION, "CLASSIFICATION_UNKNOWN", false, owner.reason());
-                case MUTATION -> recordMutation(key, cases.getOrDefault(key, List.of()));
+                case MUTATION -> {
+                    if (deselected.containsKey(key)) {
+                        // A verdict from part of an operation's cases would claim what the others may refute.
+                        env.ledger().record(key, Verdict.F2_MUTATION, Verdict.NOT_SELECTED, true, "cases of the families "
+                                + deselected.get(key).stream().distinct().toList() + " did not run (equivalence.families)");
+                    } else {
+                        recordMutation(key, cases.getOrDefault(key, List.of()));
+                    }
+                }
             }
         });
     }

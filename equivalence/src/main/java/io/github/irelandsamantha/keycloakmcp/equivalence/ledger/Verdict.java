@@ -22,7 +22,7 @@ public record Verdict(Outcome outcome, String detail) {
 
     public enum Outcome {
         EQUIVALENT, ROUTED_ONLY, DIVERGENT_DOCUMENTED,
-        /** No verdict yet: a functional check that could give one did not run. */
+        /** No verdict yet: a functional check that could give one did not run, or left the operation out. */
         PENDING,
         /** A check failed, or every functional check ran and none covers the operation. */
         UNACCOUNTED
@@ -40,6 +40,12 @@ public record Verdict(Outcome outcome, String detail) {
     /** Outcome of a functional check for an operation that another functional check covers. */
     public static final String OUT_OF_SCOPE = "OUT_OF_SCOPE";
 
+    /**
+     * Outcome of a functional check for an operation it owns but was told to leave out of this run (e.g. its
+     * mutation family was not selected); accepted, and the operation is {@link Outcome#PENDING}.
+     */
+    public static final String NOT_SELECTED = "NOT_SELECTED";
+
     private static final Set<String> VERDICTS = Set.of(Outcome.EQUIVALENT.name(), Outcome.ROUTED_ONLY.name(),
             Outcome.DIVERGENT_DOCUMENTED.name());
 
@@ -53,6 +59,10 @@ public record Verdict(Outcome outcome, String detail) {
             return new Verdict(Outcome.UNACCOUNTED, String.join("; ", failed));
         }
         List<String> verdicts = select(checks, FUNCTIONAL::contains, c -> VERDICTS.contains(c.outcome()));
+        List<String> deselected = select(checks, FUNCTIONAL::contains, c -> c.outcome().equals(NOT_SELECTED));
+        if (verdicts.isEmpty() && !deselected.isEmpty()) {
+            return new Verdict(Outcome.PENDING, "left out of this run: " + String.join("; ", deselected));
+        }
         if (verdicts.isEmpty()) {
             List<String> notRun = FUNCTIONAL.stream().filter(f -> !functionalRun.contains(f)).toList();
             return notRun.isEmpty()

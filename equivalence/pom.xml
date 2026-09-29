@@ -42,6 +42,8 @@
     <keycloakmcp.root>${project.basedir}/..</keycloakmcp.root>
     <keycloakmcp.catalog>nightly</keycloakmcp.catalog>
     <node.executable>node</node.executable>
+    <!-- Comma-separated MutationFamily names MutationEquivalenceIT runs; empty runs every family. -->
+    <equivalence.families></equivalence.families>
   </properties>
 
   <repositories>
@@ -106,6 +108,7 @@
             <keycloakmcp.root>${keycloakmcp.root}</keycloakmcp.root>
             <keycloakmcp.catalog>${keycloakmcp.catalog}</keycloakmcp.catalog>
             <node.executable>${node.executable}</node.executable>
+            <equivalence.families>${equivalence.families}</equivalence.families>
           </systemPropertyVariables>
         </configuration>
         <executions>

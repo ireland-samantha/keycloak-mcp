@@ -52,6 +52,13 @@ class VerdictTest {
     }
 
     @Test
+    void anOperationACheckLeftOutIsPendingWithTheReason() {
+        Verdict v = Verdict.of(checks(F1_READ, Verdict.OUT_OF_SCOPE, true, F2_MUTATION, Verdict.NOT_SELECTED, true), BOTH_RAN);
+        assertEquals(Verdict.Outcome.PENDING, v.outcome());
+        assertTrue(v.detail().contains(F2_MUTATION + " " + Verdict.NOT_SELECTED), v.detail());
+    }
+
+    @Test
     void anOperationNoFunctionalCheckCoversIsUnaccountedOnceAllRan() {
         SortedMap<String, EquivalenceLedger.Check> c = checks(F1_READ, Verdict.OUT_OF_SCOPE, true, F2_MUTATION, Verdict.OUT_OF_SCOPE, true);
         assertEquals(Verdict.Outcome.UNACCOUNTED, Verdict.of(c, BOTH_RAN).outcome());

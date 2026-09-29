@@ -25,8 +25,9 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
  * run ({@code junit-platform.properties} orders classes by {@link Order}) and reads the ledger they filled.
  *
  * <p>An operation a check refused is unaccounted, and fails the run with the check and outcome that refused it.
- * An operation left to a functional check that was not selected for this run (e.g. {@code -Dit.test=...}) has no
- * verdict yet; the second test is then aborted, not passed, and names the missing checks.
+ * An operation left to a functional check that was not selected for this run (e.g. {@code -Dit.test=...}), or that
+ * the check left out ({@code -Dequivalence.families=...}), has no verdict yet; the second test is then aborted, not
+ * passed, and names the missing checks.
  */
 @ExtendWith(EquivalenceExtension.class)
 @Order(Integer.MAX_VALUE)
@@ -68,9 +69,10 @@ class LedgerCompletenessIT {
     @Test
     void everyOperationHasAVerdict() {
         List<String> pending = verdicts.entrySet().stream().filter(e -> e.getValue().outcome() == Verdict.Outcome.PENDING)
-                .map(e -> rows.get(e.getKey()).key()).toList();
+                .map(e -> rows.get(e.getKey()).key() + " (" + e.getValue().detail() + ")").toList();
         String incomplete = pending.size() + " operations have no verdict because a functional check did not run in this"
-                + " execution (" + notRun() + "); run every IT for the complete proof. First: " + pending.stream().limit(5).toList();
+                + " execution (" + notRun() + ") or left them out; run every IT, with every mutation family, for the"
+                + " complete proof. First: " + pending.stream().limit(5).toList();
         if (!pending.isEmpty()) {
             // Failsafe's report drops an aborted test's reason.
             System.out.println("Ledger incomplete: " + incomplete);
