@@ -80,11 +80,24 @@ test('O8 integers beyond 2^53 and number spelling survive the read', async t => 
   assert.match(result.text, /"ratio":1\.0/);
 });
 
-test('O9 a failed read carries the error Keycloak sent', { todo: 'MCPLIVE-05' }, async t => {
+test('O9 a failed read carries the error Keycloak sent', async t => {
   const { mcp } = await startScenario(t);
   const result = await mcp.call('keycloak_read', { operation: 'GET /admin/realms/{realm}/users/{user-id}', args: { path: { 'user-id': 'missing' } } });
   assert.equal(result.isError, true);
-  assert.match(result.text, /User not found/);
+  assert.equal(result.text, 'Keycloak operation failed (HTTP 404; attempts 1): User not found');
+});
+
+test('O9 Keycloak\'s error text is bounded and redacted, and a body without one adds nothing', async t => {
+  const long = { status: 400, json: { errorMessage: `invalid ${'x'.repeat(400)}` } };
+  const pem = { status: 400, json: { error: 'invalid_key', error_description: '-----BEGIN PRIVATE KEY-----\nMIIE\n-----END PRIVATE KEY-----' } };
+  const cases = [[long, /^Keycloak operation failed \(HTTP 400; attempts 1\): invalid x{291}…$/], [pem, /^Keycloak operation failed \(HTTP 400; attempts 1\): \[REDACTED by keycloak-mcp\]$/],
+    [{ status: 500, headers: { 'content-type': 'text/html' }, body: '<html>proxy error</html>' }, /^Keycloak operation failed \(HTTP 500; attempts 1\)$/],
+    [{ status: 500, json: { unrelated: true } }, /^Keycloak operation failed \(HTTP 500; attempts 1\)$/],
+    [{ status: 302, headers: { location: 'https://login.example.invalid/' } }, /^Keycloak operation failed \(HTTP 302; attempts 1\)$/]];
+  for (const [response, message] of cases) {
+    const { result } = await readWith(t, response);
+    assert.match(result.text, message);
+  }
 });
 
 test('O10 an empty body and a JSON null are distinguishable', async t => {

@@ -23,7 +23,7 @@ function mask(value) {
 
 class Redactor {
   constructor(op, secretAttributes) {
-    this.pathFields = Object.hasOwn(FIELD_REDACTIONS, op.path) ? FIELD_REDACTIONS[op.path].fields : [];
+    this.pathFields = op && Object.hasOwn(FIELD_REDACTIONS, op.path) ? FIELD_REDACTIONS[op.path].fields : [];
     this.secretAttributes = secretAttributes;
   }
 
@@ -58,4 +58,9 @@ class Redactor {
 // with the attribute and config keys an operator names in `secretAttributes` treated as secrets too.
 export function redactResponse(value, op, secretAttributes = []) {
   return new Redactor(op, secretAttributes).redact(value);
+}
+
+// Free text, such as an error message, with any secret-shaped value in it replaced by the marker.
+export function redactText(text, secretAttributes = []) {
+  return new Redactor(null, secretAttributes).redactText(text);
 }

@@ -23,7 +23,7 @@ test('C2 a second 401 is reported after two attempts', async t => {
   mock.on('GET /admin/realms/{realm}', mock.fixture('admin.unauthorized'));
   const result = await mcp.call('keycloak_read', readRealm);
   assert.equal(result.isError, true);
-  assert.equal(result.text, 'Keycloak operation failed (HTTP 401; attempts 2)');
+  assert.equal(result.text, 'Keycloak operation failed (HTTP 401; attempts 2): HTTP 401 Unauthorized');
   assert.equal(mock.tokenRequests().length, 2);
 });
 
@@ -32,7 +32,7 @@ test('C3 the converter POST is a read but a 401 there is not replayed', async t 
   mock.on('POST /admin/realms/{realm}/client-description-converter', mock.fixture('admin.unauthorized'));
   const result = await mcp.call('keycloak_read', { operation: 'POST /admin/realms/{realm}/client-description-converter',
     args: { contentType: 'text/plain', body: '{"clientId":"converted"}' } });
-  assert.equal(result.text, 'Keycloak operation failed (HTTP 401; attempts 1)');
+  assert.equal(result.text, 'Keycloak operation failed (HTTP 401; attempts 1): HTTP 401 Unauthorized');
   assert.equal(mock.tokenRequests().length, 1);
   assert.equal(mock.adminRequests().length, 1);
 });
@@ -59,14 +59,14 @@ test('D1 reads retry 502, 503 and 504 up to three attempts, about 150 ms then 40
     const { mock, mcp } = await startScenario(t);
     mock.on('GET /admin/realms/{realm}', failure(503));
     const result = await mcp.call('keycloak_read', readRealm);
-    assert.equal(result.text, 'Keycloak operation failed (HTTP 503; attempts 3)');
+    assert.equal(result.text, 'Keycloak operation failed (HTTP 503; attempts 3): HTTP 503');
   });
 });
 
 test('D2 HTTP 500 is not retried', async t => {
   const { mock, mcp } = await startScenario(t);
   mock.on('GET /admin/realms/{realm}', failure(500));
-  assert.equal((await mcp.call('keycloak_read', readRealm)).text, 'Keycloak operation failed (HTTP 500; attempts 1)');
+  assert.equal((await mcp.call('keycloak_read', readRealm)).text, 'Keycloak operation failed (HTTP 500; attempts 1): HTTP 500');
   assert.equal(mock.adminRequests().length, 1);
 });
 
@@ -74,7 +74,7 @@ test('D3 a 503 on a mutation step is sent once and may have committed', async t 
   const { mock, result } = await executeWorkflow(t, [groupCreate], { program: mock => mock.on('POST /admin/realms/{realm}/groups', failure(503)) });
   assert.equal(result.status, 'IN_DOUBT');
   assert.equal(result.failedStepMayHaveCommitted, true);
-  assert.equal(result.error, 'Keycloak operation failed (HTTP 503; attempts 1)');
+  assert.equal(result.error, 'Keycloak operation failed (HTTP 503; attempts 1): HTTP 503');
   assert.deepEqual(mock.adminRequests().map(request => request.method), ['POST']);
 });
 

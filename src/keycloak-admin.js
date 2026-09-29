@@ -1,6 +1,6 @@
 import { createCatalog } from './catalog/index.js';
 import { buildRequest } from './http/request.js';
-import { readResult } from './http/response.js';
+import { operationFailure, readResult } from './http/response.js';
 import { ServiceAccountToken } from './http/token.js';
 import { send } from './http/transport.js';
 import { grantExecute } from './internal/capabilities.js';
@@ -39,6 +39,7 @@ export class KeycloakAdmin {
     const request = buildRequest(this.config, key, args, this.catalog);
     const { response, attempts } = await send(this.#fetch, this.#token, request,
       { ...this.#options, safeRead: !isMutation(key, this.catalog) });
+    if (!response.ok) throw await operationFailure(response, { attempts, config: this.config });
     if (invalidatesServiceToken(key)) this.invalidateToken();
     return readResult(response, { op: request.op, attempts, config: this.config });
   }

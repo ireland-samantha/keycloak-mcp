@@ -39,7 +39,7 @@ test('B3 a short-lived token is reused for half its lifetime; one with no lifeti
 
 test('B4 token endpoint failures are specific errors that never echo the secret', async t => {
   const cases = [
-    ['rejected credentials', mock => mock.fixture('token.invalidClient'), /token request failed \(HTTP 401\)$/],
+    ['rejected credentials', mock => mock.fixture('token.invalidClient'), /token request failed \(HTTP 401\): unauthorized_client: Invalid client or Invalid client credentials$/],
     ['invalid JSON', () => ({ status: 200, headers: { 'content-type': 'application/json' }, body: '{"access_token":' }), /token response is invalid JSON$/],
     ['incomplete token', () => ({ json: { token_type: 'Bearer', expires_in: 300 } }), /token response is incomplete$/],
     ['token over 64 KiB', () => ({ json: { access_token: 'x'.repeat(65 * 1024), expires_in: 300 } }), /^response exceeds configured limit \(HTTP 200\)$/],

@@ -70,7 +70,7 @@ test('I3 a failed compensation is reported and prior steps are not claimed compe
     .on('PUT /admin/realms/{realm}', { status: 204 }, serverError)
     .on('POST /admin/realms/{realm}/groups', serverError) });
   assert.deepEqual(result.rollback, [{ operation: 'PUT /admin/realms/{realm}', path: {}, outcome: 'FAILED',
-    error: 'Keycloak operation failed (HTTP 500; attempts 1)' }]);
+    error: 'Keycloak operation failed (HTTP 500; attempts 1): unknown_error' }]);
   assert.equal(result.priorStepsCompensated, false);
 });
 

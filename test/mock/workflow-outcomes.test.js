@@ -62,7 +62,7 @@ test('J5 a mutation that was never sent is not reported as possibly committed', 
   assert.equal(result.failedStepMayHaveCommitted, false);
 });
 
-test('J6 the error Keycloak sent is part of the failure report', { todo: 'MCPLIVE-05' }, async t => {
+test('J6 the error Keycloak sent is part of the failure report', async t => {
   const conflict = createStep('groups', 'group-id', { name: 'fixture-group' });
   const { result } = await executeWorkflow(t, [conflict], { program: mock => mock.on('POST /admin/realms/{realm}/groups', mock.fixture('groups.conflict')) });
   assert.match(result.error, /Top level group named 'fixture-group' already exists/);

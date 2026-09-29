@@ -1,4 +1,5 @@
-import { discardBody, readLimitedBody } from './body.js';
+import { readLimitedBody } from './body.js';
+import { errorDetail } from './response.js';
 
 const REFRESH_BEFORE_EXPIRY_MS = 30_000;
 const TOKEN_RESPONSE_LIMIT = 64 * 1024;
@@ -65,11 +66,11 @@ export class ServiceAccountToken {
     const credentials = Buffer.from(`${formEncode(clientId)}:${formEncode(clientSecret)}`, 'utf8').toString('base64');
     const response = await this.#fetch(`${baseUrl}/realms/${encodeURIComponent(authRealm)}/protocol/openid-connect/token`, {
       method: 'POST', headers: { 'content-type': 'application/x-www-form-urlencoded', authorization: `Basic ${credentials}` },
-      body: new URLSearchParams({ grant_type: 'client_credentials' }), redirect: 'error', signal: AbortSignal.timeout(this.#timeoutMs),
+      body: new URLSearchParams({ grant_type: 'client_credentials' }), redirect: 'manual', signal: AbortSignal.timeout(this.#timeoutMs),
     });
     if (!response.ok) {
-      await discardBody(response);
-      throw new Error(`Keycloak service-account token request failed (HTTP ${response.status})`);
+      const detail = await errorDetail(response, this.#config);
+      throw new Error(`Keycloak service-account token request failed (HTTP ${response.status})${detail ? `: ${detail}` : ''}`);
     }
     const tokenBytes = await readLimitedBody(response, TOKEN_RESPONSE_LIMIT);
     let data;
