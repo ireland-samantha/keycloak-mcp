@@ -1,6 +1,7 @@
 import { catalogFor, describeOperation } from '../catalog/index.js';
 import { DEFAULT_BODY_BYTES } from '../config.js';
 import { expandPathTemplate, pathParameterNames } from '../internal/path-template.js';
+import { refuseRedactedValue } from '../internal/redaction.js';
 import { assertOperationAllowed } from '../policy/access.js';
 import { MULTI_SEGMENT_PATH_PARAMETER } from '../policy/table.js';
 import { encodeBody } from './body.js';
@@ -24,6 +25,7 @@ function expandPath(config, template, inputPath) {
     const value = name === 'realm' ? config.realm : inputPath[name];
     if (value === undefined || value === null || String(value) === '') throw new Error(`missing path parameter: ${name}`);
     if (typeof value !== 'string' && !Number.isFinite(value)) throw new Error(`path parameter ${name} must be a string or number`);
+    refuseRedactedValue(String(value));
     if (name === 'realm' && inputPath.realm !== undefined && inputPath.realm !== config.realm) throw new Error('realm cannot be overridden');
     if (name === MULTI_SEGMENT_PATH_PARAMETER.name) return encodeSegments(value);
     if (isDotSegment(String(value))) throw new Error(`unsafe path parameter: ${name}`);
@@ -42,6 +44,7 @@ function appendQuery(url, op, query) {
     for (const item of Array.isArray(value) ? value : [value]) {
       if (item === null || item === undefined) continue;
       if (!isQueryScalar(item)) throw new Error(`query parameter ${name} must be a string, number or boolean, or a list of them`);
+      refuseRedactedValue(String(item));
       url.searchParams.append(name, String(item));
     }
   }

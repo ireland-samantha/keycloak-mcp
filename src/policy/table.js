@@ -94,7 +94,7 @@ export const FIELD_REDACTIONS = {
   },
 };
 
-// Path parameters recorded as [REDACTED] in the on-disk workflow receipt.
+// Path parameters recorded as the redaction marker in the on-disk workflow receipt.
 export const RECEIPT_SENSITIVE_PATH_PARAMETER = {
   pattern: /secret|token|password|credential/i,
   reason: 'Receipts are plain files; parameters named after credentials, such as {credentialId}, are kept out of them.',

@@ -68,7 +68,7 @@ test('L3 credential IDs in paths are redacted in receipts', async t => {
     operation: 'POST /admin/realms/{realm}/users/{user-id}/credentials/{credentialId}/moveAfter/{newPreviousCredentialId}' }] });
   const [receipt] = receipts(journalDir);
   assert.equal(receipt.runId, result.value.runId);
-  assert.deepEqual(receipt.plan[0].path, { 'user-id': 'user-1', credentialId: '[REDACTED]', newPreviousCredentialId: '[REDACTED]' });
+  assert.deepEqual(receipt.plan[0].path, { 'user-id': 'user-1', credentialId: '[REDACTED by keycloak-mcp]', newPreviousCredentialId: '[REDACTED by keycloak-mcp]' });
   assert.equal(JSON.stringify(receipt).includes('credential-canary'), false);
 });
 

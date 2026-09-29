@@ -1,3 +1,4 @@
+import { refuseRedactedValue } from '../internal/redaction.js';
 import { isTextType } from './media-type.js';
 
 const limitExceeded = () => new Error('request body exceeds configured limit');
@@ -56,6 +57,7 @@ function encodeMultipart(fields, limit) {
     if (typeof value === 'string') {
       bytes += Buffer.byteLength(value);
       if (bytes > limit) throw limitExceeded();
+      refuseRedactedValue(value);
       form.append(name, value);
     } else if (value && typeof value === 'object' && !Array.isArray(value)) {
       const { filename, contentType, base64 } = value;
@@ -65,6 +67,7 @@ function encodeMultipart(fields, limit) {
       bytes += Buffer.byteLength(filename) + Buffer.byteLength(contentType);
       if (bytes > limit) throw limitExceeded();
       const file = decodeBase64Bounded(base64, limit - bytes, 'multipart base64');
+      refuseRedactedValue(file);
       bytes += file.length;
       form.append(name, new Blob([file], { type: contentType }), filename);
     } else throw new Error('multipart fields must be text or a base64 file');
@@ -116,5 +119,6 @@ export function encodeBody(op, args, limit) {
   }
   const body = serialize(contentType, args, limit);
   if (Buffer.byteLength(body) > limit) throw limitExceeded();
+  refuseRedactedValue(body);
   return { body, contentType };
 }

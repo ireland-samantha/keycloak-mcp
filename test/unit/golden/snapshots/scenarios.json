@@ -1,6 +1,6 @@
 {
  "readRedact": {
-  "result": {"ok":{"status":200,"contentType":"application/json","value":{"a":1,"clientSecret":"[REDACTED]","nested":[{"password":"[REDACTED]"}]}}},
+  "result": {"ok":{"status":200,"contentType":"application/json","value":{"a":1,"clientSecret":"[REDACTED by keycloak-mcp]","nested":[{"password":"[REDACTED by keycloak-mcp]"}]}}},
   "receipts": []
  },
  "readText": {
@@ -12,7 +12,7 @@
   "receipts": []
  },
  "sensitive": {
-  "result": {"ok":{"status":200,"contentType":"application/json","value":"[REDACTED: sensitive endpoint]"}},
+  "result": {"ok":{"status":200,"contentType":"application/json","value":"[REDACTED by keycloak-mcp: sensitive endpoint]"}},
   "receipts": []
  },
  "saga": {

@@ -226,8 +226,8 @@ test('GET uses client_credentials, reuses token, and redacts sensitive fields', 
   const admin = new KeycloakAdmin(testConfig(), fetch);
   const first = await admin.invoke('GET /admin/realms/{realm}');
   await admin.invoke('GET /admin/realms/{realm}');
-  assert.equal(first.value.clientSecret, '[REDACTED]');
-  assert.equal(first.value.nested.password, '[REDACTED]');
+  assert.equal(first.value.clientSecret, '[REDACTED by keycloak-mcp]');
+  assert.equal(first.value.nested.password, '[REDACTED by keycloak-mcp]');
   assert.equal(calls.filter(call => call.url.endsWith('/token')).length, 1);
   assert.equal(calls[0].options.body.get('grant_type'), 'client_credentials');
   assert.equal(calls[1].url, 'https://id.example.com/auth/admin/realms/test-realm');
@@ -314,7 +314,7 @@ test('generic secret value endpoint is redacted unless explicitly enabled', asyn
   const key = 'GET /admin/realms/{realm}/clients/{client-uuid}/client-secret';
   const args = { path: { 'client-uuid': 'client-1' } };
   const ordinary = await new KeycloakAdmin(testConfig(), fetch).invoke(key, args);
-  assert.equal(ordinary.value, '[REDACTED: sensitive endpoint]');
+  assert.equal(ordinary.value, '[REDACTED by keycloak-mcp: sensitive endpoint]');
   const enabled = await new KeycloakAdmin(testConfig({ KEYCLOAK_MCP_ALLOW_SENSITIVE_READS: 'true' }), fetch).invoke(key, args);
   assert.equal(enabled.value.value, 'hidden-secret');
 });
@@ -328,10 +328,10 @@ test('client initial-access tokens and detailed admin-event representations are 
     return jsonResponse(200, [{ operationType: 'CREATE', representation: '{"secret":"client-secret"}' }]);
   };
   const ordinary = new KeycloakAdmin(testConfig(), fetch);
-  assert.equal((await ordinary.invoke(initialAccess)).value, '[REDACTED: sensitive endpoint]');
+  assert.equal((await ordinary.invoke(initialAccess)).value, '[REDACTED by keycloak-mcp: sensitive endpoint]');
   const events = (await ordinary.invoke(adminEvents)).value;
   assert.equal(events[0].operationType, 'CREATE');
-  assert.equal(events[0].representation, '[REDACTED]');
+  assert.equal(events[0].representation, '[REDACTED by keycloak-mcp]');
   const enabled = new KeycloakAdmin(testConfig({ KEYCLOAK_MCP_ALLOW_SENSITIVE_READS: 'true' }), fetch);
   assert.equal((await enabled.invoke(initialAccess)).value[0].token, 'registration-token');
   assert.equal((await enabled.invoke(adminEvents)).value[0].representation, '{"secret":"client-secret"}');
@@ -348,7 +348,7 @@ test('text installation material and example tokens are redacted by default', as
     ['GET /admin/realms/{realm}/clients/{client-uuid}/evaluate-scopes/generate-example-saml-response', { 'client-uuid': 'client' }],
   ]) {
     const result = await admin.invoke(operation, { path });
-    assert.equal(result.value, '[REDACTED: sensitive endpoint]');
+    assert.equal(result.value, '[REDACTED by keycloak-mcp: sensitive endpoint]');
   }
 });
 
@@ -364,7 +364,7 @@ test('certificate downloads never expose returned keystore bytes by default', as
   ]) {
     const result = await execute(admin, operation, { path: { 'client-uuid': 'client', attr: 'jwt.credential' },
       body: { format: 'JKS', keyAlias: 'key', keyPassword: 'password', storePassword: 'password' } });
-    assert.equal(result.value, '[REDACTED: sensitive endpoint]');
+    assert.equal(result.value, '[REDACTED by keycloak-mcp: sensitive endpoint]');
   }
 });
 
