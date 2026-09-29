@@ -42,6 +42,11 @@ class JsonDiffTest {
     }
 
     @Test
+    void elementsDifferingOnlyInKeyOrderKeepTheirPlace() throws Exception {
+        assertEquals(List.of(JsonDiff.Kind.KEY_ORDER), kinds("[{\"a\":1,\"b\":2}]", "[{\"b\":2,\"a\":1}]"));
+    }
+
+    @Test
     void missingKeysAndTypeChangesArePlaced() throws Exception {
         List<JsonDiff.Diff> diffs = JsonDiff.diff(json("{\"a\":{\"x\":1},\"t\":\"1\"}"), json("{\"a\":{},\"t\":1,\"z\":true}"));
         assertEquals(List.of("MISSING_RIGHT $.a.x", "TYPE $.t", "MISSING_LEFT $.z"),

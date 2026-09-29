@@ -101,7 +101,8 @@ public final class JsonDiff {
         for (int i = 0; i < Math.min(l.size(), r.size()); i++) {
             walk(path + "[" + i + "]", l.get(i), r.get(i), inner);
         }
-        if (!inner.isEmpty() && l.size() == r.size() && sameMultiset(l, r)) {
+        boolean onlyKeyOrder = inner.stream().allMatch(d -> d.kind() == Kind.KEY_ORDER);
+        if (!onlyKeyOrder && l.size() == r.size() && sameMultiset(l, r)) {
             out.add(new Diff(path, Kind.ARRAY_ORDER, "same elements", "different order"));
         } else {
             out.addAll(inner);
