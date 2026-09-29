@@ -36,7 +36,7 @@ test('A3 the server answers requests and stops when stdin closes', async t => {
   assert.deepEqual(server.stdoutNoise, []);
 });
 
-test('A3 a clean shutdown exits 0 with nothing on stderr', { todo: 'MCPLIVE-01' }, async t => {
+test('A3 a clean shutdown exits 0 with nothing on stderr', async t => {
   const { mcp, server } = await startScenario(t, { transport: 'stdio' });
   await mcp.call('keycloak_read', { operation: 'GET /admin/realms/{realm}' });
   assert.deepEqual(await server.close(), { code: 0, signal: null });
