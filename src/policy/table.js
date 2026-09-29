@@ -62,7 +62,8 @@ export const OPERATION_OVERRIDES = {
 // Routes the Java admin client reaches that no bundled OpenAPI definition lists; the nightly catalog adds
 // them from its admin-client supplement. The supplement derives their path-parameter names, so a rule
 // matches the method and the path with every parameter written {}. A matching rule decides mutation,
-// irreversible and sensitive for its route, whichever document lists it.
+// irreversible and sensitive for its route, whether the OpenAPI definition or the supplement lists it;
+// a deployment's extension route keeps the classification it declares.
 const route = pattern => new RegExp(`^${pattern.replaceAll('{}', '\\{\\}')}$`);
 const AUTHZ = '/admin/realms/{}/clients/{}/authz/resource-server';
 const TYPED_POLICY = '(?:policy/(?:aggregate|client|client-scope|group|js|regex|role|time|user)|permission/(?:resource|scope))';

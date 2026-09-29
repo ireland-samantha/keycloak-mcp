@@ -21,8 +21,13 @@ export function adminClientRouteNames(method, path) {
 // A supplement operation that no rule covers has had no review, so it gets the strictest classification.
 const UNREVIEWED_ADMIN_CLIENT_OPERATION = { mutation: true, irreversible: true, sensitive: true };
 
-const adminClientRoute = op => entry(ADMIN_CLIENT_ROUTES, adminClientRouteNames(op.method, op.path)[0]) ??
-  (op.origin === 'admin-client' ? UNREVIEWED_ADMIN_CLIENT_OPERATION : undefined);
+// The route rule that classifies a bundled or supplement operation. An extension route is classified by
+// what its deployment declares, which a rule written for Keycloak's own routes must not override.
+function adminClientRoute(op) {
+  if (op.extension) return undefined;
+  return entry(ADMIN_CLIENT_ROUTES, adminClientRouteNames(op.method, op.path)[0]) ??
+    (op.origin === 'admin-client' ? UNREVIEWED_ADMIN_CLIENT_OPERATION : undefined);
+}
 
 export function isMutation(key, operationCatalog = defaultCatalog()) {
   const op = describeOperation(key, operationCatalog);
