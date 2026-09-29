@@ -5,6 +5,7 @@ import io.github.irelandsamantha.keycloakmcp.equivalence.ledger.Provenance;
 import io.github.irelandsamantha.keycloakmcp.equivalence.surface.AdminClientArtifact;
 import io.github.irelandsamantha.keycloakmcp.equivalence.surface.AdminClientSurface;
 import io.github.irelandsamantha.keycloakmcp.equivalence.surface.HeadOpenApi;
+import io.github.irelandsamantha.keycloakmcp.equivalence.surface.ReferenceSurface;
 import io.github.irelandsamantha.keycloakmcp.equivalence.surface.model.WalkResult;
 import org.keycloak.OAuth2Constants;
 import org.keycloak.admin.client.Keycloak;
@@ -18,7 +19,8 @@ import java.util.concurrent.TimeoutException;
 /**
  * Everything the equivalence checks share for one run: the server, the service account both keycloak-mcp and the
  * raw-HTTP oracle use, the reference inputs (HEAD OpenAPI, admin-client surface), keycloak-mcp's catalog as seen
- * over MCP, and the ledger. Reference inputs are loaded once, on first use.
+ * over MCP, and the ledger. Reference inputs are loaded once, on first use; the ledger holds a row for every
+ * reference operation from then on, whichever checks run.
  */
 public final class EquivalenceEnvironment implements AutoCloseable {
 
@@ -36,6 +38,7 @@ public final class EquivalenceEnvironment implements AutoCloseable {
     private final EquivalenceLedger ledger = new EquivalenceLedger();
     private HeadOpenApi.Document headOpenApi;
     private WalkResult adminClientSurface;
+    private ReferenceSurface reference;
     private McpCatalogSnapshot catalog;
 
     private EquivalenceEnvironment(Settings settings, KeycloakServer server, Keycloak bootstrapAdmin,
@@ -76,7 +79,9 @@ public final class EquivalenceEnvironment implements AutoCloseable {
         return adminClient;
     }
 
+    /** The ledger, with a row for every reference operation. */
     public EquivalenceLedger ledger() {
+        reference();
         return ledger;
     }
 
@@ -98,6 +103,16 @@ public final class EquivalenceEnvironment implements AutoCloseable {
             adminClientSurface = AdminClientSurface.walk();
         }
         return adminClientSurface;
+    }
+
+    /** HEAD OpenAPI ∪ admin client, each operation registered in the ledger with its origins. */
+    public synchronized ReferenceSurface reference() {
+        if (reference == null) {
+            reference = ReferenceSurface.of(headOpenApi().json(), adminClientSurface());
+            reference.openApi().values().forEach(op -> ledger.reference(op.method(), op.path(), ReferenceSurface.OPENAPI));
+            reference.adminClient().values().forEach(op -> ledger.reference(op.method(), op.path(), ReferenceSurface.ADMIN_CLIENT));
+        }
+        return reference;
     }
 
     /** The catalog of {@link Settings#catalogVersion()} as keycloak-mcp's own tools report it. */
@@ -122,7 +137,7 @@ public final class EquivalenceEnvironment implements AutoCloseable {
     }
 
     public void writeLedger() throws IOException, InterruptedException, TimeoutException {
-        ledger.write(LEDGER, provenance());
+        ledger().write(LEDGER, provenance());
     }
 
     @Override

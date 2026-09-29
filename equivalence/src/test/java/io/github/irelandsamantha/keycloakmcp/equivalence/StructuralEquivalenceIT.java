@@ -8,7 +8,6 @@ import io.github.irelandsamantha.keycloakmcp.equivalence.fixtures.RealmSeeder;
 import io.github.irelandsamantha.keycloakmcp.equivalence.fixtures.SeededRealm;
 import io.github.irelandsamantha.keycloakmcp.equivalence.harness.EquivalenceEnvironment;
 import io.github.irelandsamantha.keycloakmcp.equivalence.harness.McpCatalogSnapshot;
-import io.github.irelandsamantha.keycloakmcp.equivalence.ledger.EquivalenceLedger;
 import io.github.irelandsamantha.keycloakmcp.equivalence.oracle.RouteProbe;
 import io.github.irelandsamantha.keycloakmcp.equivalence.surface.McpCatalog;
 import io.github.irelandsamantha.keycloakmcp.equivalence.surface.OpView;
@@ -70,14 +69,11 @@ class StructuralEquivalenceIT {
     @BeforeAll
     static void load(EquivalenceEnvironment environment) throws Exception {
         env = environment;
-        reference = ReferenceSurface.of(env.headOpenApi().json(), env.adminClientSurface());
+        reference = env.reference();
         snapshot = env.catalog();
         catalogOps = McpCatalog.parse(snapshot.operations());
         catalog = OpView.fromCatalog(catalogOps);
         divergences = DocumentedDivergences.load();
-        EquivalenceLedger ledger = env.ledger();
-        reference.openApi().values().forEach(op -> ledger.reference(op.method(), op.path(), ReferenceSurface.OPENAPI));
-        reference.adminClient().values().forEach(op -> ledger.reference(op.method(), op.path(), ReferenceSurface.ADMIN_CLIENT));
         System.out.printf("reference: %d operations (HEAD OpenAPI %d from %s, admin client %d); catalog '%s': %d operations from %s%n",
                 reference.keys().size(), reference.openApi().size(), env.headOpenApi().source(),
                 reference.adminClient().size(), snapshot.version(), catalog.size(), snapshot.source());
@@ -96,7 +92,8 @@ class StructuralEquivalenceIT {
         SortedSet<String> extra = new TreeSet<>(catalog.keySet());
         extra.removeAll(reference.keys());
         for (String key : reference.keys()) {
-            env.ledger().record(key, "S1:listed", catalog.containsKey(key) ? "LISTED" : "MISSING", null);
+            boolean listed = catalog.containsKey(key);
+            env.ledger().record(key, "S1:listed", listed ? "LISTED" : "MISSING", listed, null);
         }
         extra.forEach(key -> env.ledger().catalogOnly(named(catalog.get(key))));
 
@@ -196,8 +193,9 @@ class StructuralEquivalenceIT {
                         .filter(e -> e.getKey().key().equals(r.key())).map(Map.Entry::getValue).findFirst();
                 String outcome = r.verdict() == RouteProbe.Verdict.ROUTED ? "ROUTED"
                         : gate.map(e -> "GATED_DOCUMENTED").orElse("NOT_ROUTED_" + r.verdict());
-                env.ledger().record(r.key(), "S3:routed", outcome, r.status() + " " + gate.map(DocumentedDivergences.Entry::ref)
-                        .orElse(r.sent() + (r.control() == null ? "" : "; control " + r.control())));
+                env.ledger().record(r.key(), "S3:routed", outcome, r.verdict() == RouteProbe.Verdict.ROUTED || gate.isPresent(),
+                        r.status() + " " + gate.map(DocumentedDivergences.Entry::ref)
+                                .orElse(r.sent() + (r.control() == null ? "" : "; control " + r.control())));
             }
         }
         System.out.printf("S3: %d operations probed in a seeded realm: %s; seeding failures: %s; documented gates now routed: %s%n",
@@ -224,7 +222,8 @@ class StructuralEquivalenceIT {
             }
             String outcome = undocumented.contains(key) ? "UNDOCUMENTED_DIVERGENCE"
                     : documented.containsKey(key) ? "DIVERGENT_DOCUMENTED" : clean;
-            env.ledger().record(key, check, outcome, documented.containsKey(key) ? String.join("; ", documented.get(key)) : null);
+            env.ledger().record(key, check, outcome, !undocumented.contains(key),
+                    documented.containsKey(key) ? String.join("; ", documented.get(key)) : null);
         }
     }
 
