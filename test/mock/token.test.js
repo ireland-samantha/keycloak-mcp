@@ -29,10 +29,12 @@ test('B2 reads reuse one cached token', async t => {
   assert.equal(mock.adminRequests().length, 3);
 });
 
-test('B3 a token expiring within the 30 s skew is fetched again for every call', async t => {
-  const { mock, mcp } = await startScenario(t, { mock: { expiresIn: 30 } });
-  for (let read = 0; read < 3; read += 1) await mcp.call('keycloak_read', readRealm);
-  assert.equal(mock.tokenRequests().length, 3);
+test('B3 a short-lived token is reused for half its lifetime; one with no lifetime left is fetched for every call', async t => {
+  for (const [expiresIn, grants] of [[30, 1], [0, 3]]) await t.test(`expires_in ${expiresIn}`, async t => {
+    const { mock, mcp } = await startScenario(t, { mock: { expiresIn } });
+    for (let read = 0; read < 3; read += 1) await mcp.call('keycloak_read', readRealm);
+    assert.equal(mock.tokenRequests().length, grants);
+  });
 });
 
 test('B4 token endpoint failures are specific errors that never echo the secret', async t => {
@@ -69,7 +71,7 @@ test('B6 logout-all drops the cached token, so the next call fetches a new one',
   assert.deepEqual(mock.adminRequests().map(request => request.headers.authorization), ['Bearer mock-access-token-1', 'Bearer mock-access-token-2']);
 });
 
-test('B7 concurrent calls on a cold cache share one token grant', { todo: 'BC-09' }, async t => {
+test('B7 concurrent calls on a cold cache share one token grant', async t => {
   const { mock, mcp } = await startScenario(t);
   await Promise.all(Array.from({ length: 5 }, () => mcp.call('keycloak_read', readRealm)));
   assert.equal(mock.tokenRequests().length, 1);

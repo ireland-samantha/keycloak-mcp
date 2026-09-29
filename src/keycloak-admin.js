@@ -7,7 +7,7 @@ import { grantExecute } from './internal/capabilities.js';
 import { invalidatesServiceToken, isMutation } from './policy/classify.js';
 
 // Calls catalog operations in the configured realm as the configured service account.
-// `options` overrides transport timing: { sleep, requestTimeoutMs, tokenTimeoutMs, retryDelaysMs }.
+// `options` overrides transport timing: { sleep, now, requestTimeoutMs, tokenTimeoutMs, retryDelaysMs }.
 export class KeycloakAdmin {
   #fetch;
   #token;

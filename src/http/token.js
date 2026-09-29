@@ -9,23 +9,31 @@ const TOKEN_RESPONSE_LIMIT = 64 * 1024;
 // client ID would split it.
 const formEncode = value => encodeURIComponent(value).replace(/%20/g, '+');
 
-// The configured service account's client_credentials token, cached until shortly before it expires.
+// The configured service account's client_credentials token. It is refreshed 30 s before it expires,
+// or halfway through its lifetime when that is shorter, and concurrent callers share one grant.
 export class ServiceAccountToken {
   #config;
   #fetch;
   #timeoutMs;
+  #now;
   #value = null;
-  #expiresAt = 0;
+  #refreshAt = 0;
+  #pending = null;
+  // Bumped by invalidate(), so a grant requested before it cannot be cached after it.
+  #generation = 0;
 
-  constructor(config, fetchImpl, { tokenTimeoutMs = 15_000 } = {}) {
+  constructor(config, fetchImpl, { tokenTimeoutMs = 15_000, now = Date.now } = {}) {
     this.#config = config;
     this.#fetch = fetchImpl;
     this.#timeoutMs = tokenTimeoutMs;
+    this.#now = now;
   }
 
   invalidate() {
     this.#value = null;
-    this.#expiresAt = 0;
+    this.#refreshAt = 0;
+    this.#pending = null;
+    this.#generation += 1;
   }
 
   // Keeps a token another call has fetched since `token` was handed out.
@@ -33,8 +41,26 @@ export class ServiceAccountToken {
     if (this.#value === token) this.invalidate();
   }
 
-  async get() {
-    if (this.#value && Date.now() < this.#expiresAt - REFRESH_BEFORE_EXPIRY_MS) return this.#value;
+  get() {
+    if (this.#value && this.#now() < this.#refreshAt) return Promise.resolve(this.#value);
+    this.#pending ??= this.#grantForGeneration(this.#generation);
+    return this.#pending;
+  }
+
+  async #grantForGeneration(generation) {
+    try {
+      const { token, lifetimeMs } = await this.#grant();
+      if (generation === this.#generation) {
+        this.#value = token;
+        this.#refreshAt = this.#now() + lifetimeMs - Math.min(REFRESH_BEFORE_EXPIRY_MS, lifetimeMs / 2);
+      }
+      return token;
+    } finally {
+      if (generation === this.#generation) this.#pending = null;
+    }
+  }
+
+  async #grant() {
     const { baseUrl, authRealm, clientId, clientSecret } = this.#config;
     const credentials = Buffer.from(`${formEncode(clientId)}:${formEncode(clientSecret)}`, 'utf8').toString('base64');
     const response = await this.#fetch(`${baseUrl}/realms/${encodeURIComponent(authRealm)}/protocol/openid-connect/token`, {
@@ -50,8 +76,6 @@ export class ServiceAccountToken {
     try { data = JSON.parse(tokenBytes.toString('utf8')); }
     catch { throw new Error('Keycloak token response is invalid JSON'); }
     if (typeof data.access_token !== 'string' || !Number.isFinite(data.expires_in)) throw new Error('Keycloak token response is incomplete');
-    this.#value = data.access_token;
-    this.#expiresAt = Date.now() + data.expires_in * 1000;
-    return this.#value;
+    return { token: data.access_token, lifetimeMs: data.expires_in * 1000 };
   }
 }
