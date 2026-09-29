@@ -30,7 +30,13 @@ public record CaseOutcome(MutationCase mutationCase, Check compensation, Check e
     /** F3: reversible, but keycloak-mcp accepts no compensation for it; safe, so accepted. */
     public static final String NOT_COMPENSABLE = "NOT_COMPENSABLE";
 
+    /** F2: both sides performed the mutation (2xx) and left the twins in the same state. */
     public static final String EQUIVALENT = "EQUIVALENT";
+    /**
+     * F2: both sides rejected the request in the same non-2xx status class and left the twins in the same state.
+     * Accepted, but the mutation was never performed: an operation needs an {@link #EQUIVALENT} case to be equivalent.
+     */
+    public static final String REJECTED_ALIKE = "REJECTED_ALIKE";
     public static final String DIVERGENT = "DIVERGENT";
     /** F2: keycloak-mcp refuses to perform it at all. */
     public static final String REFUSED = "REFUSED";

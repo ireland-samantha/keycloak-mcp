@@ -27,7 +27,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  *       misclassification, and the frame its counterexample.</li>
  *   <li>F2: keycloak-mcp runs the operation in A (with the compensation it accepts, else with the irreversible
  *       override); the reference performs it in B. Both must answer in the same status class, and A's and B's
- *       readbacks must be equal once generated ids are replaced by natural keys.</li>
+ *       readbacks must be equal once generated ids are replaced by natural keys. Only a case both sides performed
+ *       (2xx) shows the mutation equivalent; one both sides rejected alike is accepted without showing it.</li>
  * </ol>
  */
 public final class MutationRunner {
@@ -133,6 +134,8 @@ public final class MutationRunner {
                 + (completed ? "" : " (" + run.report().path("error").asText() + ")")
                 + ", reference HTTP " + answer.status() + " via " + answer.via()
                 + (differences.isEmpty() ? "; readbacks agree" : "; readbacks differ: " + differences);
-        return new Check(equivalent ? CaseOutcome.EQUIVALENT : CaseOutcome.DIVERGENT, equivalent, detail);
+        String outcome = !equivalent ? CaseOutcome.DIVERGENT
+                : status / 100 == 2 ? CaseOutcome.EQUIVALENT : CaseOutcome.REJECTED_ALIKE;
+        return new Check(outcome, equivalent, detail);
     }
 }

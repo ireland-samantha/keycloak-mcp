@@ -41,9 +41,20 @@ class CaseVerdictsTest {
     }
 
     @Test
+    void onlyAPerformedMutationMakesTheOperationEquivalent() {
+        CaseOutcome created = outcome("create", ok(CaseOutcome.SOUND), ok(CaseOutcome.EQUIVALENT));
+        CaseOutcome conflict = outcome("taken", ok(CaseOutcome.NOT_EXERCISED), ok(CaseOutcome.REJECTED_ALIKE));
+        assertEquals(CaseOutcome.EQUIVALENT, CaseVerdicts.mutation(List.of(created, conflict)).outcome());
+        Check rejectedOnly = CaseVerdicts.mutation(List.of(conflict));
+        assertEquals("ROUTED_ONLY", rejectedOnly.outcome());
+        assertTrue(rejectedOnly.accepted());
+        assertTrue(rejectedOnly.detail().contains("REJECTED_ALIKE"), rejectedOnly::detail);
+    }
+
+    @Test
     void onlyAnExercisedFrameMakesTheOperationSound() {
         CaseOutcome created = outcome("create", ok(CaseOutcome.SOUND), ok(CaseOutcome.EQUIVALENT));
-        CaseOutcome conflict = outcome("taken", ok(CaseOutcome.NOT_EXERCISED), ok(CaseOutcome.EQUIVALENT));
+        CaseOutcome conflict = outcome("taken", ok(CaseOutcome.NOT_EXERCISED), ok(CaseOutcome.REJECTED_ALIKE));
         CaseOutcome refused = outcome("move", ok(CaseOutcome.IRREVERSIBLE), ok(CaseOutcome.REFUSED));
         assertEquals(CaseOutcome.SOUND, CaseVerdicts.compensation(List.of(conflict, created)).outcome());
         Check unexercised = CaseVerdicts.compensation(List.of(refused, conflict));

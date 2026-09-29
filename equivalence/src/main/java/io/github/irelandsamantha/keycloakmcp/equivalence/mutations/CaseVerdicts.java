@@ -14,8 +14,9 @@ public final class CaseVerdicts {
     }
 
     /**
-     * F2: {@code EQUIVALENT} when every case is accepted and one showed equivalence; {@code ROUTED_ONLY} when
-     * keycloak-mcp, as expected, refuses every case; otherwise the first failing case's outcome, not accepted.
+     * F2: {@code EQUIVALENT} when every case is accepted and in one both sides performed the mutation;
+     * {@code ROUTED_ONLY} when none performed it (keycloak-mcp, as expected, refused it, or both sides rejected it
+     * alike); otherwise the first failing case's outcome, not accepted.
      */
     public static Check mutation(List<CaseOutcome> outcomes) {
         return combine(outcomes, CaseOutcome::equivalence, CaseOutcome.EQUIVALENT, Verdict.Outcome.ROUTED_ONLY.name());
