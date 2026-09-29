@@ -47,8 +47,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  *   <li><b>S2</b> the catalog declares every path variable exactly once, and the two structural oracles agree on
  *       query parameters, form fields and media types, modulo documented divergences. With S1 this makes catalog,
  *       OpenAPI and adapter agree transitively.</li>
- *   <li><b>S3</b> the live server routes every operation of the catalog and the reference surface, or the
- *       operation is documented as provider/feature-gated.</li>
+ *   <li><b>S3</b> the live server routes every operation of the catalog and the reference surface in a seeded realm
+ *       (a specific error counts only if the same request one segment deeper does not get it too, see
+ *       {@link RouteProbe}), or the operation is documented as provider/feature-gated.</li>
  * </ul>
  * Drift fails with the precise difference; every verdict lands in the ledger.
  */
@@ -173,7 +174,8 @@ class StructuralEquivalenceIT {
         List<String> seedingLog;
         try (SeededRealm realm = new RealmSeeder(env.adminClient()).seed("equivalence-s3-" + System.currentTimeMillis())) {
             seedingLog = realm.log();
-            results = new RouteProbe(env.http(), new PathValues(realm), ProbeBodies.forRealm(realm)).probe(targets);
+            results = new RouteProbe(env.http()::send, new PathValues(realm)::valuesFor, ProbeBodies.forRealm(realm))
+                    .probe(targets);
         }
 
         List<Divergence> unrouted = new ArrayList<>();
@@ -182,7 +184,7 @@ class StructuralEquivalenceIT {
             byKey.put(r.key(), r);
             if (r.verdict() != RouteProbe.Verdict.ROUTED) {
                 SortedMap<String, SortedSet<String>> seen = new TreeMap<>();
-                seen.put("server", new TreeSet<>(List.of(r.status() + " " + r.response())));
+                seen.put("server", new TreeSet<>(List.of(r.verdict() + " " + r.status() + " " + r.response())));
                 unrouted.add(new Divergence(r.key(), r.template(), "route", "server", seen));
             }
         }
@@ -194,8 +196,8 @@ class StructuralEquivalenceIT {
                         .filter(e -> e.getKey().key().equals(r.key())).map(Map.Entry::getValue).findFirst();
                 String outcome = r.verdict() == RouteProbe.Verdict.ROUTED ? "ROUTED"
                         : gate.map(e -> "GATED_DOCUMENTED").orElse("NOT_ROUTED_" + r.verdict());
-                env.ledger().record(r.key(), "S3:routed", outcome,
-                        r.status() + " " + gate.map(DocumentedDivergences.Entry::ref).orElse(r.sent()));
+                env.ledger().record(r.key(), "S3:routed", outcome, r.status() + " " + gate.map(DocumentedDivergences.Entry::ref)
+                        .orElse(r.sent() + (r.control() == null ? "" : "; control " + r.control())));
             }
         }
         System.out.printf("S3: %d operations probed in a seeded realm: %s; seeding failures: %s; documented gates now routed: %s%n",
@@ -203,8 +205,10 @@ class StructuralEquivalenceIT {
                         r -> r.verdict() + (r.verdict() == RouteProbe.Verdict.ROUTED ? "" : "(" + r.status() + ")"),
                         TreeMap::new, Collectors.counting())), seedingLog,
                 a.stale().stream().map(DocumentedDivergences.Entry::key).toList());
-        assertTrue(a.undocumented().isEmpty(), () -> "S3 operations the live server does not route (generic JAX-RS miss "
-                + RouteProbe.GENERIC_MISS_BODY + ", 405, or auth failure) and no divergences.json entry explains:\n"
+        assertTrue(a.undocumented().isEmpty(), () -> "S3 operations without proof of routing: the generic JAX-RS miss "
+                + RouteProbe.GENERIC_MISS_BODY + ", 405 or an auth failure, or INCONCLUSIVE (the same request one segment"
+                + " deeper, .../" + RouteProbe.CONTROL_SEGMENT + ", got the same answer, so a locator on the path answered:"
+                + " seed the entity it looks up or document the gate), and no divergences.json entry explains:\n"
                 + a.undocumented().stream().map(d -> "  " + d.namedKey() + " values=" + byKey.get(d.key()).pathValues()
                         + " -> " + d.observed().get("server").first()).collect(Collectors.joining("\n"))
                 + "\nSeeding failures: " + seedingLog + "\n" + skeletons(a.undocumented()));

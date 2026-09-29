@@ -1192,6 +1192,14 @@
       "since": "2026-09-28"
     },
     {
+      "key": "GET /admin/realms/{realm}/client-types",
+      "kind": "route",
+      "sources": "server",
+      "reason": "The client-types admin resource belongs to the experimental feature \"client-types\", off by default: the RealmAdminResource locator calls ProfileHelper.requireFeature before it returns the sub-resource, so every request below /client-types, whatever its method or sub-path, gets 501 \"Feature not enabled\" from the locator and the operation itself is never matched. The route probe's control request one segment deeper gets the same 501, so the answer proves nothing about the operation.",
+      "evidence": "services/src/main/java/org/keycloak/services/resources/admin/RealmAdminResource.java:1466-1469; services/src/main/java/org/keycloak/utils/ProfileHelper.java:30-33; common/src/main/java/org/keycloak/common/Profile.java:142 (EXPERIMENTAL); services/src/main/java/org/keycloak/services/resources/admin/ClientTypesResource.java:62-87; nightly 999.0.0-SNAPSHOT answered the operation and its control with 501 {\"error\":\"Feature not enabled\"} with default features, and routed it (GET 200; PUT 400 on malformed JSON, control the generic 404) with --features=client-types (2026-09-29)",
+      "since": "2026-09-29"
+    },
+    {
       "key": "GET /admin/realms/{realm}/clients/{id}/authz/resource-server/policy/js/search",
       "kind": "route",
       "sources": "server",
@@ -1238,6 +1246,14 @@
       "reason": "The JavaScript policy type only exists with the preview feature \"scripts\" (JSPolicyProviderFactory is unsupported otherwise), so on a default server PolicyService#getResource treats \"js\" as a policy id and PolicyResourceService rejects the unknown policy with a message-less NotFoundException, which is the generic JAX-RS miss. The admin client still exposes the typed js resource.",
       "evidence": "authz/policy/common/src/main/java/org/keycloak/authorization/policy/provider/js/JSPolicyProviderFactory.java:137-139; services/src/main/java/org/keycloak/authorization/admin/PolicyService.java:96-111; services/src/main/java/org/keycloak/authorization/admin/PolicyResourceService.java:68-69; nightly 999.0.0-SNAPSHOT answered 404 {\"error\":\"HTTP 404 Not Found\"} with default features and routed the operation with --features=scripts (2026-09-29)",
       "since": "2026-09-28"
+    },
+    {
+      "key": "PUT /admin/realms/{realm}/client-types",
+      "kind": "route",
+      "sources": "server",
+      "reason": "The client-types admin resource belongs to the experimental feature \"client-types\", off by default: the RealmAdminResource locator calls ProfileHelper.requireFeature before it returns the sub-resource, so every request below /client-types, whatever its method or sub-path, gets 501 \"Feature not enabled\" from the locator and the operation itself is never matched. The route probe's control request one segment deeper gets the same 501, so the answer proves nothing about the operation.",
+      "evidence": "services/src/main/java/org/keycloak/services/resources/admin/RealmAdminResource.java:1466-1469; services/src/main/java/org/keycloak/utils/ProfileHelper.java:30-33; common/src/main/java/org/keycloak/common/Profile.java:142 (EXPERIMENTAL); services/src/main/java/org/keycloak/services/resources/admin/ClientTypesResource.java:62-87; nightly 999.0.0-SNAPSHOT answered the operation and its control with 501 {\"error\":\"Feature not enabled\"} with default features, and routed it (GET 200; PUT 400 on malformed JSON, control the generic 404) with --features=client-types (2026-09-29)",
+      "since": "2026-09-29"
     },
     {
       "key": "PUT /admin/realms/{realm}/clients/{id}/authz/resource-server/policy/js/{id}",

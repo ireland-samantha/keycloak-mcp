@@ -1,6 +1,5 @@
 package io.github.irelandsamantha.keycloakmcp.equivalence.oracle;
 
-import io.github.irelandsamantha.keycloakmcp.equivalence.fixtures.PathValues;
 import io.github.irelandsamantha.keycloakmcp.equivalence.harness.RawHttp;
 import io.github.irelandsamantha.keycloakmcp.equivalence.surface.PathTemplates;
 
@@ -12,15 +11,23 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
 /**
  * Asks the live server whether it routes an operation at all, with fixture values bound by position.
  *
  * <p>"Not routed" is the generic JAX-RS miss, {@code 404 {"error":"HTTP 404 Not Found"}} (the default message of a
  * message-less {@code NotFoundException}, rendered by {@code KeycloakErrorHandler.java:80-96,155-156}), or
- * {@code 405}. Any other answer, including 4xx/5xx with a specific error, proves the method was matched. Keycloak
- * itself throws message-less {@code NotFoundException}s for some missing entities (authorization policies,
- * {@code PolicyResourceService.java:68-69}; organization members, {@code OrganizationMemberResource.java:430-435}),
+ * {@code 405}. A 2xx proves the resource method was matched. A specific error does not on its own: a sub-resource
+ * locator validates its path variable before any sub-path, HTTP method or entity reader is matched
+ * ({@code WorkflowsResource.java:96-114}, {@code OrganizationGroupsResource.java:257-270}), so every request below
+ * an unknown id gets the locator's answer, whether or not the operation exists. The probe therefore repeats a
+ * request that got a specific error one segment deeper ({@link #CONTROL_SEGMENT}, same method and body): if that
+ * control gets the same answer verbatim, the answer came from the shared prefix and the verdict is
+ * {@link Verdict#INCONCLUSIVE}; the operation needs a seeded value or a documented reason.
+ *
+ * <p>Keycloak itself throws message-less {@code NotFoundException}s for some missing entities (authorization
+ * policies, {@code PolicyResourceService.java:68-69}; organization members, {@code OrganizationMemberResource.java:430-435}),
  * so the verdict is only meaningful with seeded values, and the constructor's {@code jsonBodies} supply real bodies
  * where the server reads the raw entity.
  *
@@ -28,11 +35,27 @@ import java.util.Set;
  * and the error handler rolls the transaction back ({@code KeycloakErrorHandler.java:67}), so nothing changes. Other
  * mutations do run; they are ordered so the fixtures they destroy are not needed afterwards: reads and malformed
  * bodies first, then other POST/PUT, then DELETEs deepest path first, leaving {@code DELETE /admin/realms/{realm}}
- * for last.
+ * for last. A control request ends in a name nothing in the realm has, so it finds nothing to change.
  */
 public final class RouteProbe {
 
-    public enum Verdict { ROUTED, GENERIC_MISS, UNAUTHORIZED }
+    public enum Verdict {
+        /** The server matched the operation: a 2xx, or a specific error the control request did not get. */
+        ROUTED,
+        /** The generic JAX-RS miss or 405. */
+        GENERIC_MISS,
+        /** 401 or 403: the service account was refused. */
+        UNAUTHORIZED,
+        /** A specific error the control request got verbatim: a locator on the path answered, not the operation. */
+        INCONCLUSIVE
+    }
+
+    /** Sends one request below the server root; {@code RawHttp::send} against the live server. */
+    @FunctionalInterface
+    public interface Transport {
+        RawHttp.Response send(String method, String path, Map<String, String> headers, byte[] body)
+                throws IOException, InterruptedException;
+    }
 
     /**
      * @param consumes request media types any source declares; decides how a body is (mis)formed
@@ -43,24 +66,31 @@ public final class RouteProbe {
     /**
      * @param sent     what the probe sent as entity ("none", "malformed JSON", ...)
      * @param response excerpt of the response body
+     * @param control  status and body excerpt of the control request, {@code null} when the answer needed none
      */
     public record Result(String key, String method, String template, List<String> pathValues, String sent, int status,
-                         String response, Verdict verdict) {
+                         String response, String control, Verdict verdict) {
     }
 
     public static final String GENERIC_MISS_BODY = "{\"error\":\"HTTP 404 Not Found\"}";
 
+    /** Last path segment of a control request; names nothing the seeded realm holds. */
+    public static final String CONTROL_SEGMENT = "equivalence-probe-control";
+
     private static final int EXCERPT = 200;
     private static final String MULTIPART_BOUNDARY = "equivalence-probe";
 
-    private final RawHttp http;
-    private final PathValues values;
+    private final Transport http;
+    private final Function<String, List<String>> pathValues;
     private final Map<String, String> jsonBodies;
 
-    /** @param jsonBodies real JSON bodies by operation key, for operations a malformed body cannot probe */
-    public RouteProbe(RawHttp http, PathValues values, Map<String, String> jsonBodies) {
+    /**
+     * @param pathValues raw value for each variable of a template, in path order
+     * @param jsonBodies real JSON bodies by operation key, for operations a malformed body cannot probe
+     */
+    public RouteProbe(Transport http, Function<String, List<String>> pathValues, Map<String, String> jsonBodies) {
         this.http = http;
-        this.values = values;
+        this.pathValues = pathValues;
         this.jsonBodies = jsonBodies;
     }
 
@@ -77,22 +107,33 @@ public final class RouteProbe {
     }
 
     private Result probe(Target t) throws IOException, InterruptedException {
-        List<String> pathValues = values.valuesFor(t.template());
-        String path = PathTemplates.expand(t.template(), (position, v) -> RawHttp.segment(pathValues.get(position)));
+        List<String> values = pathValues.apply(t.template());
+        String path = PathTemplates.expand(t.template(), (position, v) -> RawHttp.segment(values.get(position)));
         Body body = body(t);
-        Map<String, String> headers = body.contentType() == null ? Map.of("Accept", "*/*")
-                : Map.of("Accept", "*/*", "Content-Type", body.contentType());
-        RawHttp.Response response = http.send(t.method(), path, headers, body.bytes());
-        String text = response.text().strip();
-        return new Result(t.key(), t.method(), t.template(), pathValues, body.description(), response.status(),
-                text.length() > EXCERPT ? text.substring(0, EXCERPT) + "..." : text, verdict(response.status(), text));
+        Answer answer = send(t.method(), path, body);
+        Verdict verdict = verdict(answer.status(), answer.body());
+        Answer control = null;
+        if (verdict == Verdict.ROUTED && answer.status() / 100 != 2) {
+            control = send(t.method(), path + "/" + CONTROL_SEGMENT, body);
+            verdict = answer.equals(control) ? Verdict.INCONCLUSIVE : Verdict.ROUTED;
+        }
+        return new Result(t.key(), t.method(), t.template(), values, body.description(), answer.status(),
+                answer.excerpt(), control == null ? null : control.status() + " " + control.excerpt(), verdict);
     }
 
+    /** Classifies one answer on its own; a specific error still needs the control request to count as routed. */
     static Verdict verdict(int status, String body) {
         if (status == 405 || (status == 404 && GENERIC_MISS_BODY.equals(body))) {
             return Verdict.GENERIC_MISS;
         }
         return status == 401 || status == 403 ? Verdict.UNAUTHORIZED : Verdict.ROUTED;
+    }
+
+    private Answer send(String method, String path, Body body) throws IOException, InterruptedException {
+        Map<String, String> headers = body.contentType() == null ? Map.of("Accept", "*/*")
+                : Map.of("Accept", "*/*", "Content-Type", body.contentType());
+        RawHttp.Response response = http.send(method, path, headers, body.bytes());
+        return new Answer(response.status(), response.text().strip());
     }
 
     /** 0: reads and malformed bodies (no effect), 1: other POST/PUT, 2: other DELETE. */
@@ -111,6 +152,13 @@ public final class RouteProbe {
 
     private static int segments(Target t) {
         return t.template().split("/").length;
+    }
+
+    /** Status and complete (stripped) body of one response. */
+    private record Answer(int status, String body) {
+        String excerpt() {
+            return body.length() > EXCERPT ? body.substring(0, EXCERPT) + "..." : body;
+        }
     }
 
     /** What the probe sends as entity for an operation. */

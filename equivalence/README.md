@@ -16,7 +16,7 @@ keycloak-mcp itself is only observed through MCP stdio: `node ../src/index.js`, 
 |---|---|
 | S1 | The catalog, read through `keycloak_search_operations` and `keycloak_describe_operation`, lists exactly HEAD OpenAPI ∪ admin-client operations. It describes each one as its source does. |
 | S2 | Each catalog operation declares every path variable once. OpenAPI and the admin client agree on query parameters, form fields and media types. |
-| S3 | The live server routes every catalog and reference operation in a seeded, disposable realm. |
+| S3 | The live server routes every catalog and reference operation in a seeded, disposable realm. A 2xx proves routing. A specific error proves it only if the same request one segment deeper does not get the same answer; if it does, a sub-resource locator on the path answered (`INCONCLUSIVE`), and the operation needs a seeded entity or a documented gate. |
 
 Every verdict and the run's provenance go to `target/equivalence-ledger.json`. Provenance covers:
 
