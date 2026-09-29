@@ -15,9 +15,12 @@ const events = ['PUT /admin/realms/{realm}/events/config', {}];
 const component = ['PUT /admin/realms/{realm}/components/{id}', { id: 'k' }];
 const idp = ['PUT /admin/realms/{realm}/identity-provider/instances/{alias}', { alias: 'broker' }];
 const role = ['PUT /admin/realms/{realm}/roles/{role-name}', { 'role-name': 'viewer' }];
+const clientRole = ['PUT /admin/realms/{realm}/clients/{client-uuid}/roles/{role-name}', { 'client-uuid': 'c', 'role-name': 'viewer' }];
 const requiredAction = ['PUT /admin/realms/{realm}/authentication/required-actions/{alias}', { alias: 'TERMS_AND_CONDITIONS' }];
 const clientPermissions = ['PUT /admin/realms/{realm}/clients/{client-uuid}/management/permissions', { 'client-uuid': 'c' }];
+const usersPermissions = ['PUT /admin/realms/{realm}/users-management-permissions', {}];
 const groupCreate = ['POST /admin/realms/{realm}/groups', {}];
+const childCreate = ['POST /admin/realms/{realm}/groups/{group-id}/children', { 'group-id': 'parent' }];
 const authenticatorConfig = ['PUT /admin/realms/{realm}/authentication/config/{id}', { id: 'a' }];
 
 // [operation and path, body, the rules it triggers]; a body that triggers none stays a reversible update.
@@ -25,7 +28,12 @@ const cases = [
   [user, { firstName: 'Ada', enabled: false }, []],
   [user, { credentials: [{ type: 'password', value: 'Chosen-1', temporary: false }] }, ['sets-credentials', 'sets-secret']],
   [user, { credentials: [{ type: 'password', temporary: true }] }, ['sets-credentials']],
+  [user, { federationLink: 'ldap-provider-id' }, ['links-federation']],
+  [user, { enabled: true }, ['unlocks-user']],
   [client, { description: 'x', authorizationServicesEnabled: true }, []],
+  [client, { description: 'x' }, ['drops-authorization']],
+  [client, { authorizationServicesEnabled: true, publicClient: true }, ['drops-authorization']],
+  [client, { authorizationServicesEnabled: true, serviceAccountsEnabled: false }, ['disables-service-account']],
   [client, { authorizationServicesEnabled: true, secret: 'chosen-secret' }, ['sets-secret']],
   [client, { authorizationServicesEnabled: true, secret: mask }, ['sets-secret']],
   [client, { authorizationServicesEnabled: true, registrationAccessToken: 'token' }, ['sets-secret']],
@@ -35,6 +43,8 @@ const cases = [
   [client, { authorizationServicesEnabled: true, attributes: { 'jwks.string': JSON.stringify({ keys: [{ kty: 'RSA', n: 'n', e: 'AQAB' }] }) } }, []],
   [realm, { displayName: 'Renamed display' }, []],
   [realm, { realm: 'test-realm', displayName: 'same name' }, []],
+  [realm, { realm: 'other-realm' }, ['renames-realm']],
+  [realm, { notBefore: 1790000000 }, ['moves-not-before']],
   [realm, { smtpServer: { host: 'smtp.example.invalid', password: mask } }, ['replaces-smtp']],
   [realm, { adminEventsEnabled: false }, ['stops-realm-events']],
   [realm, { eventsListeners: ['jboss-logging'] }, ['stops-realm-events']],
@@ -51,6 +61,8 @@ const cases = [
   [component, { config: { connectionUrl: ['ldap://directory.example.invalid'] } }, ['repoints-federation']],
   [component, { config: { bindDn: ['cn=other'] } }, ['repoints-federation']],
   [component, { config: { scimurl: ['https://ipatuura.example.invalid'] } }, ['repoints-federation']],
+  [component, { config: { keySize: ['4096'] } }, ['regenerates-keys']],
+  [component, { config: { ecdsaEllipticCurveKey: ['P-384'] } }, ['regenerates-keys']],
   [component, { config: { privateKey: ['-----BEGIN PRIVATE KEY-----\nMIIE\n-----END PRIVATE KEY-----'] } }, ['sets-secret']],
   [idp, { alias: 'broker', config: { clientSecret: mask, tokenUrl: 'https://idp.example.invalid/token' } }, ['repoints-idp-secret']],
   [idp, { alias: 'broker', config: { clientSecret: mask, tokenIntrospectionUrl: 'https://idp.example.invalid/introspect' } }, ['repoints-idp-secret']],
@@ -59,9 +71,17 @@ const cases = [
   [authenticatorConfig, { alias: 'captcha', config: { 'secret.key': mask } }, []],
   [authenticatorConfig, { alias: 'captcha', config: { 'secret.key': 'new-key' } }, ['sets-secret']],
   [role, { name: 'viewer', description: 'd' }, []],
+  [role, { name: 'viewer-renamed' }, ['renames-role']],
+  [clientRole, { name: 'other' }, ['renames-role']],
   [requiredAction, { alias: 'TERMS_AND_CONDITIONS', enabled: true }, []],
+  [requiredAction, { alias: 'OTHER' }, ['renames-required-action']],
+  [requiredAction, { enabled: true }, ['renames-required-action']],
   [clientPermissions, { enabled: true }, []],
+  [clientPermissions, { enabled: false }, ['disables-admin-permissions']],
+  [usersPermissions, {}, ['disables-admin-permissions']],
   [groupCreate, { name: 'new' }, []],
+  [groupCreate, { name: 'moved', id: 'existing-group' }, ['moves-group']],
+  [childCreate, { name: 'moved', id: 'existing-group' }, ['moves-group']],
 ];
 
 // A step whose compensation is itself: the rules decide whether preflight accepts it without the override.

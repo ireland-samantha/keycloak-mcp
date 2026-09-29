@@ -115,6 +115,7 @@ const RTM = 'server-spi-private/src/main/java/org/keycloak/models/utils/Represen
 const REALM_UPDATE = 'model/storage-private/src/main/java/org/keycloak/storage/datastore/DefaultExportImportManager.java';
 const EVENT_PURGE = 'model/jpa/src/main/java/org/keycloak/events/jpa/JpaEventStoreProvider.java:90-111';
 const USER = 'PUT /admin/realms/{realm}/users/{user-id}';
+const CLIENT = 'PUT /admin/realms/{realm}/clients/{client-uuid}';
 const REALM = 'PUT /admin/realms/{realm}';
 const COMPONENT = 'PUT /admin/realms/{realm}/components/{id}';
 export const IRREVERSIBLE_BODIES = {
@@ -124,6 +125,48 @@ export const IRREVERSIBLE_BODIES = {
     summary: 'the body sets credentials',
     reason: 'A user update stores every credential in the body, setting the password from a value or creating a credential through its provider; the previous password hash cannot be read back (SEC-2).',
     source: `services/resources/admin/UserResource.java:233; ${RTM}:849-873`,
+  },
+  'links-federation': {
+    operations: [USER],
+    applies: ({ body }) => isSet(body?.federationLink),
+    summary: 'the body links the user to a user storage provider',
+    reason: 'A user whose federation link names a provider that does not validate it is deleted the next time Keycloak loads it, by a plain read included.',
+    source: 'services/resources/admin/UserResource.java:310; model/storage-private/src/main/java/org/keycloak/storage/UserStorageManager.java:159-209',
+  },
+  'unlocks-user': {
+    operations: [USER],
+    applies: ({ body }) => body?.enabled === true,
+    summary: 'the body enables the user, which clears a brute-force lockout',
+    reason: 'Enabling a temporarily or permanently locked-out user deletes its login-failure record, which cannot be recreated.',
+    source: 'services/resources/admin/UserResource.java:201-213, :236-238',
+  },
+  'disables-service-account': {
+    operations: [CLIENT],
+    applies: ({ body }) => body?.serviceAccountsEnabled === false,
+    summary: 'the body turns serviceAccountsEnabled off, which deletes the service-account user',
+    reason: 'Turning service accounts off deletes the service-account user with its role mappings; turning them on again creates a different user.',
+    source: 'services/resources/admin/ClientResource.java:851; services/managers/ClientManager.java:179-186, :247-258',
+  },
+  'drops-authorization': {
+    operations: [CLIENT],
+    applies: ({ body }) => body?.authorizationServicesEnabled !== true || body?.bearerOnly === true || body?.publicClient === true,
+    summary: 'the body does not keep authorizationServicesEnabled true, which deletes any authorization settings',
+    reason: 'A client update whose body does not set authorizationServicesEnabled to true, leaving it out included, or that makes the client public or bearer-only, deletes the client\'s authorization resource server with all its resources, scopes and policies.',
+    source: 'services/resources/admin/ClientResource.java:861-867, :893-907; authorization/admin/AuthorizationService.java:73-77',
+  },
+  'renames-realm': {
+    operations: [REALM],
+    applies: ({ body, path }) => isSet(body?.realm) && String(body.realm) !== path.realm,
+    summary: 'the body renames the realm',
+    reason: 'A different realm name renames the realm, and a compensation, which addresses the configured realm name, can no longer reach it.',
+    source: `${REALM_UPDATE}:804-807`,
+  },
+  'moves-not-before': {
+    operations: [REALM],
+    applies: ({ body }) => isSet(body?.notBefore),
+    summary: 'the body sets the realm not-before',
+    reason: 'The realm not-before rejects every token issued before it; clients refused meanwhile have dropped their tokens, which setting it back does not restore.',
+    source: `${REALM_UPDATE}:870`,
   },
   'replaces-smtp': {
     operations: [REALM],
@@ -153,12 +196,55 @@ export const IRREVERSIBLE_BODIES = {
     reason: 'A component update keeps a bind credential the body leaves out or masks, so a new LDAP or Ipatuura address receives the stored credential on the next user search; a sent credential cannot be recalled (SEC-3).',
     source: `federation/ldap/src/main/java/org/keycloak/storage/ldap/LDAPStorageProviderFactory.java:147-169; LDAPStorageProvider.java:400; ${RTM}:1221-1245; federation/ipatuura/src/main/java/org/keycloak/ipatuura_user_spi/IpatuuraUserStorageProviderFactory.java:56-66`,
   },
+  'regenerates-keys': {
+    operations: [COMPONENT],
+    applies: ({ body }) => configHas(body, ['keySize', 'secretSize', 'ecdsaEllipticCurveKey', 'ecdhEllipticCurveKey', 'eddsaEllipticCurveKey']),
+    summary: 'the body sets a key size or curve, which generates new key material',
+    reason: 'A generated key provider whose size or curve differs from its key generates a new key and discards the old one, which Keycloak never returns.',
+    source: 'keys/AbstractGeneratedRsaKeyProviderFactory.java:99-113; AbstractGeneratedSecretKeyProviderFactory.java:41-54; AbstractGeneratedEcKeyProviderFactory.java:86-100; GeneratedEddsaKeyProviderFactory.java:104-117',
+  },
   'repoints-idp-secret': {
     operations: ['PUT /admin/realms/{realm}/identity-provider/instances/{alias}'],
     applies: ({ body }) => configHas(body, ['tokenUrl', 'tokenIntrospectionUrl']) && body.config.clientSecret === KEYCLOAK_OWN_MASKS.mask,
     summary: 'the body names a token endpoint while keeping the stored client secret',
     reason: 'A masked clientSecret keeps the stored secret, which Keycloak sends to the token and introspection endpoints, so a new address there receives it (SEC-3).',
     source: 'services/resources/admin/IdentityProviderResource.java:212-214; broker/oidc/AbstractOAuth2IdentityProvider.java:674-711, :865, :1053-1064',
+  },
+  'renames-role': {
+    operations: ['PUT /admin/realms/{realm}/roles/{role-name}', 'PUT /admin/realms/{realm}/clients/{client-uuid}/roles/{role-name}'],
+    applies: ({ body, path }) => isSet(body?.name) && String(body.name) !== path['role-name'],
+    summary: 'the body renames the role',
+    reason: 'A different name renames the role, and a compensation must address the old name, which no longer exists.',
+    source: 'services/resources/admin/RoleResource.java:65-73; RoleContainerResource.java:338-346',
+  },
+  'renames-required-action': {
+    operations: ['PUT /admin/realms/{realm}/authentication/required-actions/{alias}'],
+    applies: ({ body, path }) => !isSet(body?.alias) || String(body.alias) !== path.alias,
+    summary: 'the body changes or leaves out the required action alias',
+    reason: 'The update stores the body alias as given, so a different alias renames the required action and a missing one clears its alias; either way the compensation cannot address it again.',
+    source: 'services/resources/admin/AuthenticationManagementResource.java:1267-1283',
+  },
+  'disables-admin-permissions': {
+    operations: [
+      'PUT /admin/realms/{realm}/clients/{client-uuid}/management/permissions', 'PUT /admin/realms/{realm}/clients/{client-uuid}/roles/{role-name}/management/permissions',
+      'PUT /admin/realms/{realm}/groups/{group-id}/management/permissions', 'PUT /admin/realms/{realm}/identity-provider/instances/{alias}/management/permissions',
+      'PUT /admin/realms/{realm}/roles-by-id/{role-id}/management/permissions', 'PUT /admin/realms/{realm}/roles/{role-name}/management/permissions',
+      'PUT /admin/realms/{realm}/users-management-permissions',
+    ],
+    applies: ({ body }) => body?.enabled !== true,
+    summary: 'the body does not keep enabled true, which deletes the permissions',
+    reason: 'With fine-grained admin permissions (version 1), disabling deletes the permission policies configured for the object; enabled is a plain boolean, so leaving it out disables.',
+    source: 'core/src/main/java/org/keycloak/representations/idm/ManagementPermissionReference.java:26; services/resources/admin/fgap/ClientPermissions.java:197-226; GroupPermissions.java:168-173; RolePermissions.java:83-88; IdentityProviderPermissions.java:118-123; UserPermissions.java:175-180',
+  },
+  'moves-group': {
+    operations: [
+      'POST /admin/realms/{realm}/groups', 'POST /admin/realms/{realm}/groups/{group-id}/children',
+      'POST /admin/realms/{realm}/organizations/{org-id}/groups', 'POST /admin/realms/{realm}/organizations/{org-id}/groups/{group-id}/children',
+    ],
+    applies: ({ body }) => isSet(body?.id),
+    summary: 'the body names an existing group, which Keycloak moves instead of creating one',
+    reason: 'A group create whose body names an ID moves that existing group here and answers 204 without a Location; nothing is created for a compensation to delete, and the previous parent is not recorded.',
+    source: 'services/resources/admin/GroupsResource.java:213-225; GroupResource.java:257-266; organization/admin/resource/OrganizationGroupsResource.java:115-141; OrganizationGroupResource.java:257-277',
   },
   'sets-secret': {
     methods: ['PUT', 'PATCH'],
