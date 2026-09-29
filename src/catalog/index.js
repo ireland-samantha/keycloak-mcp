@@ -19,12 +19,18 @@ export function createCatalog(extensionPath = '', version = 'latest') {
     extensionSource: extension.source, extensionCount: extra.length };
 }
 
-let bundledLatest;
+const configured = new Map();
 
-// The catalog for callers that pass none: the bundled `latest` definition, built once.
+// The catalog a configuration selects, built once per catalog version and extension file.
+export function catalogFor({ catalogVersion = 'latest', extensionCatalogPath = '' }) {
+  const key = JSON.stringify([catalogVersion, extensionCatalogPath]);
+  if (!configured.has(key)) configured.set(key, createCatalog(extensionCatalogPath, catalogVersion));
+  return configured.get(key);
+}
+
+// The catalog for key-only callers that pass none: the bundled `latest` definition.
 export function defaultCatalog() {
-  bundledLatest ??= createCatalog();
-  return bundledLatest;
+  return catalogFor({});
 }
 
 export function listOperations({ search = '', tag = '', method = '', offset = 0, limit = 25 } = {}, operationCatalog = defaultCatalog()) {

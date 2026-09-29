@@ -1,3 +1,4 @@
+import { catalogFor } from '../catalog/index.js';
 import { buildRequest } from '../http/request.js';
 import { isIrreversible, isMutation } from '../policy/classify.js';
 import { REALM_CREATION } from '../policy/table.js';
@@ -67,8 +68,9 @@ function planStep(context) {
   return { operation: step.operation, args: step.args ?? {}, compensate: step.compensate ?? null, irreversible };
 }
 
-// Validates a whole plan without network access and returns it normalized.
-export function preflight(config, steps, operationCatalog) {
+// Validates a whole plan without network access and returns it normalized. Without a catalog it
+// uses the one the configuration selects.
+export function preflight(config, steps, operationCatalog = catalogFor(config)) {
   requireStepCount(steps);
   requireWritesForMutations(config, steps, operationCatalog);
   return steps.map((step, index) => planStep({ config, operationCatalog, step, label: `step ${index + 1}` }));

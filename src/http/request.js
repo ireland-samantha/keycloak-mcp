@@ -1,4 +1,4 @@
-import { defaultCatalog, describeOperation } from '../catalog/index.js';
+import { catalogFor, describeOperation } from '../catalog/index.js';
 import { DEFAULT_BODY_BYTES } from '../config.js';
 import { expandPathTemplate, pathParameterNames } from '../internal/path-template.js';
 import { assertOperationAllowed } from '../policy/access.js';
@@ -36,7 +36,7 @@ function appendQuery(url, op, query) {
 }
 
 // Validates a call against the catalog and configuration and returns { op, url, body, headers } without sending it.
-export function buildRequest(config, key, args = {}, operationCatalog = defaultCatalog()) {
+export function buildRequest(config, key, args = {}, operationCatalog = catalogFor(config)) {
   const op = describeOperation(key, operationCatalog);
   assertOperationAllowed(config, op, operationCatalog);
   const url = new URL(`${config.baseUrl}${expandPath(config, op.path, args.path ?? {})}`);

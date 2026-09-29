@@ -3,11 +3,13 @@ import { test } from 'node:test';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { createCatalog, KeycloakAdmin, preflight, runWorkflow, WorkflowBuilder } from '../../src/api.js';
+import { catalogFor } from '../../src/catalog/index.js';
+import { buildRequest } from '../../src/http/request.js';
 import { isIrreversible, isMutation } from '../../src/policy/classify.js';
 import { samplePathArgs } from '../support/catalog.js';
 import { testConfig } from '../support/config.js';
 import { jsonResponse, tokenResponse } from '../support/fetch.js';
-import { privateTempDir } from '../support/temp.js';
+import { privateTempDir, writePrivateJson } from '../support/temp.js';
 
 test('every official mutation requires compensation or an irreversible override before network', () => {
   const expected = { latest: 202, '26.3.5': 184 };
@@ -406,9 +408,20 @@ test('failed compensation is reported and recorded without claiming rollback', a
   assert.equal(JSON.parse(readFileSync(join(dir, `${result.runId}.json`), 'utf8')).status, 'IN_DOUBT');
 });
 
-test('preflight uses the configured catalog version when no catalog is passed', { todo: 'ARCH-3' }, () => {
+test('preflight uses the configured catalog version when no catalog is passed', () => {
   const config = testConfig({ KEYCLOAK_MCP_CATALOG_VERSION: '26.3.5' });
   assert.throws(() => preflight(config, [{ operation: 'GET /admin/realms/{realm}/workflows' }]), /not in the pinned Keycloak catalog/);
+  assert.throws(() => buildRequest(config, 'GET /admin/realms/{realm}/workflows'), /not in the pinned Keycloak catalog/);
+  assert.equal(buildRequest(testConfig(), 'GET /admin/realms/{realm}/workflows').op.key, 'GET /admin/realms/{realm}/workflows');
+});
+
+test('preflight and buildRequest see the configured extension catalog when no catalog is passed', () => {
+  const file = writePrivateJson(join(privateTempDir('keycloak-mcp-spi-'), 'extensions.json'), { source: 'test provider',
+    operations: [{ method: 'GET', path: '/realms/{realm}/sample', readOnly: true, serviceAccountSupported: true }] });
+  const config = testConfig({ KEYCLOAK_MCP_EXTENSION_CATALOG: file });
+  assert.equal(preflight(config, [{ operation: 'GET /realms/{realm}/sample' }])[0].operation, 'GET /realms/{realm}/sample');
+  assert.equal(new URL(buildRequest(config, 'GET /realms/{realm}/sample').url).pathname, '/auth/realms/test-realm/sample');
+  assert.equal(catalogFor(config), catalogFor({ ...config }), 'built once per version and extension file');
 });
 
 test('preflight reports a step without an operation before checking write permission', { todo: 'WF-12' }, () => {
