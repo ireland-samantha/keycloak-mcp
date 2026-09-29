@@ -1,6 +1,6 @@
 import { readFileSync, writeFileSync } from 'node:fs';
-import { KeycloakAdmin, configFromEnv, isMutation } from '../src/keycloak.js';
-import { runWorkflow } from '../src/workflow.js';
+import { KeycloakAdmin, configFromEnv, runWorkflow } from '../src/api.js';
+import { isMutation } from '../src/policy/classify.js';
 
 if (process.env.KEYCLOAK_MCP_LIVE_COVERAGE !== 'true') throw new Error('set KEYCLOAK_MCP_LIVE_COVERAGE=true');
 const credentials = JSON.parse(readFileSync(process.env.KEYCLOAK_MCP_SOAK_CREDENTIALS, 'utf8'));

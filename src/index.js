@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 import { serveStdio } from '@modelcontextprotocol/server/stdio';
-import { configFromEnv, KeycloakAdmin } from './keycloak.js';
-import { createServer } from './server.js';
+import { createServer } from './adapters/mcp.js';
+import { configFromEnv } from './config.js';
+import { KeycloakAdmin } from './keycloak-admin.js';
 
 try {
   const admin = new KeycloakAdmin(configFromEnv());

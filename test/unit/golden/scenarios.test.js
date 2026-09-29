@@ -1,8 +1,7 @@
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { test } from 'node:test';
-import { KeycloakAdmin } from '../../../src/keycloak.js';
-import { runWorkflow } from '../../../src/workflow.js';
+import { KeycloakAdmin, runWorkflow } from '../../../src/api.js';
 import { testConfig } from '../../support/config.js';
 import { fakeKeycloak, jsonResponse, routeTable, tokenResponse } from '../../support/fetch.js';
 import { assertSnapshot } from '../../support/snapshot.js';

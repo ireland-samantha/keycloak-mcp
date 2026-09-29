@@ -1,7 +1,6 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { KeycloakAdmin, configFromEnv } from '../src/keycloak.js';
-import { runWorkflow } from '../src/workflow.js';
+import { KeycloakAdmin, configFromEnv, runWorkflow } from '../src/api.js';
 
 if (process.env.KEYCLOAK_MCP_LIVE_SOAK !== 'true') throw new Error('set KEYCLOAK_MCP_LIVE_SOAK=true to run against a disposable Keycloak realm');
 const credentials = JSON.parse(readFileSync(process.env.KEYCLOAK_MCP_SOAK_CREDENTIALS, 'utf8'));

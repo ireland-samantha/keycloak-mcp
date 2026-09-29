@@ -1,6 +1,7 @@
 import { test } from 'node:test';
-import { buildRequest, createCatalog, describeOperation, isIrreversible, isMutation, listOperations } from '../../../src/keycloak.js';
-import { preflight } from '../../../src/workflow.js';
+import { createCatalog, describeOperation, listOperations, preflight } from '../../../src/api.js';
+import { buildRequest } from '../../../src/http/request.js';
+import { isIrreversible, isMutation } from '../../../src/policy/classify.js';
 import { catalogVersions, samplePathArgs } from '../../support/catalog.js';
 import { testConfig } from '../../support/config.js';
 import { assertSnapshot } from '../../support/snapshot.js';

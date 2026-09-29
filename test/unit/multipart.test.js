@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { buildRequest, createCatalog, describeOperation, isMutation } from '../../src/keycloak.js';
+import { createCatalog, describeOperation } from '../../src/api.js';
+import { buildRequest } from '../../src/http/request.js';
+import { isMutation } from '../../src/policy/classify.js';
 import { testConfig } from '../support/config.js';
 
 const writable = { KEYCLOAK_MCP_ALLOW_WRITE: 'true' };

@@ -1,6 +1,6 @@
 import { InMemoryTransport } from '@modelcontextprotocol/server';
+import { createServer } from '../../src/adapters/mcp.js';
 import { configFromEnv, KeycloakAdmin } from '../../src/api.js';
-import { createServer } from '../../src/server.js';
 
 // Negotiated unless a test asks for another revision (lifecycle A1 also covers 2025-11-25).
 const DEFAULT_PROTOCOL_VERSION = '2025-06-18';
