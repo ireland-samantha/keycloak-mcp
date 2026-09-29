@@ -47,6 +47,11 @@ function appendQuery(url, op, query) {
   }
 }
 
+// Without an Accept header, Keycloak answers with the first type an operation produces: GET /workflows
+// lists YAML first (workflow/admin/resource/WorkflowsResource.java:119-120). Asking for JSON whenever
+// the operation offers it matches the Java admin client and gives callers parsed values.
+const defaultAccept = op => (op.responseTypes.includes('application/json') ? 'application/json' : undefined);
+
 // Validates a call against the catalog and configuration and returns { op, url, body, headers } without sending it.
 export function buildRequest(config, key, args = {}, operationCatalog = catalogFor(config)) {
   const op = describeOperation(key, operationCatalog);
@@ -63,9 +68,8 @@ export function buildRequest(config, key, args = {}, operationCatalog = catalogF
     body = encoded.body;
     if (encoded.contentType) headers['content-type'] = encoded.contentType;
   }
-  if (args.accept) {
-    if (!op.responseTypes.includes(args.accept)) throw new Error('accept type is not declared for this operation');
-    headers.accept = args.accept;
-  }
+  if (args.accept && !op.responseTypes.includes(args.accept)) throw new Error('accept type is not declared for this operation');
+  const accept = args.accept || defaultAccept(op);
+  if (accept) headers.accept = accept;
   return { op, url: url.toString(), body, headers };
 }

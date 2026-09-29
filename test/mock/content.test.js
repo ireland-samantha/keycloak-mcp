@@ -43,10 +43,19 @@ test('O5 accept selects a declared response type; an undeclared one is refused b
   assert.equal(mock.adminRequests().length, 1);
 });
 
-test('O5 without accept, an operation that can answer JSON is read as JSON', { todo: 'MCPLIVE-04' }, async t => {
-  const { mcp } = await startScenario(t);
+test('O5 without accept, an operation that can answer JSON is read as JSON', async t => {
+  const { mock, mcp } = await startScenario(t);
   const result = await mcp.call('keycloak_read', { operation: workflows });
   assert.deepEqual(result.value.value, []);
+  assert.equal(mock.adminRequests()[0].headers.accept, 'application/json');
+});
+
+test('O5 an operation that declares no JSON response is sent no Accept header of its own', async t => {
+  const { mock, mcp } = await startScenario(t);
+  mock.on('GET /admin/realms/{realm}/localization/{locale}/{key}', { headers: { 'content-type': 'text/plain' }, body: 'Welcome' });
+  const result = await mcp.call('keycloak_read', { operation: 'GET /admin/realms/{realm}/localization/{locale}/{key}', args: { path: { locale: 'en', key: 'welcome' } } });
+  assert.equal(result.value.value, 'Welcome');
+  assert.notEqual(mock.adminRequests()[0].headers.accept, 'application/json');
 });
 
 test('O6 request bodies are encoded as their declared content type', async t => {
