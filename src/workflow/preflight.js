@@ -55,7 +55,7 @@ function requireWriteLock({ config }) {
   if (!config.lockDatabaseUrl && !config.singleWriter) throw new Error('writes require a PostgreSQL lock or explicit single-writer mode');
 }
 
-const stepRules = [requireOperation, requirePinnedRealmCreation, requireBuildableRequest];
+const stepRules = [requirePinnedRealmCreation, requireBuildableRequest];
 const readRules = [refuseIrreversibleMark, refuseCompensation];
 const mutationRules = [requireIrreversibleOverride, requireCompensation, checkDeclaredCompensation, requireWriteLock];
 
@@ -72,6 +72,8 @@ function planStep(context) {
 // uses the one the configuration selects.
 export function preflight(config, steps, operationCatalog = catalogFor(config)) {
   requireStepCount(steps);
+  const contexts = steps.map((step, index) => ({ config, operationCatalog, step, label: `step ${index + 1}` }));
+  contexts.forEach(requireOperation);
   requireWritesForMutations(config, steps, operationCatalog);
-  return steps.map((step, index) => planStep({ config, operationCatalog, step, label: `step ${index + 1}` }));
+  return contexts.map(planStep);
 }

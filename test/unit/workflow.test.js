@@ -424,6 +424,6 @@ test('preflight and buildRequest see the configured extension catalog when no ca
   assert.equal(catalogFor(config), catalogFor({ ...config }), 'built once per version and extension file');
 });
 
-test('preflight reports a step without an operation before checking write permission', { todo: 'WF-12' }, () => {
+test('preflight reports a step without an operation before checking write permission', () => {
   assert.throws(() => preflight(testConfig(), [null]), { name: 'Error', message: 'step 1 has no operation' });
 });

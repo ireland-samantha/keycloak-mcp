@@ -12,6 +12,7 @@ const deleteGroup = 'DELETE /admin/realms/{realm}/groups/{group-id}';
 // Each plan breaks two rules; the message shows which one preflight applies first.
 const cases = [
   ['step count before write permission', {}, Array(21).fill({ operation: createGroup }), 'workflow requires 1 to 20 steps'],
+  ['every step\'s shape before write permission', {}, [{ operation: createGroup }, { args: {} }], 'step 2 has no operation'],
   ['realm creation before request validation', { ...writer, KEYCLOAK_MCP_ALLOW_REALM_ADMIN: 'true' },
     [{ operation: 'POST /admin/realms', args: { body: { realm: 'other' }, query: { unknown: 1 } } }], 'step 1 realm creation must name the configured realm'],
   ['request validation before the read-only checks', {}, [{ operation: readRealm, args: { query: { unknown: 1 } }, irreversible: true }],
