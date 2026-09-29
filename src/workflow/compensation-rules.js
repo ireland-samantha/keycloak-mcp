@@ -2,7 +2,7 @@ import { isDeepStrictEqual } from 'node:util';
 import { describeOperation } from '../catalog/index.js';
 import { buildRequest } from '../http/request.js';
 import { directChildParameter } from '../internal/path-template.js';
-import { isGeneratedIdParameter, isIrreversible, isMutation, isSensitiveEndpoint, namedCreateTarget } from '../policy/classify.js';
+import { isGeneratedIdParameter, isIrreversible, isMutation, isSensitiveEndpoint, namedCreateTarget, upsertIdField } from '../policy/classify.js';
 import { REALM_CREATION } from '../policy/table.js';
 import { idBindings, isIdMarker, RESPONSE_ID, withPendingIds } from './markers.js';
 
@@ -58,6 +58,19 @@ function responseIdReadable({ source, bindings }, context) {
     fail(context, 'cannot bind $step.responseId to a response keycloak-mcp withholds; use $step.locationId');
 }
 
+const isJsonObject = value => value !== null && typeof value === 'object' && !Array.isArray(value);
+
+// keycloak-mcp names the object an upsert create makes (see UPSERT_CREATES), so it needs the body as
+// JSON fields it can add that ID to, and a caller-chosen ID could name an existing object.
+function upsertIdLeftToKeycloakMcp({ source, bindings }, context) {
+  const idField = upsertIdField(source.key);
+  if (!idField || !bindings.length) return;
+  const { args = {} } = context.step;
+  if (!isJsonObject(args.body) || args.bodyBase64 !== undefined) fail(context, 'compensation needs the create body as JSON fields');
+  if (args.body[idField] !== undefined)
+    fail(context, `compensation cannot bind the ID of a create that names one: Keycloak updates an existing object with that ID; leave ${idField} out`);
+}
+
 function deleteTargetsCreatedResource(target, context) {
   if (deletesAfterCreate(target) && target.compensation.path !== target.source.path && !target.childParameter)
     fail(context, 'compensation must target the created resource');
@@ -103,7 +116,7 @@ function compensationMutates(_target, context) {
 // Applied in this order; the first failing rule's message is the one reported.
 const rules = [
   compensationCheckable, createUndoneByDelete, createdChildKeepsParent, singleBindingOnCreate, bindingDeletesCreatedChild,
-  responseIdReadable, deleteTargetsCreatedResource, generatedIdNeedsBinding, updateRestoresSameResource, irreversibleUndoesOnlyTheCreate,
+  responseIdReadable, upsertIdLeftToKeycloakMcp, deleteTargetsCreatedResource, generatedIdNeedsBinding, updateRestoresSameResource, irreversibleUndoesOnlyTheCreate,
   compensationBuilds, compensationMutates,
 ];
 

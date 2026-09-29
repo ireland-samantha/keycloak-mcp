@@ -1,7 +1,7 @@
 import { defaultCatalog, describeOperation } from '../catalog/index.js';
 import {
   GENERATED_ID_PARAMETER, IRREVERSIBLE_PATHS, NAMED_CREATE_TARGETS, OPERATION_OVERRIDES,
-  RECEIPT_SENSITIVE_PATH_PARAMETER, SENSITIVE_RESPONSE_PATHS, TOKEN_REFRESH_BEFORE_COMPENSATION,
+  RECEIPT_SENSITIVE_PATH_PARAMETER, SENSITIVE_RESPONSE_PATHS, TOKEN_REFRESH_BEFORE_COMPENSATION, UPSERT_CREATES,
 } from './table.js';
 
 const READ_METHODS = ['GET', 'HEAD'];
@@ -50,4 +50,9 @@ export function isGeneratedIdParameter(name) {
 
 export function namedCreateTarget(key) {
   return entry(NAMED_CREATE_TARGETS, key);
+}
+
+// The body field that names the created object's ID, for a create Keycloak may answer with an existing one.
+export function upsertIdField(key) {
+  return entry(UPSERT_CREATES, key)?.idField;
 }

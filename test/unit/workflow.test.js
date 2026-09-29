@@ -291,13 +291,16 @@ test('create compensation binds the ID returned in Keycloak Location', async () 
   assert.equal(receipt.plan[0].compensationPath['user-id'], '$step.locationId');
 });
 
-test('create compensation binds a generated UUID returned in JSON when Location is absent', async () => {
-  const id = 'baebccda-a5cd-4ed8-a889-c95e4cf2d64b';
+test('create compensation binds the UUID keycloak-mcp chose for a resource, returned in JSON without a Location', async () => {
+  let id;
   const calls = [];
   const admin = new KeycloakAdmin(testConfig({ KEYCLOAK_MCP_ALLOW_WRITE: 'true', KEYCLOAK_MCP_SINGLE_WRITER: 'true' }), async (url, options) => {
     if (url.endsWith('/token')) return tokenResponse();
     calls.push(`${options.method} ${new URL(url).pathname}`);
-    if (options.method === 'POST') return jsonResponse(201, { _id: id, name: 'resource' });
+    if (options.method === 'POST') {
+      id = JSON.parse(options.body)._id;
+      return jsonResponse(201, { _id: id, name: 'resource' });
+    }
     if (options.method === 'GET') return jsonResponse(404, {});
     return jsonResponse(204, null);
   });

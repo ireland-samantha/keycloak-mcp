@@ -90,13 +90,15 @@ test('K1 $step.locationId binds the ID from an absolute or a relative Location',
   });
 });
 
-test('K2 $step.responseId binds a generated id or _id from the JSON body', async t => {
-  for (const [kind, idName, body] of [['scope', 'scope-id', { id: createdId, name: 'outcome' }],
-    ['resource', 'resource-id', { _id: createdId, name: 'outcome' }]]) await t.test(kind, async t => {
+test('K2 $step.responseId binds the ID keycloak-mcp chose for an authorization scope or resource', async t => {
+  for (const [kind, idName, idField] of [['scope', 'scope-id', 'id'], ['resource', 'resource-id', '_id']]) await t.test(kind, async t => {
+    // Keycloak creates the object with the ID the body names (RepresentationToModel.java:1758, :1809).
     const { mock, result } = await executeWorkflow(t, [responseIdCreate(kind, idName), missingUser], { program: mock =>
-      mock.on(`POST ${authz}/${kind}`, { status: 201, json: body }) });
+      mock.on(`POST ${authz}/${kind}`, request => ({ status: 201, json: request.json() })) });
+    const chosen = mock.adminRequests().find(request => request.method === 'POST').json()[idField];
+    assert.match(chosen, /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/);
     assert.equal(result.priorStepsCompensated, true);
-    assert.deepEqual(deletes(mock), [`${mock.realmPath}/clients/client-1/authz/resource-server/${kind}/${createdId}`]);
+    assert.deepEqual(deletes(mock), [`${mock.realmPath}/clients/client-1/authz/resource-server/${kind}/${chosen}`]);
   });
 });
 
@@ -131,4 +133,21 @@ test('K4 named creates are compensated by deleting exactly that name', async t =
   ]);
   assert.equal(result.priorStepsCompensated, true);
   assert.deepEqual(deletes(mock), [`${mock.realmPath}/identity-provider/instances/k4-idp`, `${mock.realmPath}/roles/k4%20role`]);
+});
+
+test('K5 an authorization create that names its own ID cannot bind a compensation to it', async t => {
+  for (const [kind, idName, idField] of [['scope', 'scope-id', 'id'], ['resource', 'resource-id', '_id']]) await t.test(kind, async t => {
+    const step = responseIdCreate(kind, idName);
+    const named = { ...step, args: { ...step.args, body: { ...step.args.body, [idField]: createdId } } };
+    const { mock, isError, text } = await executeWorkflow(t, [named]);
+    assertRefusedOffline(mock, { isError, text }, new RegExp(`step 1 compensation cannot bind the ID of a create that names one: Keycloak updates an existing object with that ID; leave ${idField} out`));
+  });
+});
+
+test('K6 an authorization create whose response names another object is not compensated', async t => {
+  const { mock, result } = await executeWorkflow(t, [responseIdCreate('scope', 'scope-id')], { program: mock =>
+    mock.on(`POST ${authz}/scope`, { status: 201, json: { id: otherId, name: 'outcome' } }) });
+  assert.equal(result.status, 'IN_DOUBT');
+  assert.match(result.error, /create response names another object than the one this step created/);
+  assert.deepEqual(deletes(mock), []);
 });

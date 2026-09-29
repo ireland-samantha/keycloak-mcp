@@ -111,14 +111,18 @@ test('I6 an unwritable journal does not stop the rollback', async t => {
   assert.ok(result.journalErrors.length > 0, 'the receipt failures are reported');
 });
 
-test('I7 rollback never deletes an authorization scope that existed before the workflow', { todo: 'WF-01' }, async t => {
-  const existing = '638458b3-ebfc-4494-8864-d0f0f3b52421';
+test('I7 rollback never deletes an authorization scope that existed before the workflow', async t => {
   const scopes = 'POST /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/scope';
-  const { mock } = await executeWorkflow(t, [{ operation: scopes, args: { path: { 'client-uuid': 'client-1' }, body: { name: 'fixture-scope' } },
+  let existing;
+  const { mock, result } = await executeWorkflow(t, [{ operation: scopes, args: { path: { 'client-uuid': 'client-1' }, body: { name: 'fixture-scope' } },
     compensate: { operation: 'DELETE /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/scope/{scope-id}',
       args: { path: { 'client-uuid': 'client-1', 'scope-id': '$step.responseId' } } } }, missingUser], {
-    // ScopeService.create answers 201 with the existing scope when the name is taken
-    // (services/.../authorization/admin/ScopeService.java:97, RepresentationToModel.java:1789-1806).
-    program: mock => mock.on(scopes, mock.fixture('authz.scope.createExisting')) });
-  assert.equal(writes(mock).some(key => key.endsWith(`/scope/${existing}`) && key.startsWith('DELETE')), false);
+    // For a taken name, ScopeService.create answers 201 with the existing scope when the body names no ID,
+    // and 409 when it names one nothing has (ScopeService.java:94-104, RepresentationToModel.java:1794-1809).
+    program: mock => {
+      existing = mock.fixture('authz.scope.createExisting').json.id;
+      mock.on(scopes, request => mock.fixture(request.json().id ? 'authz.scope.createWithIdExisting' : 'authz.scope.createExisting'));
+    } });
+  assert.equal(writes(mock).some(key => key.startsWith('DELETE') && key.endsWith(`/scope/${existing}`)), false);
+  assert.equal(result.status, 'IN_DOUBT');
 });

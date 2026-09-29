@@ -39,7 +39,7 @@ const scenarios = {
   completed: [[['^PUT ', () => jsonResponse(204, null)], ['^GET ', () => jsonResponse(200, { realm: 'test-realm' })]],
     admin => runWorkflow(admin, [realmUpdate, { operation: 'GET /admin/realms/{realm}' }], { dryRun: false })],
   compFail: [[
-    ['^POST ', () => jsonResponse(201, { _id: 'baebccda-a5cd-4ed8-a889-c95e4cf2d64b' })],
+    ['^POST ', (url, options) => jsonResponse(201, { _id: JSON.parse(options.body)._id })],
     ['^GET ', () => jsonResponse(404, {})],
     ['^DELETE ', () => jsonResponse(500, {})],
   ], admin => runWorkflow(admin, [

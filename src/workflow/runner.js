@@ -1,7 +1,7 @@
 import { wasNotSent } from '../http/transport.js';
 import { execute } from '../internal/capabilities.js';
 import { isMutation, needsFreshTokenToCompensate } from '../policy/classify.js';
-import { resolveCompensation } from './compensation.js';
+import { argsToSend, resolveCompensation } from './compensation.js';
 import { completedReceipt, createdReceipt, openJournal, receiptPath } from './journal.js';
 import { acquireRealmLock } from './locks.js';
 import { preflight } from './preflight.js';
@@ -58,14 +58,15 @@ async function runStep(admin, lock, journal, step, completed) {
   } catch (error) {
     return { failure: { step, error, sent: false } };
   }
+  const { args, chosenId } = argsToSend(step);
   let result;
   try {
-    result = await execute(admin, step.operation, step.args);
+    result = await execute(admin, step.operation, args);
   } catch (error) {
     return { failure: { step, error, sent: !wasNotSent(error) } };
   }
   try {
-    const { compensate, created } = resolveCompensation(admin.config, admin.catalog, step, result);
+    const { compensate, created } = resolveCompensation(admin.config, admin.catalog, step, result, chosenId);
     return { done: { step, status: result.status, location: result.location, created, compensate } };
   } catch (error) {
     return { failure: { step, error, sent: true, response: result } };

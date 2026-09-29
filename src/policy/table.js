@@ -208,6 +208,26 @@ export const NAMED_CREATE_TARGETS = {
   },
 };
 
+// Creates that Keycloak answers with an existing object instead of refusing it, so an ID in the response
+// may name something that existed before the workflow. Given an ID nothing has yet in `idField`, the
+// same create is strict: Keycloak creates the object with exactly that ID or refuses a taken name with
+// 409 through the table's unique constraint. keycloak-mcp therefore chooses that ID itself for any such
+// create whose compensation binds the created ID.
+const RTM = 'server-spi-private/src/main/java/org/keycloak/models/utils/RepresentationToModel.java';
+const AUTHZ_ENTITIES = 'model/jpa/src/main/java/org/keycloak/authorization/jpa/entities';
+export const UPSERT_CREATES = {
+  'POST /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/scope': {
+    idField: 'id',
+    reason: 'ScopeService.create looks the scope up by the body id, else by name, and answers 201 with the existing scope, renamed to the body name when found by id; deleting it also deletes every permission that references only that scope.',
+    source: `authorization/admin/ScopeService.java:94-104, :145-154; ${RTM}:1789-1817; ${AUTHZ_ENTITIES}/ScopeEntity.java:38-40`,
+  },
+  'POST /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/resource': {
+    idField: '_id',
+    reason: 'ResourceSetService.create refuses a taken name only for an owner given by ID; for a body _id, or an owner given by username, the upsert updates and returns the existing resource. Scopes the body names that do not exist are created too, and deleting the resource leaves them.',
+    source: `authorization/admin/ResourceSetService.java:128-156; ${RTM}:1687-1783; ${AUTHZ_ENTITIES}/ResourceEntity.java:52-54`,
+  },
+};
+
 // Child path parameters that hold a server-generated ID, so a create compensation must bind them
 // to the ID the create returns rather than accept a caller-chosen value.
 export const GENERATED_ID_PARAMETER = {

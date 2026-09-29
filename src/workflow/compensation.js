@@ -1,4 +1,6 @@
+import { randomUUID } from 'node:crypto';
 import { buildRequest } from '../http/request.js';
+import { upsertIdField } from '../policy/classify.js';
 import { idBindings, LOCATION_ID } from './markers.js';
 
 const GENERATED_UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -31,14 +33,26 @@ function responseId(config, operationCatalog, step, result) {
   return id;
 }
 
+// The args a step is sent with. A create Keycloak may answer with an existing object gets a new ID in
+// its body when its compensation binds the created ID, so Keycloak either creates exactly that object or
+// refuses the step; `chosenId` is that ID.
+export function argsToSend(step) {
+  const idField = upsertIdField(step.operation);
+  if (!idField || !idBindings(step.compensate?.args).length) return { args: step.args, chosenId: null };
+  const chosenId = randomUUID();
+  return { args: { ...step.args, body: { ...step.args.body, [idField]: chosenId } }, chosenId };
+}
+
 // The step's compensation with its ID marker, if any, replaced by the ID the step's result returned,
-// and that ID as `created`: { parameter, id }, the path parameter it fills and its value.
-export function resolveCompensation(config, operationCatalog, step, result) {
+// and that ID as `created`: { parameter, id }, the path parameter it fills and its value. When
+// keycloak-mcp chose the ID (`chosenId`), the result must name exactly that object.
+export function resolveCompensation(config, operationCatalog, step, result, chosenId = null) {
   const compensate = step.compensate;
   const bindings = idBindings(compensate?.args);
   if (!bindings.length) return { compensate, created: null };
   const [parameter, marker] = bindings[0];
   const id = marker === LOCATION_ID ? locationId(config, operationCatalog, step, result) : responseId(config, operationCatalog, step, result);
+  if (chosenId && id !== chosenId) throw new Error('create response names another object than the one this step created');
   const resolved = { operation: compensate.operation, args: { ...compensate.args, path: { ...compensate.args?.path, [parameter]: id } } };
   buildRequest(config, resolved.operation, resolved.args, operationCatalog);
   return { compensate: resolved, created: { parameter, id } };
