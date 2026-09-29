@@ -3,8 +3,8 @@ import { test } from 'node:test';
 import { mkdtempSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { configFromEnv, createCatalog, isIrreversible, isMutation, KeycloakAdmin } from '../src/keycloak.js';
-import { preflight, runWorkflow, WorkflowBuilder } from '../src/workflow.js';
+import { configFromEnv, createCatalog, isIrreversible, isMutation, KeycloakAdmin } from '../../src/keycloak.js';
+import { preflight, runWorkflow, WorkflowBuilder } from '../../src/workflow.js';
 
 const env = {
   KEYCLOAK_BASE_URL: 'https://id.example.com/auth',

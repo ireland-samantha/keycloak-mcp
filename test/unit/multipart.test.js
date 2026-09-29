@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { buildRequest, configFromEnv, createCatalog, describeOperation, isMutation } from '../src/keycloak.js';
+import { buildRequest, configFromEnv, createCatalog, describeOperation, isMutation } from '../../src/keycloak.js';
 
 const env = {
   KEYCLOAK_BASE_URL: 'https://id.example.com', KEYCLOAK_REALM: 'test',

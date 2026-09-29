@@ -3,9 +3,9 @@ import { test } from 'node:test';
 import { chmodSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { buildRequest, configFromEnv, createCatalog, describeOperation, describeSchema, isMutation, KeycloakAdmin, listOperations } from '../src/keycloak.js';
-import { preflight, runWorkflow } from '../src/workflow.js';
-import openclaw from '../openclaw/index.js';
+import { buildRequest, configFromEnv, createCatalog, describeOperation, describeSchema, isMutation, KeycloakAdmin, listOperations } from '../../src/keycloak.js';
+import { preflight, runWorkflow } from '../../src/workflow.js';
+import openclaw from '../../openclaw/index.js';
 
 const env = {
   KEYCLOAK_BASE_URL: 'https://id.example.com/auth',
@@ -485,8 +485,8 @@ test('OpenClaw extension registers the five shared tools', () => {
 
 test('OpenClaw manifest declares every registered tool and the package entry', () => {
   const read = path => JSON.parse(readFileSync(new URL(path, import.meta.url)));
-  const manifest = read('../openclaw.plugin.json');
-  const pkg = read('../package.json');
+  const manifest = read('../../openclaw.plugin.json');
+  const pkg = read('../../package.json');
   const names = [];
   const old = Object.fromEntries(Object.keys(env).map(key => [key, process.env[key]]));
   Object.assign(process.env, env);

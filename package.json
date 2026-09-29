@@ -16,7 +16,7 @@
   "openclaw": { "extensions": ["./openclaw/index.js"] },
   "scripts": {
     "start": "node src/index.js",
-    "test": "node --test",
+    "test": "node --test \"test/unit/**/*.test.js\"",
     "live:soak": "node scripts/live-soak.mjs",
     "live:coverage": "node scripts/live-coverage.mjs",
     "live:openclaw": "node scripts/live-openclaw.mjs",
