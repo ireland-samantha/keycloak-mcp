@@ -41,6 +41,15 @@ public final class Json {
         }
     }
 
+    /** Parses JSON text, e.g. a request body written as a text block. */
+    public static JsonNode read(String text) {
+        try {
+            return MAPPER.readTree(text);
+        } catch (IOException e) {
+            throw new IllegalArgumentException("Not JSON: " + e.getMessage(), e);
+        }
+    }
+
     public static String pretty(Object value) {
         try {
             return PRETTY.writeValueAsString(value);
