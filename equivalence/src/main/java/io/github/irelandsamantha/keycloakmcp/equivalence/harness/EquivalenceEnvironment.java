@@ -83,6 +83,15 @@ public final class EquivalenceEnvironment implements AutoCloseable {
         }
     }
 
+    public String serverUrl() {
+        return server.baseUrl();
+    }
+
+    /** The service account keycloak-mcp, the raw oracle and the admin client all authenticate as. */
+    public ServiceAccount serviceAccount() {
+        return serviceAccount;
+    }
+
     /** Raw HTTP as the service account: the ground-truth oracle. */
     public RawHttp http() {
         return http;
