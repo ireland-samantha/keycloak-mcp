@@ -141,6 +141,60 @@ class ForcedFailureFrameTest {
         assertUnsound(check, "no compensation to exercise");
     }
 
+    private static final String CREATE_ROLE = "POST /admin/realms/{realm}/roles";
+    private static final String DELETE_ROLE = "DELETE /admin/realms/{realm}/roles/{role-name}";
+    private static final String DELETE_ROLE_BY_ID = "DELETE /admin/realms/{realm}/roles-by-id/{role-id}";
+
+    private static final Step CREATE_EDITOR = Step.of(CREATE_ROLE, Json.read("""
+            {"body": {"name": "editor"}}""")).compensatedBy(Step.of(DELETE_ROLE, Json.read("""
+            {"path": {"role-name": "editor"}}""")));
+
+    /** A frame for the role create: completed with 201, rolled back by {@code rollback}. */
+    private static Result roleFrame(String rollback) {
+        return inDoubt(FAILING, """
+                [{"operation": "%s", "status": 201}]""".formatted(CREATE_ROLE), """
+                [{"operation": "%s", "status": 204, "outcome": "COMPENSATED"}]""".formatted(rollback));
+    }
+
+    /** keycloak-mcp deletes a created role by the id it read right after the create, not by its name. */
+    @Test
+    void keycloakMcpsDocumentedRewriteOfARoleCompensationIsSound() {
+        Check check = ForcedFailureFrame.judge(CREATE_EDITOR, FORCED, roleFrame(DELETE_ROLE_BY_ID), BEFORE, BEFORE);
+        assertEquals(CaseOutcome.SOUND, check.outcome(), check.detail());
+        Check declared = ForcedFailureFrame.judge(CREATE_EDITOR, FORCED, roleFrame(DELETE_ROLE), BEFORE, BEFORE);
+        assertEquals(CaseOutcome.SOUND, declared.outcome(), declared.detail());
+    }
+
+    @Test
+    void theRewriteMustStillRestoreThePreState() {
+        assertUnsound(ForcedFailureFrame.judge(CREATE_EDITOR, FORCED, roleFrame(DELETE_ROLE_BY_ID), BEFORE, CHANGED),
+                "the readbacks differ from the pre-state");
+    }
+
+    @Test
+    void aRewriteCountsOnlyForTheCreateItIsDocumentedFor() {
+        Check group = judge(inDoubt(FAILING, CREATED, """
+                [{"operation": "%s", "status": 204, "outcome": "COMPENSATED"}]""".formatted(DELETE_ROLE_BY_ID)), BEFORE);
+        assertUnsound(group, "not the declared compensation " + DELETE + " COMPENSATED");
+        Step createIdp = Step.of("POST /admin/realms/{realm}/identity-provider/instances", Json.read("""
+                {"body": {"alias": "seed-idp", "providerId": "oidc"}}""")).compensatedBy(Step.of(
+                "DELETE /admin/realms/{realm}/identity-provider/instances/{alias}", Json.read("""
+                {"path": {"alias": "seed-idp"}}""")));
+        Result byId = inDoubt(FAILING, """
+                [{"operation": "POST /admin/realms/{realm}/identity-provider/instances", "status": 201}]""", """
+                [{"operation": "%s", "status": 204, "outcome": "COMPENSATED"}]""".formatted(DELETE_ROLE_BY_ID));
+        assertUnsound(ForcedFailureFrame.judge(createIdp, FORCED, byId, BEFORE, BEFORE), "not the declared compensation");
+    }
+
+    @Test
+    void aFailedRewriteIsUnsoundAndNamesTheRewrite() {
+        Result failed = inDoubt(FAILING, """
+                [{"operation": "%s", "status": 201}]""".formatted(CREATE_ROLE), """
+                [{"operation": "%s", "outcome": "FAILED", "error": "HTTP 404"}]""".formatted(DELETE_ROLE_BY_ID));
+        assertUnsound(ForcedFailureFrame.judge(CREATE_EDITOR, FORCED, failed, BEFORE, BEFORE),
+                "or keycloak-mcp's documented rewrite " + DELETE_ROLE_BY_ID + " COMPENSATED");
+    }
+
     private static void assertUnsound(Check check, String reason) {
         assertEquals(CaseOutcome.UNSOUND, check.outcome(), check.detail());
         assertFalse(check.accepted());
