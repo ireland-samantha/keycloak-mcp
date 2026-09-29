@@ -6,4 +6,8 @@ The service-account client is the security boundary. Grant only the roles needed
 
 Certificate and keystore endpoints, client initial-access tokens, and detailed admin-event representations are redacted by default, including downloads that can contain a private key and the private key read from an uploaded keystore. Enabling `KEYCLOAK_MCP_ALLOW_SENSITIVE_READS=true` exposes those responses to the caller; use a separate, tightly scoped service account and output channel when that access is required.
 
+`KEYCLOAK_MCP_ALLOW_IRREVERSIBLE` is the operator's gate for changes no compensation can undo. Besides the irreversible routes, it covers request bodies that set a password or a secret, send a stored credential to a new address (an LDAP or Ipatuura connection, an identity provider's token endpoint, the SMTP settings), turn off or narrow event recording, rename a realm, role or required action, or delete a client's authorization settings or service-account user. The rules are listed in the README under "How operations are classified" and in `src/policy/table.js`. Keep the gate off where an LLM agent drives the tools: with it on, a step marked `irreversible: true` can do any of these. Admin events are a monitoring control only while turning them off needs that gate.
+
+Some reads have effects in Keycloak: listing or searching users in a realm with user federation contacts the directory with its stored bind credential, can import users, and can delete a user whose federation link no longer validates. Treat read access to a federated realm accordingly.
+
 This package cannot make multiple Keycloak Admin REST calls atomic. Consult the workflow receipt and the affected Keycloak resources after any timeout, crash, 5xx, or incomplete compensation.
