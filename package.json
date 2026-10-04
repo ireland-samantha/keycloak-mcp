@@ -3,7 +3,7 @@
   "version": "0.1.1",
   "description": "Keycloak Admin REST MCP server and OpenClaw extension with compensating workflows",
   "type": "module",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "repository": { "type": "git", "url": "git+https://github.com/ireland-samantha/keycloak-mcp.git" },
   "files": ["src", "data", "openclaw", "openclaw.plugin.json", "README.md", "TESTING.md", "SECURITY.md", "LICENSE", "NOTICE.md"],
   "bin": {
