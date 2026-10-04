@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
-import { symlinkSync } from 'node:fs';
+import fs, { renameSync, symlinkSync } from 'node:fs';
+import { syncBuiltinESMExports } from 'node:module';
 import { join } from 'node:path';
 import { test } from 'node:test';
 import { configFromEnv, createCatalog } from '../../src/api.js';
@@ -42,6 +43,23 @@ test('private config and extension catalogs cannot be loaded through symlinks', 
   const catalogLink = join(dir, 'catalog-link.json');
   symlinkSync(catalog, catalogLink);
   assert.throws(() => createCatalog(catalogLink), /private file.*no symlinks/);
+});
+
+test('a private config replaced between inspection and opening is rejected', t => {
+  const dir = privateTempDir('keycloak-mcp-private-');
+  const file = writePrivateJson(join(dir, 'config.json'), testEnv);
+  const replacement = writePrivateJson(join(dir, 'replacement.json'), testEnv);
+  const open = fs.openSync;
+  t.mock.method(fs, 'openSync', (path, ...args) => {
+    if (path === file) {
+      renameSync(file, join(dir, 'original.json'));
+      renameSync(replacement, file);
+    }
+    return open(path, ...args);
+  });
+  syncBuiltinESMExports();
+  t.after(() => { t.mock.restoreAll(); syncBuiltinESMExports(); });
+  assert.throws(() => configFromEnv({ KEYCLOAK_MCP_CONFIG: file }), /private file.*no symlinks/);
 });
 
 test('an empty environment value counts as unset', () => {
