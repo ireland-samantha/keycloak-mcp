@@ -1,0 +1,69 @@
+{
+  "description": "Dated ways the Maven-published admin client (built from keycloak/keycloak-client) reads HEAD differently from raw HTTP. Each entry pins one difference of JsonDiff.diff(raw, adapter) by operation, path and kind (MISSING_RIGHT: the adapter drops a field the server sent). An entry that explains nothing in a full run is stale and fails the build.",
+  "lag": [
+    {
+      "key": "GET /admin/realms/{realm}/identity-provider/instances",
+      "path": "$[*].organizationLinks",
+      "kind": "MISSING_RIGHT",
+      "reason": "HEAD's IdentityProviderRepresentation carries the organizations an IdP is linked to as organizationLinks; the adapter's copy (keycloak-client-common-synced) still has only the older organizationId, and the adapter ignores unknown properties, so the links are dropped.",
+      "evidence": "core/src/main/java/org/keycloak/representations/idm/IdentityProviderRepresentation.java:65,213; org.keycloak.representations.idm.IdentityProviderRepresentation in keycloak-client-common-synced 999.0.0-20260928.023246-475 has no organizationLinks",
+      "since": "2026-09-29"
+    },
+    {
+      "key": "GET /admin/realms/{realm}/identity-provider/instances/{alias}",
+      "path": "$.organizationLinks",
+      "kind": "MISSING_RIGHT",
+      "reason": "HEAD's IdentityProviderRepresentation carries the organizations an IdP is linked to as organizationLinks; the adapter's copy (keycloak-client-common-synced) still has only the older organizationId, and the adapter ignores unknown properties, so the links are dropped.",
+      "evidence": "core/src/main/java/org/keycloak/representations/idm/IdentityProviderRepresentation.java:65,213; org.keycloak.representations.idm.IdentityProviderRepresentation in keycloak-client-common-synced 999.0.0-20260928.023246-475 has no organizationLinks",
+      "since": "2026-09-29"
+    },
+    {
+      "key": "GET /admin/realms/{realm}/organizations/{org-id}/identity-providers",
+      "path": "$[*].organizationLinks",
+      "kind": "MISSING_RIGHT",
+      "reason": "HEAD's IdentityProviderRepresentation carries the organizations an IdP is linked to as organizationLinks; the adapter's copy (keycloak-client-common-synced) still has only the older organizationId, and the adapter ignores unknown properties, so the links are dropped.",
+      "evidence": "core/src/main/java/org/keycloak/representations/idm/IdentityProviderRepresentation.java:65,213; org.keycloak.representations.idm.IdentityProviderRepresentation in keycloak-client-common-synced 999.0.0-20260928.023246-475 has no organizationLinks",
+      "since": "2026-09-29"
+    },
+    {
+      "key": "GET /admin/realms/{realm}/organizations/{org-id}/identity-providers/{alias}",
+      "path": "$.organizationLinks",
+      "kind": "MISSING_RIGHT",
+      "reason": "HEAD's IdentityProviderRepresentation carries the organizations an IdP is linked to as organizationLinks; the adapter's copy (keycloak-client-common-synced) still has only the older organizationId, and the adapter ignores unknown properties, so the links are dropped.",
+      "evidence": "core/src/main/java/org/keycloak/representations/idm/IdentityProviderRepresentation.java:65,213; org.keycloak.representations.idm.IdentityProviderRepresentation in keycloak-client-common-synced 999.0.0-20260928.023246-475 has no organizationLinks",
+      "since": "2026-09-29"
+    },
+    {
+      "key": "GET /admin/realms/{realm}/organizations",
+      "path": "$[*].domains[*].autoRedirect",
+      "kind": "MISSING_RIGHT",
+      "reason": "HEAD's OrganizationDomainRepresentation has autoRedirect; the adapter's copy (keycloak-client-common-synced) does not, and the adapter ignores unknown properties, so the flag is dropped.",
+      "evidence": "core/src/main/java/org/keycloak/representations/idm/OrganizationDomainRepresentation.java:36,70-76; org.keycloak.representations.idm.OrganizationDomainRepresentation in keycloak-client-common-synced 999.0.0-20260928.023246-475 has only name and verified",
+      "since": "2026-09-29"
+    },
+    {
+      "key": "GET /admin/realms/{realm}/organizations/members/{member-id}/organizations",
+      "path": "$[*].domains[*].autoRedirect",
+      "kind": "MISSING_RIGHT",
+      "reason": "HEAD's OrganizationDomainRepresentation has autoRedirect; the adapter's copy (keycloak-client-common-synced) does not, and the adapter ignores unknown properties, so the flag is dropped.",
+      "evidence": "core/src/main/java/org/keycloak/representations/idm/OrganizationDomainRepresentation.java:36,70-76; org.keycloak.representations.idm.OrganizationDomainRepresentation in keycloak-client-common-synced 999.0.0-20260928.023246-475 has only name and verified",
+      "since": "2026-09-29"
+    },
+    {
+      "key": "GET /admin/realms/{realm}/organizations/{org-id}",
+      "path": "$.domains[*].autoRedirect",
+      "kind": "MISSING_RIGHT",
+      "reason": "HEAD's OrganizationDomainRepresentation has autoRedirect; the adapter's copy (keycloak-client-common-synced) does not, and the adapter ignores unknown properties, so the flag is dropped.",
+      "evidence": "core/src/main/java/org/keycloak/representations/idm/OrganizationDomainRepresentation.java:36,70-76; org.keycloak.representations.idm.OrganizationDomainRepresentation in keycloak-client-common-synced 999.0.0-20260928.023246-475 has only name and verified",
+      "since": "2026-09-29"
+    },
+    {
+      "key": "GET /admin/realms/{realm}/organizations/{org-id}/members/{member-id}/organizations",
+      "path": "$[*].domains[*].autoRedirect",
+      "kind": "MISSING_RIGHT",
+      "reason": "HEAD's OrganizationDomainRepresentation has autoRedirect; the adapter's copy (keycloak-client-common-synced) does not, and the adapter ignores unknown properties, so the flag is dropped.",
+      "evidence": "core/src/main/java/org/keycloak/representations/idm/OrganizationDomainRepresentation.java:36,70-76; org.keycloak.representations.idm.OrganizationDomainRepresentation in keycloak-client-common-synced 999.0.0-20260928.023246-475 has only name and verified",
+      "since": "2026-09-29"
+    }
+  ]
+}

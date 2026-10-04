@@ -1,0 +1,5931 @@
+{
+  "source": "org.keycloak:keycloak-admin-client:999.0.0-SNAPSHOT",
+  "resolvedVersion": "999.0.0-20260928.023246-474",
+  "sourceSha256": "f7a60fa049c2694a97705e2898a2b7e76feee4238ff4a4fd32614bd85d8c0065",
+  "scmRevision": "56daf6daed1ee19122fe04f18b47ed0c46b3135c",
+  "openapiSha256": "e9f2a48232a7a74415d63cd600eb00ef66402d381ea8824377dd39a1fe7b3a2c",
+  "operations": [
+    {
+      "key": "DELETE /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/permission/resource/{id}",
+      "method": "DELETE",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/permission/resource/{id}",
+      "summary": "Resource permission: remove",
+      "description": "Reachable through the Java admin client (ResourcePermissionResource#remove); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [],
+      "responseTypes": [],
+      "requestSchema": null,
+      "responseSchema": null,
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#permissions()",
+        "PermissionsResource#resource()",
+        "ResourcePermissionsResource#findById(String)",
+        "ResourcePermissionResource#remove()"
+      ]
+    },
+    {
+      "key": "DELETE /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/permission/scope/{id}",
+      "method": "DELETE",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/permission/scope/{id}",
+      "summary": "Scope permission: remove",
+      "description": "Reachable through the Java admin client (ScopePermissionResource#remove); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [],
+      "responseTypes": [],
+      "requestSchema": null,
+      "responseSchema": null,
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#permissions()",
+        "PermissionsResource#scope()",
+        "ScopePermissionsResource#findById(String)",
+        "ScopePermissionResource#remove()"
+      ]
+    },
+    {
+      "key": "DELETE /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/aggregate/{id}",
+      "method": "DELETE",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/aggregate/{id}",
+      "summary": "Aggregate policy: remove",
+      "description": "Reachable through the Java admin client (AggregatePolicyResource#remove); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [],
+      "responseTypes": [],
+      "requestSchema": null,
+      "responseSchema": null,
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#policies()",
+        "PoliciesResource#aggregate()",
+        "AggregatePoliciesResource#findById(String)",
+        "AggregatePolicyResource#remove()"
+      ]
+    },
+    {
+      "key": "DELETE /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/client/{id}",
+      "method": "DELETE",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/client/{id}",
+      "summary": "Client policy: remove",
+      "description": "Reachable through the Java admin client (ClientPolicyResource#remove); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [],
+      "responseTypes": [],
+      "requestSchema": null,
+      "responseSchema": null,
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#policies()",
+        "PoliciesResource#client()",
+        "ClientPoliciesResource#findById(String)",
+        "ClientPolicyResource#remove()"
+      ]
+    },
+    {
+      "key": "DELETE /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/group/{id}",
+      "method": "DELETE",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/group/{id}",
+      "summary": "Group policy: remove",
+      "description": "Reachable through the Java admin client (GroupPolicyResource#remove); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [],
+      "responseTypes": [],
+      "requestSchema": null,
+      "responseSchema": null,
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#policies()",
+        "PoliciesResource#group()",
+        "GroupPoliciesResource#findById(String)",
+        "GroupPolicyResource#remove()"
+      ]
+    },
+    {
+      "key": "DELETE /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/js/{id}",
+      "method": "DELETE",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/js/{id}",
+      "summary": "Js policy: remove",
+      "description": "Reachable through the Java admin client (JSPolicyResource#remove); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [],
+      "responseTypes": [],
+      "requestSchema": null,
+      "responseSchema": null,
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#policies()",
+        "PoliciesResource#js()",
+        "JSPoliciesResource#findById(String)",
+        "JSPolicyResource#remove()"
+      ]
+    },
+    {
+      "key": "DELETE /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/role/{id}",
+      "method": "DELETE",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/role/{id}",
+      "summary": "Role policy: remove",
+      "description": "Reachable through the Java admin client (RolePolicyResource#remove); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [],
+      "responseTypes": [],
+      "requestSchema": null,
+      "responseSchema": null,
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#policies()",
+        "PoliciesResource#role()",
+        "RolePoliciesResource#findById(String)",
+        "RolePolicyResource#remove()"
+      ]
+    },
+    {
+      "key": "DELETE /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/time/{id}",
+      "method": "DELETE",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/time/{id}",
+      "summary": "Time policy: remove",
+      "description": "Reachable through the Java admin client (TimePolicyResource#remove); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [],
+      "responseTypes": [],
+      "requestSchema": null,
+      "responseSchema": null,
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#policies()",
+        "PoliciesResource#time()",
+        "TimePoliciesResource#findById(String)",
+        "TimePolicyResource#remove()"
+      ]
+    },
+    {
+      "key": "DELETE /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/user/{id}",
+      "method": "DELETE",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/user/{id}",
+      "summary": "User policy: remove",
+      "description": "Reachable through the Java admin client (UserPolicyResource#remove); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [],
+      "responseTypes": [],
+      "requestSchema": null,
+      "responseSchema": null,
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#policies()",
+        "PoliciesResource#user()",
+        "UserPoliciesResource#findById(String)",
+        "UserPolicyResource#remove()"
+      ]
+    },
+    {
+      "key": "DELETE /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/{id}",
+      "method": "DELETE",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/{id}",
+      "summary": "Policy: remove",
+      "description": "Reachable through the Java admin client (PolicyResource#remove); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [],
+      "responseTypes": [],
+      "requestSchema": null,
+      "responseSchema": null,
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#policies()",
+        "PoliciesResource#policy(String)",
+        "PolicyResource#remove()"
+      ]
+    },
+    {
+      "key": "DELETE /admin/realms/{realm}/users/{user-id}/vc/credentials/{credentialScopeName}",
+      "method": "DELETE",
+      "path": "/admin/realms/{realm}/users/{user-id}/vc/credentials/{credentialScopeName}",
+      "summary": "User verifiable credential: revoke credential",
+      "description": "Reachable through the Java admin client (UserVerifiableCredentialResource#revokeCredential); absent from the Keycloak OpenAPI definition.",
+      "tags": [
+        "Users"
+      ],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "user-id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "credentialScopeName",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [],
+      "responseTypes": [],
+      "requestSchema": null,
+      "responseSchema": null,
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#users()",
+        "UsersResource#get(String)",
+        "UserResource#verifiableCredentials()",
+        "UserVerifiableCredentialResource#revokeCredential(String)"
+      ]
+    },
+    {
+      "key": "DELETE /admin/realms/{realm}/users/{user-id}/vc/issued-credentials/{id}",
+      "method": "DELETE",
+      "path": "/admin/realms/{realm}/users/{user-id}/vc/issued-credentials/{id}",
+      "summary": "User verifiable credential: revoke issued credential",
+      "description": "Reachable through the Java admin client (UserVerifiableCredentialResource#revokeIssuedCredential); absent from the Keycloak OpenAPI definition.",
+      "tags": [
+        "Users"
+      ],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "user-id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [],
+      "responseTypes": [],
+      "requestSchema": null,
+      "responseSchema": null,
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#users()",
+        "UsersResource#get(String)",
+        "UserResource#verifiableCredentials()",
+        "UserVerifiableCredentialResource#revokeIssuedCredential(String)"
+      ]
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/permission/resource/search",
+      "method": "GET",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/permission/resource/search",
+      "summary": "Resource permissions: find by name",
+      "description": "Reachable through the Java admin client (ResourcePermissionsResource#findByName); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "name",
+          "in": "query",
+          "required": false,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [],
+      "responseTypes": [
+        "application/json"
+      ],
+      "requestSchema": null,
+      "responseSchema": {
+        "$ref": "#/components/schemas/ResourcePermissionRepresentation"
+      },
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#permissions()",
+        "PermissionsResource#resource()",
+        "ResourcePermissionsResource#findByName(String)"
+      ]
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/permission/resource/{id}",
+      "method": "GET",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/permission/resource/{id}",
+      "summary": "Resource permission: to representation",
+      "description": "Reachable through the Java admin client (ResourcePermissionResource#toRepresentation); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [],
+      "responseTypes": [
+        "application/json"
+      ],
+      "requestSchema": null,
+      "responseSchema": {
+        "$ref": "#/components/schemas/ResourcePermissionRepresentation"
+      },
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#permissions()",
+        "PermissionsResource#resource()",
+        "ResourcePermissionsResource#findById(String)",
+        "ResourcePermissionResource#toRepresentation()"
+      ]
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/permission/resource/{id}/associatedPolicies",
+      "method": "GET",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/permission/resource/{id}/associatedPolicies",
+      "summary": "Resource permission: associated policies",
+      "description": "Reachable through the Java admin client (ResourcePermissionResource#associatedPolicies); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [],
+      "responseTypes": [
+        "application/json"
+      ],
+      "requestSchema": null,
+      "responseSchema": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/PolicyRepresentation"
+        }
+      },
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#permissions()",
+        "PermissionsResource#resource()",
+        "ResourcePermissionsResource#findById(String)",
+        "ResourcePermissionResource#associatedPolicies()"
+      ]
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/permission/resource/{id}/dependentPolicies",
+      "method": "GET",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/permission/resource/{id}/dependentPolicies",
+      "summary": "Resource permission: dependent policies",
+      "description": "Reachable through the Java admin client (ResourcePermissionResource#dependentPolicies); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [],
+      "responseTypes": [
+        "application/json"
+      ],
+      "requestSchema": null,
+      "responseSchema": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/PolicyRepresentation"
+        }
+      },
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#permissions()",
+        "PermissionsResource#resource()",
+        "ResourcePermissionsResource#findById(String)",
+        "ResourcePermissionResource#dependentPolicies()"
+      ]
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/permission/resource/{id}/resources",
+      "method": "GET",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/permission/resource/{id}/resources",
+      "summary": "Resource permission: resources",
+      "description": "Reachable through the Java admin client (ResourcePermissionResource#resources); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [],
+      "responseTypes": [
+        "application/json"
+      ],
+      "requestSchema": null,
+      "responseSchema": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/ResourceRepresentation"
+        }
+      },
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#permissions()",
+        "PermissionsResource#resource()",
+        "ResourcePermissionsResource#findById(String)",
+        "ResourcePermissionResource#resources()"
+      ]
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/permission/scope",
+      "method": "GET",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/permission/scope",
+      "summary": "Scope permissions: find all",
+      "description": "Reachable through the Java admin client (ScopePermissionsResource#findAll); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "fields",
+          "in": "query",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "first",
+          "in": "query",
+          "required": false,
+          "type": "integer"
+        },
+        {
+          "name": "max",
+          "in": "query",
+          "required": false,
+          "type": "integer"
+        },
+        {
+          "name": "name",
+          "in": "query",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "policyId",
+          "in": "query",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "resource",
+          "in": "query",
+          "required": false,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [],
+      "responseTypes": [
+        "application/json"
+      ],
+      "requestSchema": null,
+      "responseSchema": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/ScopePermissionRepresentation"
+        }
+      },
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#permissions()",
+        "PermissionsResource#scope()",
+        "ScopePermissionsResource#findAll(String,String,String,String,Integer,Integer)"
+      ]
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/permission/scope/search",
+      "method": "GET",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/permission/scope/search",
+      "summary": "Scope permissions: find by name",
+      "description": "Reachable through the Java admin client (ScopePermissionsResource#findByName); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "fields",
+          "in": "query",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "name",
+          "in": "query",
+          "required": false,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [],
+      "responseTypes": [
+        "application/json"
+      ],
+      "requestSchema": null,
+      "responseSchema": {
+        "$ref": "#/components/schemas/ScopePermissionRepresentation"
+      },
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#permissions()",
+        "PermissionsResource#scope()",
+        "ScopePermissionsResource#findByName(String,String)"
+      ]
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/permission/scope/{id}",
+      "method": "GET",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/permission/scope/{id}",
+      "summary": "Scope permission: to representation",
+      "description": "Reachable through the Java admin client (ScopePermissionResource#toRepresentation); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [],
+      "responseTypes": [
+        "application/json"
+      ],
+      "requestSchema": null,
+      "responseSchema": {
+        "$ref": "#/components/schemas/ScopePermissionRepresentation"
+      },
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#permissions()",
+        "PermissionsResource#scope()",
+        "ScopePermissionsResource#findById(String)",
+        "ScopePermissionResource#toRepresentation()"
+      ]
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/permission/scope/{id}/associatedPolicies",
+      "method": "GET",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/permission/scope/{id}/associatedPolicies",
+      "summary": "Scope permission: associated policies",
+      "description": "Reachable through the Java admin client (ScopePermissionResource#associatedPolicies); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [],
+      "responseTypes": [
+        "application/json"
+      ],
+      "requestSchema": null,
+      "responseSchema": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/PolicyRepresentation"
+        }
+      },
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#permissions()",
+        "PermissionsResource#scope()",
+        "ScopePermissionsResource#findById(String)",
+        "ScopePermissionResource#associatedPolicies()"
+      ]
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/permission/scope/{id}/dependentPolicies",
+      "method": "GET",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/permission/scope/{id}/dependentPolicies",
+      "summary": "Scope permission: dependent policies",
+      "description": "Reachable through the Java admin client (ScopePermissionResource#dependentPolicies); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [],
+      "responseTypes": [
+        "application/json"
+      ],
+      "requestSchema": null,
+      "responseSchema": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/PolicyRepresentation"
+        }
+      },
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#permissions()",
+        "PermissionsResource#scope()",
+        "ScopePermissionsResource#findById(String)",
+        "ScopePermissionResource#dependentPolicies()"
+      ]
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/permission/scope/{id}/resources",
+      "method": "GET",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/permission/scope/{id}/resources",
+      "summary": "Scope permission: resources",
+      "description": "Reachable through the Java admin client (ScopePermissionResource#resources); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [],
+      "responseTypes": [
+        "application/json"
+      ],
+      "requestSchema": null,
+      "responseSchema": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/ResourceRepresentation"
+        }
+      },
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#permissions()",
+        "PermissionsResource#scope()",
+        "ScopePermissionsResource#findById(String)",
+        "ScopePermissionResource#resources()"
+      ]
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/permission/scope/{id}/scopes",
+      "method": "GET",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/permission/scope/{id}/scopes",
+      "summary": "Scope permission: scopes",
+      "description": "Reachable through the Java admin client (ScopePermissionResource#scopes); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [],
+      "responseTypes": [
+        "application/json"
+      ],
+      "requestSchema": null,
+      "responseSchema": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/ScopeRepresentation"
+        }
+      },
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#permissions()",
+        "PermissionsResource#scope()",
+        "ScopePermissionsResource#findById(String)",
+        "ScopePermissionResource#scopes()"
+      ]
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/aggregate/search",
+      "method": "GET",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/aggregate/search",
+      "summary": "Aggregate policies: find by name",
+      "description": "Reachable through the Java admin client (AggregatePoliciesResource#findByName); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "name",
+          "in": "query",
+          "required": false,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [],
+      "responseTypes": [
+        "application/json"
+      ],
+      "requestSchema": null,
+      "responseSchema": {
+        "$ref": "#/components/schemas/AggregatePolicyRepresentation"
+      },
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#policies()",
+        "PoliciesResource#aggregate()",
+        "AggregatePoliciesResource#findByName(String)"
+      ]
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/aggregate/{id}",
+      "method": "GET",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/aggregate/{id}",
+      "summary": "Aggregate policy: to representation",
+      "description": "Reachable through the Java admin client (AggregatePolicyResource#toRepresentation); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [],
+      "responseTypes": [
+        "application/json"
+      ],
+      "requestSchema": null,
+      "responseSchema": {
+        "$ref": "#/components/schemas/AggregatePolicyRepresentation"
+      },
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#policies()",
+        "PoliciesResource#aggregate()",
+        "AggregatePoliciesResource#findById(String)",
+        "AggregatePolicyResource#toRepresentation()"
+      ]
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/aggregate/{id}/associatedPolicies",
+      "method": "GET",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/aggregate/{id}/associatedPolicies",
+      "summary": "Aggregate policy: associated policies",
+      "description": "Reachable through the Java admin client (AggregatePolicyResource#associatedPolicies); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [],
+      "responseTypes": [
+        "application/json"
+      ],
+      "requestSchema": null,
+      "responseSchema": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/PolicyRepresentation"
+        }
+      },
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#policies()",
+        "PoliciesResource#aggregate()",
+        "AggregatePoliciesResource#findById(String)",
+        "AggregatePolicyResource#associatedPolicies()"
+      ]
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/aggregate/{id}/dependentPolicies",
+      "method": "GET",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/aggregate/{id}/dependentPolicies",
+      "summary": "Aggregate policy: dependent policies",
+      "description": "Reachable through the Java admin client (AggregatePolicyResource#dependentPolicies); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [],
+      "responseTypes": [
+        "application/json"
+      ],
+      "requestSchema": null,
+      "responseSchema": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/PolicyRepresentation"
+        }
+      },
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#policies()",
+        "PoliciesResource#aggregate()",
+        "AggregatePoliciesResource#findById(String)",
+        "AggregatePolicyResource#dependentPolicies()"
+      ]
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/aggregate/{id}/resources",
+      "method": "GET",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/aggregate/{id}/resources",
+      "summary": "Aggregate policy: resources",
+      "description": "Reachable through the Java admin client (AggregatePolicyResource#resources); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [],
+      "responseTypes": [
+        "application/json"
+      ],
+      "requestSchema": null,
+      "responseSchema": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/ResourceRepresentation"
+        }
+      },
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#policies()",
+        "PoliciesResource#aggregate()",
+        "AggregatePoliciesResource#findById(String)",
+        "AggregatePolicyResource#resources()"
+      ]
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/client-scope/search",
+      "method": "GET",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/client-scope/search",
+      "summary": "Client scope policies: find by name",
+      "description": "Reachable through the Java admin client (ClientScopePoliciesResource#findByName); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "name",
+          "in": "query",
+          "required": false,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [],
+      "responseTypes": [
+        "application/json"
+      ],
+      "requestSchema": null,
+      "responseSchema": {
+        "$ref": "#/components/schemas/ClientScopePolicyRepresentation"
+      },
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#policies()",
+        "PoliciesResource#clientScope()",
+        "ClientScopePoliciesResource#findByName(String)"
+      ]
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/client/search",
+      "method": "GET",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/client/search",
+      "summary": "Client policies: find by name",
+      "description": "Reachable through the Java admin client (ClientPoliciesResource#findByName); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "name",
+          "in": "query",
+          "required": false,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [],
+      "responseTypes": [
+        "application/json"
+      ],
+      "requestSchema": null,
+      "responseSchema": {
+        "$ref": "#/components/schemas/ClientPolicyRepresentation"
+      },
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#policies()",
+        "PoliciesResource#client()",
+        "ClientPoliciesResource#findByName(String)"
+      ]
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/client/{id}",
+      "method": "GET",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/client/{id}",
+      "summary": "Client policy: to representation",
+      "description": "Reachable through the Java admin client (ClientPolicyResource#toRepresentation); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [],
+      "responseTypes": [
+        "application/json"
+      ],
+      "requestSchema": null,
+      "responseSchema": {
+        "$ref": "#/components/schemas/ClientPolicyRepresentation"
+      },
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#policies()",
+        "PoliciesResource#client()",
+        "ClientPoliciesResource#findById(String)",
+        "ClientPolicyResource#toRepresentation()"
+      ]
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/client/{id}/associatedPolicies",
+      "method": "GET",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/client/{id}/associatedPolicies",
+      "summary": "Client policy: associated policies",
+      "description": "Reachable through the Java admin client (ClientPolicyResource#associatedPolicies); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [],
+      "responseTypes": [
+        "application/json"
+      ],
+      "requestSchema": null,
+      "responseSchema": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/PolicyRepresentation"
+        }
+      },
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#policies()",
+        "PoliciesResource#client()",
+        "ClientPoliciesResource#findById(String)",
+        "ClientPolicyResource#associatedPolicies()"
+      ]
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/client/{id}/dependentPolicies",
+      "method": "GET",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/client/{id}/dependentPolicies",
+      "summary": "Client policy: dependent policies",
+      "description": "Reachable through the Java admin client (ClientPolicyResource#dependentPolicies); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [],
+      "responseTypes": [
+        "application/json"
+      ],
+      "requestSchema": null,
+      "responseSchema": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/PolicyRepresentation"
+        }
+      },
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#policies()",
+        "PoliciesResource#client()",
+        "ClientPoliciesResource#findById(String)",
+        "ClientPolicyResource#dependentPolicies()"
+      ]
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/client/{id}/resources",
+      "method": "GET",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/client/{id}/resources",
+      "summary": "Client policy: resources",
+      "description": "Reachable through the Java admin client (ClientPolicyResource#resources); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [],
+      "responseTypes": [
+        "application/json"
+      ],
+      "requestSchema": null,
+      "responseSchema": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/ResourceRepresentation"
+        }
+      },
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#policies()",
+        "PoliciesResource#client()",
+        "ClientPoliciesResource#findById(String)",
+        "ClientPolicyResource#resources()"
+      ]
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/group/search",
+      "method": "GET",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/group/search",
+      "summary": "Group policies: find by name",
+      "description": "Reachable through the Java admin client (GroupPoliciesResource#findByName); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "name",
+          "in": "query",
+          "required": false,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [],
+      "responseTypes": [
+        "application/json"
+      ],
+      "requestSchema": null,
+      "responseSchema": {
+        "$ref": "#/components/schemas/GroupPolicyRepresentation"
+      },
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#policies()",
+        "PoliciesResource#group()",
+        "GroupPoliciesResource#findByName(String)"
+      ]
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/group/{id}",
+      "method": "GET",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/group/{id}",
+      "summary": "Group policy: to representation",
+      "description": "Reachable through the Java admin client (GroupPolicyResource#toRepresentation); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [],
+      "responseTypes": [
+        "application/json"
+      ],
+      "requestSchema": null,
+      "responseSchema": {
+        "$ref": "#/components/schemas/GroupPolicyRepresentation"
+      },
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#policies()",
+        "PoliciesResource#group()",
+        "GroupPoliciesResource#findById(String)",
+        "GroupPolicyResource#toRepresentation()"
+      ]
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/group/{id}/associatedPolicies",
+      "method": "GET",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/group/{id}/associatedPolicies",
+      "summary": "Group policy: associated policies",
+      "description": "Reachable through the Java admin client (GroupPolicyResource#associatedPolicies); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [],
+      "responseTypes": [
+        "application/json"
+      ],
+      "requestSchema": null,
+      "responseSchema": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/PolicyRepresentation"
+        }
+      },
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#policies()",
+        "PoliciesResource#group()",
+        "GroupPoliciesResource#findById(String)",
+        "GroupPolicyResource#associatedPolicies()"
+      ]
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/group/{id}/dependentPolicies",
+      "method": "GET",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/group/{id}/dependentPolicies",
+      "summary": "Group policy: dependent policies",
+      "description": "Reachable through the Java admin client (GroupPolicyResource#dependentPolicies); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [],
+      "responseTypes": [
+        "application/json"
+      ],
+      "requestSchema": null,
+      "responseSchema": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/PolicyRepresentation"
+        }
+      },
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#policies()",
+        "PoliciesResource#group()",
+        "GroupPoliciesResource#findById(String)",
+        "GroupPolicyResource#dependentPolicies()"
+      ]
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/group/{id}/resources",
+      "method": "GET",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/group/{id}/resources",
+      "summary": "Group policy: resources",
+      "description": "Reachable through the Java admin client (GroupPolicyResource#resources); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [],
+      "responseTypes": [
+        "application/json"
+      ],
+      "requestSchema": null,
+      "responseSchema": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/ResourceRepresentation"
+        }
+      },
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#policies()",
+        "PoliciesResource#group()",
+        "GroupPoliciesResource#findById(String)",
+        "GroupPolicyResource#resources()"
+      ]
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/js/search",
+      "method": "GET",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/js/search",
+      "summary": "Js policies: find by name",
+      "description": "Reachable through the Java admin client (JSPoliciesResource#findByName); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "name",
+          "in": "query",
+          "required": false,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [],
+      "responseTypes": [
+        "application/json"
+      ],
+      "requestSchema": null,
+      "responseSchema": {
+        "$ref": "#/components/schemas/JSPolicyRepresentation"
+      },
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#policies()",
+        "PoliciesResource#js()",
+        "JSPoliciesResource#findByName(String)"
+      ]
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/js/{id}",
+      "method": "GET",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/js/{id}",
+      "summary": "Js policy: to representation",
+      "description": "Reachable through the Java admin client (JSPolicyResource#toRepresentation); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [],
+      "responseTypes": [
+        "application/json"
+      ],
+      "requestSchema": null,
+      "responseSchema": {
+        "$ref": "#/components/schemas/JSPolicyRepresentation"
+      },
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#policies()",
+        "PoliciesResource#js()",
+        "JSPoliciesResource#findById(String)",
+        "JSPolicyResource#toRepresentation()"
+      ]
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/js/{id}/associatedPolicies",
+      "method": "GET",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/js/{id}/associatedPolicies",
+      "summary": "Js policy: associated policies",
+      "description": "Reachable through the Java admin client (JSPolicyResource#associatedPolicies); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [],
+      "responseTypes": [
+        "application/json"
+      ],
+      "requestSchema": null,
+      "responseSchema": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/PolicyRepresentation"
+        }
+      },
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#policies()",
+        "PoliciesResource#js()",
+        "JSPoliciesResource#findById(String)",
+        "JSPolicyResource#associatedPolicies()"
+      ]
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/js/{id}/dependentPolicies",
+      "method": "GET",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/js/{id}/dependentPolicies",
+      "summary": "Js policy: dependent policies",
+      "description": "Reachable through the Java admin client (JSPolicyResource#dependentPolicies); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [],
+      "responseTypes": [
+        "application/json"
+      ],
+      "requestSchema": null,
+      "responseSchema": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/PolicyRepresentation"
+        }
+      },
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#policies()",
+        "PoliciesResource#js()",
+        "JSPoliciesResource#findById(String)",
+        "JSPolicyResource#dependentPolicies()"
+      ]
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/js/{id}/resources",
+      "method": "GET",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/js/{id}/resources",
+      "summary": "Js policy: resources",
+      "description": "Reachable through the Java admin client (JSPolicyResource#resources); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [],
+      "responseTypes": [
+        "application/json"
+      ],
+      "requestSchema": null,
+      "responseSchema": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/ResourceRepresentation"
+        }
+      },
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#policies()",
+        "PoliciesResource#js()",
+        "JSPoliciesResource#findById(String)",
+        "JSPolicyResource#resources()"
+      ]
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/role/search",
+      "method": "GET",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/role/search",
+      "summary": "Role policies: find by name",
+      "description": "Reachable through the Java admin client (RolePoliciesResource#findByName); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "name",
+          "in": "query",
+          "required": false,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [],
+      "responseTypes": [
+        "application/json"
+      ],
+      "requestSchema": null,
+      "responseSchema": {
+        "$ref": "#/components/schemas/RolePolicyRepresentation"
+      },
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#policies()",
+        "PoliciesResource#role()",
+        "RolePoliciesResource#findByName(String)"
+      ]
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/role/{id}",
+      "method": "GET",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/role/{id}",
+      "summary": "Role policy: to representation",
+      "description": "Reachable through the Java admin client (RolePolicyResource#toRepresentation); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [],
+      "responseTypes": [
+        "application/json"
+      ],
+      "requestSchema": null,
+      "responseSchema": {
+        "$ref": "#/components/schemas/RolePolicyRepresentation"
+      },
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#policies()",
+        "PoliciesResource#role()",
+        "RolePoliciesResource#findById(String)",
+        "RolePolicyResource#toRepresentation()"
+      ]
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/role/{id}/associatedPolicies",
+      "method": "GET",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/role/{id}/associatedPolicies",
+      "summary": "Role policy: associated policies",
+      "description": "Reachable through the Java admin client (RolePolicyResource#associatedPolicies); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [],
+      "responseTypes": [
+        "application/json"
+      ],
+      "requestSchema": null,
+      "responseSchema": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/PolicyRepresentation"
+        }
+      },
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#policies()",
+        "PoliciesResource#role()",
+        "RolePoliciesResource#findById(String)",
+        "RolePolicyResource#associatedPolicies()"
+      ]
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/role/{id}/dependentPolicies",
+      "method": "GET",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/role/{id}/dependentPolicies",
+      "summary": "Role policy: dependent policies",
+      "description": "Reachable through the Java admin client (RolePolicyResource#dependentPolicies); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [],
+      "responseTypes": [
+        "application/json"
+      ],
+      "requestSchema": null,
+      "responseSchema": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/PolicyRepresentation"
+        }
+      },
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#policies()",
+        "PoliciesResource#role()",
+        "RolePoliciesResource#findById(String)",
+        "RolePolicyResource#dependentPolicies()"
+      ]
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/role/{id}/resources",
+      "method": "GET",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/role/{id}/resources",
+      "summary": "Role policy: resources",
+      "description": "Reachable through the Java admin client (RolePolicyResource#resources); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [],
+      "responseTypes": [
+        "application/json"
+      ],
+      "requestSchema": null,
+      "responseSchema": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/ResourceRepresentation"
+        }
+      },
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#policies()",
+        "PoliciesResource#role()",
+        "RolePoliciesResource#findById(String)",
+        "RolePolicyResource#resources()"
+      ]
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/time/search",
+      "method": "GET",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/time/search",
+      "summary": "Time policies: find by name",
+      "description": "Reachable through the Java admin client (TimePoliciesResource#findByName); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "name",
+          "in": "query",
+          "required": false,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [],
+      "responseTypes": [
+        "application/json"
+      ],
+      "requestSchema": null,
+      "responseSchema": {
+        "$ref": "#/components/schemas/TimePolicyRepresentation"
+      },
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#policies()",
+        "PoliciesResource#time()",
+        "TimePoliciesResource#findByName(String)"
+      ]
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/time/{id}",
+      "method": "GET",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/time/{id}",
+      "summary": "Time policy: to representation",
+      "description": "Reachable through the Java admin client (TimePolicyResource#toRepresentation); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [],
+      "responseTypes": [
+        "application/json"
+      ],
+      "requestSchema": null,
+      "responseSchema": {
+        "$ref": "#/components/schemas/TimePolicyRepresentation"
+      },
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#policies()",
+        "PoliciesResource#time()",
+        "TimePoliciesResource#findById(String)",
+        "TimePolicyResource#toRepresentation()"
+      ]
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/time/{id}/associatedPolicies",
+      "method": "GET",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/time/{id}/associatedPolicies",
+      "summary": "Time policy: associated policies",
+      "description": "Reachable through the Java admin client (TimePolicyResource#associatedPolicies); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [],
+      "responseTypes": [
+        "application/json"
+      ],
+      "requestSchema": null,
+      "responseSchema": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/PolicyRepresentation"
+        }
+      },
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#policies()",
+        "PoliciesResource#time()",
+        "TimePoliciesResource#findById(String)",
+        "TimePolicyResource#associatedPolicies()"
+      ]
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/time/{id}/dependentPolicies",
+      "method": "GET",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/time/{id}/dependentPolicies",
+      "summary": "Time policy: dependent policies",
+      "description": "Reachable through the Java admin client (TimePolicyResource#dependentPolicies); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [],
+      "responseTypes": [
+        "application/json"
+      ],
+      "requestSchema": null,
+      "responseSchema": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/PolicyRepresentation"
+        }
+      },
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#policies()",
+        "PoliciesResource#time()",
+        "TimePoliciesResource#findById(String)",
+        "TimePolicyResource#dependentPolicies()"
+      ]
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/time/{id}/resources",
+      "method": "GET",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/time/{id}/resources",
+      "summary": "Time policy: resources",
+      "description": "Reachable through the Java admin client (TimePolicyResource#resources); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [],
+      "responseTypes": [
+        "application/json"
+      ],
+      "requestSchema": null,
+      "responseSchema": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/ResourceRepresentation"
+        }
+      },
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#policies()",
+        "PoliciesResource#time()",
+        "TimePoliciesResource#findById(String)",
+        "TimePolicyResource#resources()"
+      ]
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/user/search",
+      "method": "GET",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/user/search",
+      "summary": "User policies: find by name",
+      "description": "Reachable through the Java admin client (UserPoliciesResource#findByName); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "name",
+          "in": "query",
+          "required": false,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [],
+      "responseTypes": [
+        "application/json"
+      ],
+      "requestSchema": null,
+      "responseSchema": {
+        "$ref": "#/components/schemas/UserPolicyRepresentation"
+      },
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#policies()",
+        "PoliciesResource#user()",
+        "UserPoliciesResource#findByName(String)"
+      ]
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/user/{id}",
+      "method": "GET",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/user/{id}",
+      "summary": "User policy: to representation",
+      "description": "Reachable through the Java admin client (UserPolicyResource#toRepresentation); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [],
+      "responseTypes": [
+        "application/json"
+      ],
+      "requestSchema": null,
+      "responseSchema": {
+        "$ref": "#/components/schemas/UserPolicyRepresentation"
+      },
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#policies()",
+        "PoliciesResource#user()",
+        "UserPoliciesResource#findById(String)",
+        "UserPolicyResource#toRepresentation()"
+      ]
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/user/{id}/associatedPolicies",
+      "method": "GET",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/user/{id}/associatedPolicies",
+      "summary": "User policy: associated policies",
+      "description": "Reachable through the Java admin client (UserPolicyResource#associatedPolicies); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [],
+      "responseTypes": [
+        "application/json"
+      ],
+      "requestSchema": null,
+      "responseSchema": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/PolicyRepresentation"
+        }
+      },
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#policies()",
+        "PoliciesResource#user()",
+        "UserPoliciesResource#findById(String)",
+        "UserPolicyResource#associatedPolicies()"
+      ]
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/user/{id}/dependentPolicies",
+      "method": "GET",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/user/{id}/dependentPolicies",
+      "summary": "User policy: dependent policies",
+      "description": "Reachable through the Java admin client (UserPolicyResource#dependentPolicies); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [],
+      "responseTypes": [
+        "application/json"
+      ],
+      "requestSchema": null,
+      "responseSchema": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/PolicyRepresentation"
+        }
+      },
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#policies()",
+        "PoliciesResource#user()",
+        "UserPoliciesResource#findById(String)",
+        "UserPolicyResource#dependentPolicies()"
+      ]
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/user/{id}/resources",
+      "method": "GET",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/user/{id}/resources",
+      "summary": "User policy: resources",
+      "description": "Reachable through the Java admin client (UserPolicyResource#resources); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [],
+      "responseTypes": [
+        "application/json"
+      ],
+      "requestSchema": null,
+      "responseSchema": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/ResourceRepresentation"
+        }
+      },
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#policies()",
+        "PoliciesResource#user()",
+        "UserPoliciesResource#findById(String)",
+        "UserPolicyResource#resources()"
+      ]
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/{id}",
+      "method": "GET",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/{id}",
+      "summary": "Policy: to representation",
+      "description": "Reachable through the Java admin client (PolicyResource#toRepresentation); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "fields",
+          "in": "query",
+          "required": false,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [],
+      "responseTypes": [
+        "application/json"
+      ],
+      "requestSchema": null,
+      "responseSchema": {
+        "$ref": "#/components/schemas/PolicyRepresentation"
+      },
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#policies()",
+        "PoliciesResource#policy(String)",
+        "PolicyResource#toRepresentation(String)"
+      ]
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/{id}/associatedPolicies",
+      "method": "GET",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/{id}/associatedPolicies",
+      "summary": "Policy: associated policies",
+      "description": "Reachable through the Java admin client (PolicyResource#associatedPolicies); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [],
+      "responseTypes": [
+        "application/json"
+      ],
+      "requestSchema": null,
+      "responseSchema": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/PolicyRepresentation"
+        }
+      },
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#policies()",
+        "PoliciesResource#policy(String)",
+        "PolicyResource#associatedPolicies()"
+      ]
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/{id}/dependentPolicies",
+      "method": "GET",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/{id}/dependentPolicies",
+      "summary": "Policy: dependent policies",
+      "description": "Reachable through the Java admin client (PolicyResource#dependentPolicies); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [],
+      "responseTypes": [
+        "application/json"
+      ],
+      "requestSchema": null,
+      "responseSchema": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/PolicyRepresentation"
+        }
+      },
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#policies()",
+        "PoliciesResource#policy(String)",
+        "PolicyResource#dependentPolicies()"
+      ]
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/{id}/resources",
+      "method": "GET",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/{id}/resources",
+      "summary": "Policy: resources",
+      "description": "Reachable through the Java admin client (PolicyResource#resources); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [],
+      "responseTypes": [
+        "application/json"
+      ],
+      "requestSchema": null,
+      "responseSchema": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/ResourceRepresentation"
+        }
+      },
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#policies()",
+        "PoliciesResource#policy(String)",
+        "PolicyResource#resources()"
+      ]
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/{id}/scopes",
+      "method": "GET",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/{id}/scopes",
+      "summary": "Policy: scopes",
+      "description": "Reachable through the Java admin client (PolicyResource#scopes); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [],
+      "responseTypes": [
+        "application/json"
+      ],
+      "requestSchema": null,
+      "responseSchema": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/ScopeRepresentation"
+        }
+      },
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#policies()",
+        "PoliciesResource#policy(String)",
+        "PolicyResource#scopes()"
+      ]
+    },
+    {
+      "key": "GET /admin/realms/{realm}/users/{user-id}/vc/credentials",
+      "method": "GET",
+      "path": "/admin/realms/{realm}/users/{user-id}/vc/credentials",
+      "summary": "User verifiable credential: get credentials",
+      "description": "Reachable through the Java admin client (UserVerifiableCredentialResource#getCredentials); absent from the Keycloak OpenAPI definition.",
+      "tags": [
+        "Users"
+      ],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "user-id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [],
+      "responseTypes": [
+        "application/json"
+      ],
+      "requestSchema": null,
+      "responseSchema": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/UserVerifiableCredentialRepresentation"
+        }
+      },
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#users()",
+        "UsersResource#get(String)",
+        "UserResource#verifiableCredentials()",
+        "UserVerifiableCredentialResource#getCredentials()"
+      ]
+    },
+    {
+      "key": "GET /admin/realms/{realm}/users/{user-id}/vc/issued-credentials",
+      "method": "GET",
+      "path": "/admin/realms/{realm}/users/{user-id}/vc/issued-credentials",
+      "summary": "User verifiable credential: get issued credentials",
+      "description": "Reachable through the Java admin client (UserVerifiableCredentialResource#getIssuedCredentials); absent from the Keycloak OpenAPI definition.",
+      "tags": [
+        "Users"
+      ],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "user-id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [],
+      "responseTypes": [
+        "application/json"
+      ],
+      "requestSchema": null,
+      "responseSchema": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/IssuedVerifiableCredentialRepresentation"
+        }
+      },
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#users()",
+        "UsersResource#get(String)",
+        "UserResource#verifiableCredentials()",
+        "UserVerifiableCredentialResource#getIssuedCredentials()"
+      ]
+    },
+    {
+      "key": "GET /admin/serverinfo",
+      "method": "GET",
+      "path": "/admin/serverinfo",
+      "summary": "Server info: get info",
+      "description": "Reachable through the Java admin client (ServerInfoResource#getInfo); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [],
+      "requestTypes": [],
+      "responseTypes": [
+        "application/json"
+      ],
+      "requestSchema": null,
+      "responseSchema": {
+        "$ref": "#/components/schemas/ServerInfoRepresentation"
+      },
+      "adminClient": [
+        "ServerInfoResource#getInfo()"
+      ]
+    },
+    {
+      "key": "POST /admin/realms/{realm}/clear-crl-cache",
+      "method": "POST",
+      "path": "/admin/realms/{realm}/clear-crl-cache",
+      "summary": "Realm: clear crl cache",
+      "description": "Reachable through the Java admin client (RealmResource#clearCrlCache); absent from the Keycloak OpenAPI definition.",
+      "tags": [
+        "Realms Admin"
+      ],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [],
+      "responseTypes": [],
+      "requestSchema": null,
+      "responseSchema": null,
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clearCrlCache()"
+      ]
+    },
+    {
+      "key": "POST /admin/realms/{realm}/clear-keys-cache",
+      "method": "POST",
+      "path": "/admin/realms/{realm}/clear-keys-cache",
+      "summary": "Realm: clear keys cache",
+      "description": "Reachable through the Java admin client (RealmResource#clearKeysCache); absent from the Keycloak OpenAPI definition.",
+      "tags": [
+        "Realms Admin"
+      ],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [],
+      "responseTypes": [],
+      "requestSchema": null,
+      "responseSchema": null,
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clearKeysCache()"
+      ]
+    },
+    {
+      "key": "POST /admin/realms/{realm}/clear-realm-cache",
+      "method": "POST",
+      "path": "/admin/realms/{realm}/clear-realm-cache",
+      "summary": "Realm: clear realm cache",
+      "description": "Reachable through the Java admin client (RealmResource#clearRealmCache); absent from the Keycloak OpenAPI definition.",
+      "tags": [
+        "Realms Admin"
+      ],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [],
+      "responseTypes": [],
+      "requestSchema": null,
+      "responseSchema": null,
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clearRealmCache()"
+      ]
+    },
+    {
+      "key": "POST /admin/realms/{realm}/clear-user-cache",
+      "method": "POST",
+      "path": "/admin/realms/{realm}/clear-user-cache",
+      "summary": "Realm: clear user cache",
+      "description": "Reachable through the Java admin client (RealmResource#clearUserCache); absent from the Keycloak OpenAPI definition.",
+      "tags": [
+        "Realms Admin"
+      ],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [],
+      "responseTypes": [],
+      "requestSchema": null,
+      "responseSchema": null,
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clearUserCache()"
+      ]
+    },
+    {
+      "key": "POST /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/permission/resource",
+      "method": "POST",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/permission/resource",
+      "summary": "Resource permissions: create",
+      "description": "Reachable through the Java admin client (ResourcePermissionsResource#create); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [
+        "application/json"
+      ],
+      "responseTypes": [
+        "application/json"
+      ],
+      "requestSchema": {
+        "$ref": "#/components/schemas/ResourcePermissionRepresentation"
+      },
+      "responseSchema": null,
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#permissions()",
+        "PermissionsResource#resource()",
+        "ResourcePermissionsResource#create(ResourcePermissionRepresentation)"
+      ]
+    },
+    {
+      "key": "POST /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/permission/scope",
+      "method": "POST",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/permission/scope",
+      "summary": "Scope permissions: create",
+      "description": "Reachable through the Java admin client (ScopePermissionsResource#create); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [
+        "application/json"
+      ],
+      "responseTypes": [
+        "application/json"
+      ],
+      "requestSchema": {
+        "$ref": "#/components/schemas/ScopePermissionRepresentation"
+      },
+      "responseSchema": null,
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#permissions()",
+        "PermissionsResource#scope()",
+        "ScopePermissionsResource#create(ScopePermissionRepresentation)"
+      ]
+    },
+    {
+      "key": "POST /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/aggregate",
+      "method": "POST",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/aggregate",
+      "summary": "Aggregate policies: create",
+      "description": "Reachable through the Java admin client (AggregatePoliciesResource#create); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [
+        "application/json"
+      ],
+      "responseTypes": [
+        "application/json"
+      ],
+      "requestSchema": {
+        "$ref": "#/components/schemas/AggregatePolicyRepresentation"
+      },
+      "responseSchema": null,
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#policies()",
+        "PoliciesResource#aggregate()",
+        "AggregatePoliciesResource#create(AggregatePolicyRepresentation)"
+      ]
+    },
+    {
+      "key": "POST /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/client",
+      "method": "POST",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/client",
+      "summary": "Client policies: create",
+      "description": "Reachable through the Java admin client (ClientPoliciesResource#create); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [
+        "application/json"
+      ],
+      "responseTypes": [
+        "application/json"
+      ],
+      "requestSchema": {
+        "$ref": "#/components/schemas/ClientPolicyRepresentation"
+      },
+      "responseSchema": null,
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#policies()",
+        "PoliciesResource#client()",
+        "ClientPoliciesResource#create(ClientPolicyRepresentation)"
+      ]
+    },
+    {
+      "key": "POST /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/client-scope",
+      "method": "POST",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/client-scope",
+      "summary": "Client scope policies: create",
+      "description": "Reachable through the Java admin client (ClientScopePoliciesResource#create); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [
+        "application/json"
+      ],
+      "responseTypes": [
+        "application/json"
+      ],
+      "requestSchema": {
+        "$ref": "#/components/schemas/ClientScopePolicyRepresentation"
+      },
+      "responseSchema": null,
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#policies()",
+        "PoliciesResource#clientScope()",
+        "ClientScopePoliciesResource#create(ClientScopePolicyRepresentation)"
+      ]
+    },
+    {
+      "key": "POST /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/group",
+      "method": "POST",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/group",
+      "summary": "Group policies: create",
+      "description": "Reachable through the Java admin client (GroupPoliciesResource#create); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [
+        "application/json"
+      ],
+      "responseTypes": [
+        "application/json"
+      ],
+      "requestSchema": {
+        "$ref": "#/components/schemas/GroupPolicyRepresentation"
+      },
+      "responseSchema": null,
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#policies()",
+        "PoliciesResource#group()",
+        "GroupPoliciesResource#create(GroupPolicyRepresentation)"
+      ]
+    },
+    {
+      "key": "POST /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/js",
+      "method": "POST",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/js",
+      "summary": "Js policies: create",
+      "description": "Reachable through the Java admin client (JSPoliciesResource#create); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [
+        "application/json"
+      ],
+      "responseTypes": [
+        "application/json"
+      ],
+      "requestSchema": {
+        "$ref": "#/components/schemas/JSPolicyRepresentation"
+      },
+      "responseSchema": null,
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#policies()",
+        "PoliciesResource#js()",
+        "JSPoliciesResource#create(JSPolicyRepresentation)"
+      ]
+    },
+    {
+      "key": "POST /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/regex",
+      "method": "POST",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/regex",
+      "summary": "Regex policies: create",
+      "description": "Reachable through the Java admin client (RegexPoliciesResource#create); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [
+        "application/json"
+      ],
+      "responseTypes": [
+        "application/json"
+      ],
+      "requestSchema": {
+        "$ref": "#/components/schemas/RegexPolicyRepresentation"
+      },
+      "responseSchema": null,
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#policies()",
+        "PoliciesResource#regex()",
+        "RegexPoliciesResource#create(RegexPolicyRepresentation)"
+      ]
+    },
+    {
+      "key": "POST /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/role",
+      "method": "POST",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/role",
+      "summary": "Role policies: create",
+      "description": "Reachable through the Java admin client (RolePoliciesResource#create); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [
+        "application/json"
+      ],
+      "responseTypes": [
+        "application/json"
+      ],
+      "requestSchema": {
+        "$ref": "#/components/schemas/RolePolicyRepresentation"
+      },
+      "responseSchema": null,
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#policies()",
+        "PoliciesResource#role()",
+        "RolePoliciesResource#create(RolePolicyRepresentation)"
+      ]
+    },
+    {
+      "key": "POST /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/time",
+      "method": "POST",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/time",
+      "summary": "Time policies: create",
+      "description": "Reachable through the Java admin client (TimePoliciesResource#create); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [
+        "application/json"
+      ],
+      "responseTypes": [
+        "application/json"
+      ],
+      "requestSchema": {
+        "$ref": "#/components/schemas/TimePolicyRepresentation"
+      },
+      "responseSchema": null,
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#policies()",
+        "PoliciesResource#time()",
+        "TimePoliciesResource#create(TimePolicyRepresentation)"
+      ]
+    },
+    {
+      "key": "POST /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/user",
+      "method": "POST",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/user",
+      "summary": "User policies: create",
+      "description": "Reachable through the Java admin client (UserPoliciesResource#create); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [
+        "application/json"
+      ],
+      "responseTypes": [
+        "application/json"
+      ],
+      "requestSchema": {
+        "$ref": "#/components/schemas/UserPolicyRepresentation"
+      },
+      "responseSchema": null,
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#policies()",
+        "PoliciesResource#user()",
+        "UserPoliciesResource#create(UserPolicyRepresentation)"
+      ]
+    },
+    {
+      "key": "POST /admin/realms/{realm}/ldap-server-capabilities",
+      "method": "POST",
+      "path": "/admin/realms/{realm}/ldap-server-capabilities",
+      "summary": "Realm: ldap server capabilities",
+      "description": "Reachable through the Java admin client (RealmResource#ldapServerCapabilities); absent from the Keycloak OpenAPI definition.",
+      "tags": [
+        "Realms Admin"
+      ],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [
+        "application/json"
+      ],
+      "responseTypes": [
+        "application/json"
+      ],
+      "requestSchema": {
+        "$ref": "#/components/schemas/TestLdapConnectionRepresentation"
+      },
+      "responseSchema": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/LDAPCapabilityRepresentation"
+        }
+      },
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#ldapServerCapabilities(TestLdapConnectionRepresentation)"
+      ]
+    },
+    {
+      "key": "POST /admin/realms/{realm}/testLDAPConnection",
+      "method": "POST",
+      "path": "/admin/realms/{realm}/testLDAPConnection",
+      "summary": "Realm: test ldap connection",
+      "description": "Reachable through the Java admin client (RealmResource#testLDAPConnection); absent from the Keycloak OpenAPI definition.",
+      "tags": [
+        "Realms Admin"
+      ],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [
+        "application/json",
+        "application/x-www-form-urlencoded"
+      ],
+      "responseTypes": [],
+      "requestSchema": {
+        "$ref": "#/components/schemas/TestLdapConnectionRepresentation"
+      },
+      "responseSchema": null,
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#testLDAPConnection(TestLdapConnectionRepresentation)"
+      ]
+    },
+    {
+      "key": "POST /admin/realms/{realm}/user-storage/{componentId}/mappers/{mapperId}/sync",
+      "method": "POST",
+      "path": "/admin/realms/{realm}/user-storage/{componentId}/mappers/{mapperId}/sync",
+      "summary": "User storage provider: sync mapper data",
+      "description": "Reachable through the Java admin client (UserStorageProviderResource#syncMapperData); absent from the Keycloak OpenAPI definition.",
+      "tags": [
+        "Realms Admin"
+      ],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "componentId",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "mapperId",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "direction",
+          "in": "query",
+          "required": false,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [],
+      "responseTypes": [
+        "application/json"
+      ],
+      "requestSchema": null,
+      "responseSchema": {
+        "$ref": "#/components/schemas/SynchronizationResultRepresentation"
+      },
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#userStorage()",
+        "UserStorageProviderResource#syncMapperData(String,String,String)"
+      ]
+    },
+    {
+      "key": "POST /admin/realms/{realm}/user-storage/{componentId}/remove-imported-users",
+      "method": "POST",
+      "path": "/admin/realms/{realm}/user-storage/{componentId}/remove-imported-users",
+      "summary": "User storage provider: remove imported users",
+      "description": "Reachable through the Java admin client (UserStorageProviderResource#removeImportedUsers); absent from the Keycloak OpenAPI definition.",
+      "tags": [
+        "Realms Admin"
+      ],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "componentId",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [],
+      "responseTypes": [
+        "application/json"
+      ],
+      "requestSchema": null,
+      "responseSchema": null,
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#userStorage()",
+        "UserStorageProviderResource#removeImportedUsers(String)"
+      ]
+    },
+    {
+      "key": "POST /admin/realms/{realm}/user-storage/{componentId}/sync",
+      "method": "POST",
+      "path": "/admin/realms/{realm}/user-storage/{componentId}/sync",
+      "summary": "User storage provider: sync users",
+      "description": "Reachable through the Java admin client (UserStorageProviderResource#syncUsers); absent from the Keycloak OpenAPI definition.",
+      "tags": [
+        "Realms Admin"
+      ],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "componentId",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "action",
+          "in": "query",
+          "required": false,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [],
+      "responseTypes": [
+        "application/json"
+      ],
+      "requestSchema": null,
+      "responseSchema": {
+        "$ref": "#/components/schemas/SynchronizationResultRepresentation"
+      },
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#userStorage()",
+        "UserStorageProviderResource#syncUsers(String,String)"
+      ]
+    },
+    {
+      "key": "POST /admin/realms/{realm}/user-storage/{componentId}/unlink-users",
+      "method": "POST",
+      "path": "/admin/realms/{realm}/user-storage/{componentId}/unlink-users",
+      "summary": "User storage provider: unlink",
+      "description": "Reachable through the Java admin client (UserStorageProviderResource#unlink); absent from the Keycloak OpenAPI definition.",
+      "tags": [
+        "Realms Admin"
+      ],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "componentId",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [],
+      "responseTypes": [
+        "application/json"
+      ],
+      "requestSchema": null,
+      "responseSchema": null,
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#userStorage()",
+        "UserStorageProviderResource#unlink(String)"
+      ]
+    },
+    {
+      "key": "POST /admin/realms/{realm}/users/{user-id}/vc/credentials",
+      "method": "POST",
+      "path": "/admin/realms/{realm}/users/{user-id}/vc/credentials",
+      "summary": "User verifiable credential: create credential",
+      "description": "Reachable through the Java admin client (UserVerifiableCredentialResource#createCredential); absent from the Keycloak OpenAPI definition.",
+      "tags": [
+        "Users"
+      ],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "user-id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [
+        "application/json"
+      ],
+      "responseTypes": [],
+      "requestSchema": {
+        "$ref": "#/components/schemas/UserVerifiableCredentialRepresentation"
+      },
+      "responseSchema": {
+        "$ref": "#/components/schemas/UserVerifiableCredentialRepresentation"
+      },
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#users()",
+        "UsersResource#get(String)",
+        "UserResource#verifiableCredentials()",
+        "UserVerifiableCredentialResource#createCredential(UserVerifiableCredentialRepresentation)"
+      ]
+    },
+    {
+      "key": "PUT /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/permission/resource/{id}",
+      "method": "PUT",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/permission/resource/{id}",
+      "summary": "Resource permission: update",
+      "description": "Reachable through the Java admin client (ResourcePermissionResource#update); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [
+        "application/json"
+      ],
+      "responseTypes": [],
+      "requestSchema": {
+        "$ref": "#/components/schemas/ResourcePermissionRepresentation"
+      },
+      "responseSchema": null,
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#permissions()",
+        "PermissionsResource#resource()",
+        "ResourcePermissionsResource#findById(String)",
+        "ResourcePermissionResource#update(ResourcePermissionRepresentation)"
+      ]
+    },
+    {
+      "key": "PUT /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/permission/scope/{id}",
+      "method": "PUT",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/permission/scope/{id}",
+      "summary": "Scope permission: update",
+      "description": "Reachable through the Java admin client (ScopePermissionResource#update); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [
+        "application/json"
+      ],
+      "responseTypes": [],
+      "requestSchema": {
+        "$ref": "#/components/schemas/ScopePermissionRepresentation"
+      },
+      "responseSchema": null,
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#permissions()",
+        "PermissionsResource#scope()",
+        "ScopePermissionsResource#findById(String)",
+        "ScopePermissionResource#update(ScopePermissionRepresentation)"
+      ]
+    },
+    {
+      "key": "PUT /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/aggregate/{id}",
+      "method": "PUT",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/aggregate/{id}",
+      "summary": "Aggregate policy: update",
+      "description": "Reachable through the Java admin client (AggregatePolicyResource#update); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [
+        "application/json"
+      ],
+      "responseTypes": [],
+      "requestSchema": {
+        "$ref": "#/components/schemas/AggregatePolicyRepresentation"
+      },
+      "responseSchema": null,
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#policies()",
+        "PoliciesResource#aggregate()",
+        "AggregatePoliciesResource#findById(String)",
+        "AggregatePolicyResource#update(AggregatePolicyRepresentation)"
+      ]
+    },
+    {
+      "key": "PUT /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/client/{id}",
+      "method": "PUT",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/client/{id}",
+      "summary": "Client policy: update",
+      "description": "Reachable through the Java admin client (ClientPolicyResource#update); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [
+        "application/json"
+      ],
+      "responseTypes": [],
+      "requestSchema": {
+        "$ref": "#/components/schemas/ClientPolicyRepresentation"
+      },
+      "responseSchema": null,
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#policies()",
+        "PoliciesResource#client()",
+        "ClientPoliciesResource#findById(String)",
+        "ClientPolicyResource#update(ClientPolicyRepresentation)"
+      ]
+    },
+    {
+      "key": "PUT /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/group/{id}",
+      "method": "PUT",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/group/{id}",
+      "summary": "Group policy: update",
+      "description": "Reachable through the Java admin client (GroupPolicyResource#update); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [
+        "application/json"
+      ],
+      "responseTypes": [],
+      "requestSchema": {
+        "$ref": "#/components/schemas/GroupPolicyRepresentation"
+      },
+      "responseSchema": null,
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#policies()",
+        "PoliciesResource#group()",
+        "GroupPoliciesResource#findById(String)",
+        "GroupPolicyResource#update(GroupPolicyRepresentation)"
+      ]
+    },
+    {
+      "key": "PUT /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/js/{id}",
+      "method": "PUT",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/js/{id}",
+      "summary": "Js policy: update",
+      "description": "Reachable through the Java admin client (JSPolicyResource#update); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [
+        "application/json"
+      ],
+      "responseTypes": [],
+      "requestSchema": {
+        "$ref": "#/components/schemas/JSPolicyRepresentation"
+      },
+      "responseSchema": null,
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#policies()",
+        "PoliciesResource#js()",
+        "JSPoliciesResource#findById(String)",
+        "JSPolicyResource#update(JSPolicyRepresentation)"
+      ]
+    },
+    {
+      "key": "PUT /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/role/{id}",
+      "method": "PUT",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/role/{id}",
+      "summary": "Role policy: update",
+      "description": "Reachable through the Java admin client (RolePolicyResource#update); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [
+        "application/json"
+      ],
+      "responseTypes": [],
+      "requestSchema": {
+        "$ref": "#/components/schemas/RolePolicyRepresentation"
+      },
+      "responseSchema": null,
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#policies()",
+        "PoliciesResource#role()",
+        "RolePoliciesResource#findById(String)",
+        "RolePolicyResource#update(RolePolicyRepresentation)"
+      ]
+    },
+    {
+      "key": "PUT /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/time/{id}",
+      "method": "PUT",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/time/{id}",
+      "summary": "Time policy: update",
+      "description": "Reachable through the Java admin client (TimePolicyResource#update); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [
+        "application/json"
+      ],
+      "responseTypes": [],
+      "requestSchema": {
+        "$ref": "#/components/schemas/TimePolicyRepresentation"
+      },
+      "responseSchema": null,
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#policies()",
+        "PoliciesResource#time()",
+        "TimePoliciesResource#findById(String)",
+        "TimePolicyResource#update(TimePolicyRepresentation)"
+      ]
+    },
+    {
+      "key": "PUT /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/user/{id}",
+      "method": "PUT",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/user/{id}",
+      "summary": "User policy: update",
+      "description": "Reachable through the Java admin client (UserPolicyResource#update); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [
+        "application/json"
+      ],
+      "responseTypes": [],
+      "requestSchema": {
+        "$ref": "#/components/schemas/UserPolicyRepresentation"
+      },
+      "responseSchema": null,
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#policies()",
+        "PoliciesResource#user()",
+        "UserPoliciesResource#findById(String)",
+        "UserPolicyResource#update(UserPolicyRepresentation)"
+      ]
+    },
+    {
+      "key": "PUT /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/{id}",
+      "method": "PUT",
+      "path": "/admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/{id}",
+      "summary": "Policy: update",
+      "description": "Reachable through the Java admin client (PolicyResource#update); absent from the Keycloak OpenAPI definition.",
+      "tags": [],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client-uuid",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [
+        "application/json"
+      ],
+      "responseTypes": [],
+      "requestSchema": {
+        "$ref": "#/components/schemas/PolicyRepresentation"
+      },
+      "responseSchema": null,
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#clients()",
+        "ClientsResource#get(String)",
+        "ClientResource#authorization()",
+        "AuthorizationResource#policies()",
+        "PoliciesResource#policy(String)",
+        "PolicyResource#update(PolicyRepresentation)"
+      ]
+    },
+    {
+      "key": "PUT /admin/realms/{realm}/users/{user-id}/vc/credentials/send-credential-offer",
+      "method": "PUT",
+      "path": "/admin/realms/{realm}/users/{user-id}/vc/credentials/send-credential-offer",
+      "summary": "User verifiable credential: send credential offer",
+      "description": "Reachable through the Java admin client (UserVerifiableCredentialResource#sendCredentialOffer); absent from the Keycloak OpenAPI definition.",
+      "tags": [
+        "Users"
+      ],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "user-id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "client_id",
+          "in": "query",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "lifespan",
+          "in": "query",
+          "required": false,
+          "type": "integer"
+        },
+        {
+          "name": "redirect_uri",
+          "in": "query",
+          "required": false,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [
+        "application/json"
+      ],
+      "responseTypes": [],
+      "requestSchema": {
+        "$ref": "#/components/schemas/VerifiableCredentialOfferActionConfig"
+      },
+      "responseSchema": null,
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#users()",
+        "UsersResource#get(String)",
+        "UserResource#verifiableCredentials()",
+        "UserVerifiableCredentialResource#sendCredentialOffer(String,String,Integer,VerifiableCredentialOfferActionConfig)"
+      ]
+    },
+    {
+      "key": "PUT /admin/realms/{realm}/users/{user-id}/vc/credentials/{credentialScopeName}",
+      "method": "PUT",
+      "path": "/admin/realms/{realm}/users/{user-id}/vc/credentials/{credentialScopeName}",
+      "summary": "User verifiable credential: update credential",
+      "description": "Reachable through the Java admin client (UserVerifiableCredentialResource#updateCredential); absent from the Keycloak OpenAPI definition.",
+      "tags": [
+        "Users"
+      ],
+      "parameters": [
+        {
+          "name": "realm",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "user-id",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "credentialScopeName",
+          "in": "path",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "requestTypes": [],
+      "responseTypes": [
+        "application/json"
+      ],
+      "requestSchema": null,
+      "responseSchema": {
+        "$ref": "#/components/schemas/UserVerifiableCredentialRepresentation"
+      },
+      "adminClient": [
+        "RealmsResource#realm(String)",
+        "RealmResource#users()",
+        "UsersResource#get(String)",
+        "UserResource#verifiableCredentials()",
+        "UserVerifiableCredentialResource#updateCredential(String)"
+      ]
+    }
+  ],
+  "schemas": {
+    "AggregatePolicyRepresentation": {
+      "type": "object",
+      "properties": {
+        "decisionStrategy": {
+          "type": "string",
+          "enum": [
+            "AFFIRMATIVE",
+            "UNANIMOUS",
+            "CONSENSUS"
+          ]
+        },
+        "description": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "logic": {
+          "type": "string",
+          "enum": [
+            "POSITIVE",
+            "NEGATIVE"
+          ]
+        },
+        "name": {
+          "type": "string"
+        },
+        "owner": {
+          "type": "string"
+        },
+        "policies": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "resourceType": {
+          "type": "string"
+        },
+        "resources": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "resourcesData": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/ResourceRepresentation"
+          },
+          "uniqueItems": true
+        },
+        "scopes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "scopesData": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/ScopeRepresentation"
+          },
+          "uniqueItems": true
+        },
+        "type": {
+          "type": "string"
+        }
+      }
+    },
+    "ClientInstallationRepresentation": {
+      "type": "object",
+      "properties": {
+        "displayType": {
+          "type": "string"
+        },
+        "downloadOnly": {
+          "type": "boolean"
+        },
+        "filename": {
+          "type": "string"
+        },
+        "helpText": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "mediaType": {
+          "type": "string"
+        },
+        "protocol": {
+          "type": "string"
+        }
+      }
+    },
+    "ClientScopeDefinition": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "required": {
+          "type": "boolean"
+        }
+      }
+    },
+    "ClientScopePolicyRepresentation": {
+      "type": "object",
+      "properties": {
+        "clientScopes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/ClientScopeDefinition"
+          },
+          "uniqueItems": true
+        },
+        "decisionStrategy": {
+          "type": "string",
+          "enum": [
+            "AFFIRMATIVE",
+            "UNANIMOUS",
+            "CONSENSUS"
+          ]
+        },
+        "description": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "logic": {
+          "type": "string",
+          "enum": [
+            "POSITIVE",
+            "NEGATIVE"
+          ]
+        },
+        "name": {
+          "type": "string"
+        },
+        "owner": {
+          "type": "string"
+        },
+        "policies": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "resourceType": {
+          "type": "string"
+        },
+        "resources": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "resourcesData": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/ResourceRepresentation"
+          },
+          "uniqueItems": true
+        },
+        "scopes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "scopesData": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/ScopeRepresentation"
+          },
+          "uniqueItems": true
+        },
+        "type": {
+          "type": "string"
+        }
+      }
+    },
+    "CpuInfoRepresentation": {
+      "type": "object",
+      "properties": {
+        "processorCount": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
+    "CryptoInfoRepresentation": {
+      "type": "object",
+      "properties": {
+        "clientSignatureAsymmetricAlgorithms": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "clientSignatureSymmetricAlgorithms": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "cryptoProvider": {
+          "type": "string"
+        },
+        "supportedKeystoreTypes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "FeatureRepresentation": {
+      "type": "object",
+      "properties": {
+        "dependencies": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "deprecated": {
+          "type": "boolean"
+        },
+        "enabled": {
+          "type": "boolean"
+        },
+        "label": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "DEFAULT",
+            "DISABLED_BY_DEFAULT",
+            "PREVIEW",
+            "PREVIEW_DISABLED_BY_DEFAULT",
+            "EXPERIMENTAL",
+            "DEPRECATED"
+          ]
+        }
+      }
+    },
+    "GroupDefinition": {
+      "type": "object",
+      "properties": {
+        "extendChildren": {
+          "type": "boolean"
+        },
+        "id": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string"
+        }
+      }
+    },
+    "GroupPolicyRepresentation": {
+      "type": "object",
+      "properties": {
+        "decisionStrategy": {
+          "type": "string",
+          "enum": [
+            "AFFIRMATIVE",
+            "UNANIMOUS",
+            "CONSENSUS"
+          ]
+        },
+        "description": {
+          "type": "string"
+        },
+        "groups": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/GroupDefinition"
+          },
+          "uniqueItems": true
+        },
+        "groupsClaim": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "logic": {
+          "type": "string",
+          "enum": [
+            "POSITIVE",
+            "NEGATIVE"
+          ]
+        },
+        "name": {
+          "type": "string"
+        },
+        "owner": {
+          "type": "string"
+        },
+        "policies": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "resourceType": {
+          "type": "string"
+        },
+        "resources": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "resourcesData": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/ResourceRepresentation"
+          },
+          "uniqueItems": true
+        },
+        "scopes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "scopesData": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/ScopeRepresentation"
+          },
+          "uniqueItems": true
+        },
+        "type": {
+          "type": "string"
+        }
+      }
+    },
+    "JSPolicyRepresentation": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "decisionStrategy": {
+          "type": "string",
+          "enum": [
+            "AFFIRMATIVE",
+            "UNANIMOUS",
+            "CONSENSUS"
+          ]
+        },
+        "description": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "logic": {
+          "type": "string",
+          "enum": [
+            "POSITIVE",
+            "NEGATIVE"
+          ]
+        },
+        "name": {
+          "type": "string"
+        },
+        "owner": {
+          "type": "string"
+        },
+        "policies": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "resourceType": {
+          "type": "string"
+        },
+        "resources": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "resourcesData": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/ResourceRepresentation"
+          },
+          "uniqueItems": true
+        },
+        "scopes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "scopesData": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/ScopeRepresentation"
+          },
+          "uniqueItems": true
+        },
+        "type": {
+          "type": "string"
+        }
+      }
+    },
+    "LDAPCapabilityRepresentation": {
+      "type": "object",
+      "properties": {
+        "oid": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "CONTROL",
+            "EXTENSION",
+            "FEATURE",
+            "UNKNOWN"
+          ]
+        }
+      }
+    },
+    "MemoryInfoRepresentation": {
+      "type": "object",
+      "properties": {
+        "free": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "freeFormated": {
+          "type": "string"
+        },
+        "freePercentage": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "total": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "totalFormated": {
+          "type": "string"
+        },
+        "used": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "usedFormated": {
+          "type": "string"
+        }
+      }
+    },
+    "ParameterizedScopeTypeRepresentation": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "repeatable": {
+          "type": "boolean"
+        }
+      }
+    },
+    "PasswordPolicyTypeRepresentation": {
+      "type": "object",
+      "properties": {
+        "configType": {
+          "type": "string"
+        },
+        "defaultValue": {
+          "type": "string"
+        },
+        "displayName": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "multipleSupported": {
+          "type": "boolean"
+        }
+      }
+    },
+    "ProfileInfoRepresentation": {
+      "type": "object",
+      "properties": {
+        "disabledFeatures": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "experimentalFeatures": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "name": {
+          "type": "string"
+        },
+        "previewFeatures": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "ProtocolMapperTypeRepresentation": {
+      "type": "object",
+      "properties": {
+        "category": {
+          "type": "string"
+        },
+        "helpText": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "priority": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "properties": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/ConfigPropertyRepresentation"
+          }
+        }
+      }
+    },
+    "ProviderRepresentation": {
+      "type": "object",
+      "properties": {
+        "operationalInfo": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "order": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
+    "RegexPolicyRepresentation": {
+      "type": "object",
+      "properties": {
+        "decisionStrategy": {
+          "type": "string",
+          "enum": [
+            "AFFIRMATIVE",
+            "UNANIMOUS",
+            "CONSENSUS"
+          ]
+        },
+        "description": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "logic": {
+          "type": "string",
+          "enum": [
+            "POSITIVE",
+            "NEGATIVE"
+          ]
+        },
+        "name": {
+          "type": "string"
+        },
+        "owner": {
+          "type": "string"
+        },
+        "pattern": {
+          "type": "string"
+        },
+        "policies": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "resourceType": {
+          "type": "string"
+        },
+        "resources": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "resourcesData": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/ResourceRepresentation"
+          },
+          "uniqueItems": true
+        },
+        "scopes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "scopesData": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/ScopeRepresentation"
+          },
+          "uniqueItems": true
+        },
+        "targetClaim": {
+          "type": "string"
+        },
+        "targetContextAttributes": {
+          "type": "boolean"
+        },
+        "type": {
+          "type": "string"
+        }
+      }
+    },
+    "ResourcePermissionRepresentation": {
+      "type": "object",
+      "properties": {
+        "decisionStrategy": {
+          "type": "string",
+          "enum": [
+            "AFFIRMATIVE",
+            "UNANIMOUS",
+            "CONSENSUS"
+          ]
+        },
+        "description": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "logic": {
+          "type": "string",
+          "enum": [
+            "POSITIVE",
+            "NEGATIVE"
+          ]
+        },
+        "name": {
+          "type": "string"
+        },
+        "owner": {
+          "type": "string"
+        },
+        "policies": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "resourceType": {
+          "type": "string"
+        },
+        "resources": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "resourcesData": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/ResourceRepresentation"
+          },
+          "uniqueItems": true
+        },
+        "scopes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "scopesData": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/ScopeRepresentation"
+          },
+          "uniqueItems": true
+        },
+        "type": {
+          "type": "string"
+        }
+      }
+    },
+    "RoleDefinition": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "required": {
+          "type": "boolean"
+        }
+      }
+    },
+    "RolePolicyRepresentation": {
+      "type": "object",
+      "properties": {
+        "decisionStrategy": {
+          "type": "string",
+          "enum": [
+            "AFFIRMATIVE",
+            "UNANIMOUS",
+            "CONSENSUS"
+          ]
+        },
+        "description": {
+          "type": "string"
+        },
+        "fetchRoles": {
+          "type": "boolean"
+        },
+        "id": {
+          "type": "string"
+        },
+        "logic": {
+          "type": "string",
+          "enum": [
+            "POSITIVE",
+            "NEGATIVE"
+          ]
+        },
+        "name": {
+          "type": "string"
+        },
+        "owner": {
+          "type": "string"
+        },
+        "policies": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "resourceType": {
+          "type": "string"
+        },
+        "resources": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "resourcesData": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/ResourceRepresentation"
+          },
+          "uniqueItems": true
+        },
+        "roles": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/RoleDefinition"
+          },
+          "uniqueItems": true
+        },
+        "scopes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "scopesData": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/ScopeRepresentation"
+          },
+          "uniqueItems": true
+        },
+        "type": {
+          "type": "string"
+        }
+      }
+    },
+    "ScopePermissionRepresentation": {
+      "type": "object",
+      "properties": {
+        "decisionStrategy": {
+          "type": "string",
+          "enum": [
+            "AFFIRMATIVE",
+            "UNANIMOUS",
+            "CONSENSUS"
+          ]
+        },
+        "description": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "logic": {
+          "type": "string",
+          "enum": [
+            "POSITIVE",
+            "NEGATIVE"
+          ]
+        },
+        "name": {
+          "type": "string"
+        },
+        "owner": {
+          "type": "string"
+        },
+        "policies": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "resourceType": {
+          "type": "string"
+        },
+        "resources": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "resourcesData": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/ResourceRepresentation"
+          },
+          "uniqueItems": true
+        },
+        "scopes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "scopesData": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/ScopeRepresentation"
+          },
+          "uniqueItems": true
+        },
+        "type": {
+          "type": "string"
+        }
+      }
+    },
+    "ServerInfoRepresentation": {
+      "type": "object",
+      "properties": {
+        "builtinProtocolMappers": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProtocolMapperRepresentation"
+            }
+          }
+        },
+        "clientImporters": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        },
+        "clientInstallations": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ClientInstallationRepresentation"
+            }
+          }
+        },
+        "componentTypes": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ComponentTypeRepresentation"
+            }
+          }
+        },
+        "cpuInfo": {
+          "$ref": "#/components/schemas/CpuInfoRepresentation"
+        },
+        "cryptoInfo": {
+          "$ref": "#/components/schemas/CryptoInfoRepresentation"
+        },
+        "enums": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "features": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/FeatureRepresentation"
+          }
+        },
+        "identityProviders": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        },
+        "memoryInfo": {
+          "$ref": "#/components/schemas/MemoryInfoRepresentation"
+        },
+        "parameterizedScopeTypes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/ParameterizedScopeTypeRepresentation"
+          }
+        },
+        "passwordPolicies": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/PasswordPolicyTypeRepresentation"
+          }
+        },
+        "profileInfo": {
+          "$ref": "#/components/schemas/ProfileInfoRepresentation"
+        },
+        "protocolMapperTypes": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProtocolMapperTypeRepresentation"
+            }
+          }
+        },
+        "providers": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/components/schemas/SpiInfoRepresentation"
+          }
+        },
+        "socialProviders": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        },
+        "systemInfo": {
+          "$ref": "#/components/schemas/SystemInfoRepresentation"
+        },
+        "themes": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ThemeInfoRepresentation"
+            }
+          }
+        }
+      }
+    },
+    "SpiInfoRepresentation": {
+      "type": "object",
+      "properties": {
+        "internal": {
+          "type": "boolean"
+        },
+        "providers": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/components/schemas/ProviderRepresentation"
+          }
+        }
+      }
+    },
+    "SynchronizationResultRepresentation": {
+      "type": "object",
+      "properties": {
+        "added": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "failed": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "ignored": {
+          "type": "boolean"
+        },
+        "removed": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "status": {
+          "type": "string"
+        },
+        "updated": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
+    "SystemInfoRepresentation": {
+      "type": "object",
+      "properties": {
+        "fileEncoding": {
+          "type": "string"
+        },
+        "javaHome": {
+          "type": "string"
+        },
+        "javaRuntime": {
+          "type": "string"
+        },
+        "javaVendor": {
+          "type": "string"
+        },
+        "javaVersion": {
+          "type": "string"
+        },
+        "javaVm": {
+          "type": "string"
+        },
+        "javaVmVersion": {
+          "type": "string"
+        },
+        "osArchitecture": {
+          "type": "string"
+        },
+        "osName": {
+          "type": "string"
+        },
+        "osVersion": {
+          "type": "string"
+        },
+        "serverTime": {
+          "type": "string"
+        },
+        "uptime": {
+          "type": "string"
+        },
+        "uptimeMillis": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "userDir": {
+          "type": "string"
+        },
+        "userLocale": {
+          "type": "string"
+        },
+        "userName": {
+          "type": "string"
+        },
+        "userTimezone": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        }
+      }
+    },
+    "TestLdapConnectionRepresentation": {
+      "type": "object",
+      "properties": {
+        "action": {
+          "type": "string"
+        },
+        "authType": {
+          "type": "string"
+        },
+        "bindCredential": {
+          "type": "string"
+        },
+        "bindDn": {
+          "type": "string"
+        },
+        "componentId": {
+          "type": "string"
+        },
+        "connectionTimeout": {
+          "type": "string"
+        },
+        "connectionUrl": {
+          "type": "string"
+        },
+        "startTls": {
+          "type": "string"
+        },
+        "useTruststoreSpi": {
+          "type": "string"
+        }
+      }
+    },
+    "ThemeInfoRepresentation": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "locales": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "TimePolicyRepresentation": {
+      "type": "object",
+      "properties": {
+        "dayMonth": {
+          "type": "string"
+        },
+        "dayMonthEnd": {
+          "type": "string"
+        },
+        "decisionStrategy": {
+          "type": "string",
+          "enum": [
+            "AFFIRMATIVE",
+            "UNANIMOUS",
+            "CONSENSUS"
+          ]
+        },
+        "description": {
+          "type": "string"
+        },
+        "hour": {
+          "type": "string"
+        },
+        "hourEnd": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "logic": {
+          "type": "string",
+          "enum": [
+            "POSITIVE",
+            "NEGATIVE"
+          ]
+        },
+        "minute": {
+          "type": "string"
+        },
+        "minuteEnd": {
+          "type": "string"
+        },
+        "month": {
+          "type": "string"
+        },
+        "monthEnd": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "notBefore": {
+          "type": "string"
+        },
+        "notOnOrAfter": {
+          "type": "string"
+        },
+        "owner": {
+          "type": "string"
+        },
+        "policies": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "resourceType": {
+          "type": "string"
+        },
+        "resources": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "resourcesData": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/ResourceRepresentation"
+          },
+          "uniqueItems": true
+        },
+        "scopes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "scopesData": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/ScopeRepresentation"
+          },
+          "uniqueItems": true
+        },
+        "type": {
+          "type": "string"
+        },
+        "year": {
+          "type": "string"
+        },
+        "yearEnd": {
+          "type": "string"
+        }
+      }
+    },
+    "UserPolicyRepresentation": {
+      "type": "object",
+      "properties": {
+        "decisionStrategy": {
+          "type": "string",
+          "enum": [
+            "AFFIRMATIVE",
+            "UNANIMOUS",
+            "CONSENSUS"
+          ]
+        },
+        "description": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "logic": {
+          "type": "string",
+          "enum": [
+            "POSITIVE",
+            "NEGATIVE"
+          ]
+        },
+        "name": {
+          "type": "string"
+        },
+        "owner": {
+          "type": "string"
+        },
+        "policies": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "resourceType": {
+          "type": "string"
+        },
+        "resources": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "resourcesData": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/ResourceRepresentation"
+          },
+          "uniqueItems": true
+        },
+        "scopes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "scopesData": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/ScopeRepresentation"
+          },
+          "uniqueItems": true
+        },
+        "type": {
+          "type": "string"
+        },
+        "users": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        }
+      }
+    }
+  }
+}

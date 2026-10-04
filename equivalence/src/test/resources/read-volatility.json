@@ -1,0 +1,114 @@
+{
+  "volatile": [
+    {
+      "key": "GET /admin/serverinfo",
+      "path": "$.systemInfo.serverTime",
+      "reason": "The server's clock at the time of the request.",
+      "evidence": "core/src/main/java/org/keycloak/representations/info/SystemInfoRepresentation.java:48"
+    },
+    {
+      "key": "GET /admin/serverinfo",
+      "path": "$.systemInfo.uptimeMillis",
+      "reason": "Milliseconds since startup at the time of the request.",
+      "evidence": "core/src/main/java/org/keycloak/representations/info/SystemInfoRepresentation.java:49"
+    },
+    {
+      "key": "GET /admin/serverinfo",
+      "path": "$.systemInfo.uptime",
+      "reason": "uptimeMillis formatted to the second.",
+      "evidence": "core/src/main/java/org/keycloak/representations/info/SystemInfoRepresentation.java:50"
+    },
+    {
+      "key": "GET /admin/serverinfo",
+      "path": "$.memoryInfo.used",
+      "reason": "JVM heap gauge sampled per request; it follows garbage collection between two identical reads.",
+      "evidence": "core/src/main/java/org/keycloak/representations/info/MemoryInfoRepresentation.java:35"
+    },
+    {
+      "key": "GET /admin/serverinfo",
+      "path": "$.memoryInfo.usedFormated",
+      "reason": "JVM heap gauge sampled per request; it follows garbage collection between two identical reads.",
+      "evidence": "core/src/main/java/org/keycloak/representations/info/MemoryInfoRepresentation.java:36"
+    },
+    {
+      "key": "GET /admin/serverinfo",
+      "path": "$.memoryInfo.free",
+      "reason": "JVM heap gauge sampled per request; it follows garbage collection between two identical reads.",
+      "evidence": "core/src/main/java/org/keycloak/representations/info/MemoryInfoRepresentation.java:37"
+    },
+    {
+      "key": "GET /admin/serverinfo",
+      "path": "$.memoryInfo.freeFormated",
+      "reason": "JVM heap gauge sampled per request; it follows garbage collection between two identical reads.",
+      "evidence": "core/src/main/java/org/keycloak/representations/info/MemoryInfoRepresentation.java:38"
+    },
+    {
+      "key": "GET /admin/serverinfo",
+      "path": "$.memoryInfo.freePercentage",
+      "reason": "JVM heap gauge sampled per request; it follows garbage collection between two identical reads.",
+      "evidence": "core/src/main/java/org/keycloak/representations/info/MemoryInfoRepresentation.java:39"
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{client-uuid}/evaluate-scopes/generate-example-access-token",
+      "path": "$.jti",
+      "reason": "Every example is issued on a fresh transient user session, as a new token with a new token id.",
+      "evidence": "services/src/main/java/org/keycloak/services/resources/admin/ClientScopeEvaluateResource.java:359-384; services/src/main/java/org/keycloak/protocol/oidc/TokenManager.java:1110"
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{client-uuid}/evaluate-scopes/generate-example-access-token",
+      "path": "$.sid",
+      "reason": "The id of the fresh user session each example is issued on.",
+      "evidence": "services/src/main/java/org/keycloak/services/resources/admin/ClientScopeEvaluateResource.java:359-384"
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{client-uuid}/evaluate-scopes/generate-example-id-token",
+      "path": "$.jti",
+      "reason": "Every example ID token gets a new random token id.",
+      "evidence": "services/src/main/java/org/keycloak/services/resources/admin/ClientScopeEvaluateResource.java:359-384; services/src/main/java/org/keycloak/protocol/oidc/TokenManager.java:1418"
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{client-uuid}/evaluate-scopes/generate-example-id-token",
+      "path": "$.sid",
+      "reason": "The id of the fresh user session each example is issued on.",
+      "evidence": "services/src/main/java/org/keycloak/services/resources/admin/ClientScopeEvaluateResource.java:359-384"
+    },
+    {
+      "key": "GET /admin/realms/{realm}/clients/{client-uuid}/evaluate-scopes/generate-example-saml-response",
+      "path": "$",
+      "pattern": "\\b(ID|IssueInstant|NotBefore|NotOnOrAfter|AuthnInstant|SessionIndex|SessionNotOnOrAfter)=\"[^\"]*\"",
+      "reason": "Every example is a new SAML response on a fresh user session: new response and assertion ids, the current instant (to the millisecond) and validity bounds derived from it, and the new session's index. Only these attribute values are masked; the rest of the XML is compared.",
+      "evidence": "services/src/main/java/org/keycloak/services/resources/admin/ClientScopeEvaluateResource.java:302-330,359-384"
+    },
+    {
+      "key": "GET /admin/realms/{realm}/identity-provider/instances/{alias}/export",
+      "path": "$",
+      "pattern": "\\bID=\"[^\"]*\"",
+      "reason": "A SAML broker's SP descriptor gets a new random document ID on every export; the rest of the XML is compared.",
+      "evidence": "services/src/main/java/org/keycloak/broker/saml/SAMLIdentityProvider.java:498-517; saml-core/src/main/java/org/keycloak/saml/processing/core/saml/v2/util/SAMLMetadataUtil.java:188"
+    },
+    {
+      "key": "POST /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/evaluate",
+      "path": "$.rpt.jti",
+      "reason": "The evaluated user gets a fresh user session and a new access token per request, returned as rpt with a new token id.",
+      "evidence": "services/src/main/java/org/keycloak/authorization/admin/PolicyEvaluationService.java:340-346, :145, :285; services/src/main/java/org/keycloak/authorization/admin/representation/PolicyEvaluationResponseBuilder.java:80"
+    },
+    {
+      "key": "POST /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/policy/evaluate",
+      "path": "$.rpt.sid",
+      "reason": "The id of the user session each evaluation creates for the user and removes afterwards.",
+      "evidence": "services/src/main/java/org/keycloak/authorization/admin/PolicyEvaluationService.java:340-346, :285"
+    },
+    {
+      "key": "POST /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/permission/evaluate",
+      "path": "$.rpt.jti",
+      "reason": "The evaluated user gets a fresh user session and a new access token per request, returned as rpt with a new token id.",
+      "evidence": "services/src/main/java/org/keycloak/authorization/admin/PolicyEvaluationService.java:340-346, :145, :285; services/src/main/java/org/keycloak/authorization/admin/representation/PolicyEvaluationResponseBuilder.java:80"
+    },
+    {
+      "key": "POST /admin/realms/{realm}/clients/{client-uuid}/authz/resource-server/permission/evaluate",
+      "path": "$.rpt.sid",
+      "reason": "The id of the user session each evaluation creates for the user and removes afterwards.",
+      "evidence": "services/src/main/java/org/keycloak/authorization/admin/PolicyEvaluationService.java:340-346, :285"
+    }
+  ]
+}

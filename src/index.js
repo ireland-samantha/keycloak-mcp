@@ -1,15 +1,21 @@
 #!/usr/bin/env node
-import { serveStdio } from '@modelcontextprotocol/server/stdio';
-import { configFromEnv, KeycloakAdmin } from './keycloak.js';
-import { createServer } from './server.js';
+import { assertStdioBodyLimit, serveStdioServer } from './adapters/stdio.js';
+import { configFromEnv } from './config.js';
+import { KeycloakAdmin } from './keycloak-admin.js';
 
-try {
-  const admin = new KeycloakAdmin(configFromEnv());
-  void serveStdio(() => createServer(admin)).catch(error => {
-    console.error(error instanceof Error ? error.message : 'MCP transport failed');
+function startAdmin() {
+  try {
+    const config = configFromEnv();
+    assertStdioBodyLimit(config);
+    return new KeycloakAdmin(config);
+  } catch (error) {
+    console.error(error instanceof Error ? error.message : 'configuration failed');
     process.exitCode = 1;
-  });
-} catch (error) {
-  console.error(error instanceof Error ? error.message : 'configuration failed');
-  process.exitCode = 1;
+    return null;
+  }
 }
+
+const admin = startAdmin();
+// Transport faults are only reported through onerror; the process exits once stdin closes and the
+// transport has shut down.
+if (admin) serveStdioServer(admin, { onerror: error => console.error(`MCP transport error: ${error.message}`) });

@@ -5,7 +5,7 @@
   "type": "module",
   "license": "MIT",
   "repository": { "type": "git", "url": "git+https://github.com/ireland-samantha/keycloak-mcp.git" },
-  "files": ["src", "data", "openclaw", "openclaw.plugin.json", "validation", "README.md", "VALIDATION.md", "SECURITY.md", "LICENSE", "NOTICE.md"],
+  "files": ["src", "data", "openclaw", "openclaw.plugin.json", "README.md", "TESTING.md", "SECURITY.md", "LICENSE", "NOTICE.md"],
   "bin": {
     "keycloak-mcp": "./src/index.js"
   },
@@ -16,11 +16,13 @@
   "openclaw": { "extensions": ["./openclaw/index.js"] },
   "scripts": {
     "start": "node src/index.js",
-    "test": "node --test",
+    "test": "node --test \"test/unit/**/*.test.js\" \"test/mock/**/*.test.js\"",
+    "test:unit": "node --test \"test/unit/**/*.test.js\"",
+    "test:mock": "node --test \"test/mock/**/*.test.js\"",
+    "test:equivalence": "mvn -f equivalence/pom.xml verify",
     "live:soak": "node scripts/live-soak.mjs",
-    "live:coverage": "node scripts/live-coverage.mjs",
     "live:openclaw": "node scripts/live-openclaw.mjs",
-    "check": "node --check src/index.js && node --check src/api.js && node --check src/server.js && node --check src/keycloak.js && node --check src/workflow.js && node --check openclaw/index.js && node --check scripts/live-soak.mjs && node --check scripts/live-coverage.mjs && node --check scripts/live-openclaw.mjs && node --check scripts/openclaw-requirements.mjs && npm test",
+    "check": "node scripts/check-syntax.mjs && npm test",
     "catalog:update": "node scripts/update-catalog.mjs"
   },
   "engines": {

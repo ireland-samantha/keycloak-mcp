@@ -1,0 +1,198 @@
+import assert from 'node:assert/strict';
+import { readdirSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { test } from 'node:test';
+import { assertRefusedOffline, startScenario, WRITER } from '../support/scenario.js';
+
+const canary = 'redaction-canary-4b1f';
+const SENSITIVE_READS = { KEYCLOAK_MCP_ALLOW_SENSITIVE_READS: 'true' };
+const withSecret = (response, secret = canary) => ({ ...response, json: response.json.map(item => ({ ...item, secret })) });
+const clientPath = { path: { 'client-uuid': 'client-1' } };
+const isObject = value => value !== null && typeof value === 'object' && !Array.isArray(value);
+const withoutRedactedFields = value => Object.fromEntries(Object.entries(value)
+  .filter(([, child]) => isObject(child) || !JSON.stringify(child).includes('[REDACTED by keycloak-mcp'))
+  .map(([key, child]) => [key, isObject(child) ? withoutRedactedFields(child) : child]));
+
+test('E1 secrets Keycloak sends in clear are redacted; the ones it masks itself keep its mask', async t => {
+  const { mock, mcp } = await startScenario(t);
+  mock.on('GET /admin/realms/{realm}/clients', withSecret(mock.fixture('clients.list')));
+  const [client] = (await mcp.call('keycloak_read', { operation: 'GET /admin/realms/{realm}/clients' })).value.value;
+  assert.equal(client.secret, '[REDACTED by keycloak-mcp]');
+  assert.equal(client.attributes['client.secret.rotated'], '[REDACTED by keycloak-mcp]');
+  assert.equal(client.attributes['access.token.lifespan'], '120');
+  assert.equal(JSON.stringify(client).includes(canary), false);
+  const realm = await mcp.call('keycloak_read', { operation: 'GET /admin/realms/{realm}' });
+  assert.deepEqual(realm.value.value.smtpServer, mock.fixture('realm.get').json.smtpServer);
+  assert.equal(realm.value.value.smtpServer.password, '**********');
+});
+
+test('E1 non-secret realm settings are returned exactly as Keycloak sent them', async t => {
+  const { mock, mcp } = await startScenario(t);
+  const { smtpServer: _masked, ...expected } = mock.fixture('realm.get').json;
+  const { smtpServer: _redacted, ...actual } = (await mcp.call('keycloak_read', { operation: 'GET /admin/realms/{realm}' })).value.value;
+  assert.deepEqual(actual, expected);
+});
+
+test('E1 attribute names the operator declares secret are redacted too', async t => {
+  const { mcp } = await startScenario(t, { settings: { KEYCLOAK_MCP_SECRET_ATTRIBUTES: 'custom.api.key,customApiKey' } });
+  const client = (await mcp.call('keycloak_read', { operation: 'GET /admin/realms/{realm}/clients/{client-uuid}', args: clientPath })).value.value;
+  assert.equal(client.attributes['custom.api.key'], '[REDACTED by keycloak-mcp]');
+  const realm = (await mcp.call('keycloak_read', { operation: 'GET /admin/realms/{realm}' })).value.value;
+  assert.equal(realm.attributes.customApiKey, '[REDACTED by keycloak-mcp]');
+});
+
+test('E1 the private key of an uploaded keystore is redacted; its certificate and public key are not', async t => {
+  const { mock, mcp } = await startScenario(t);
+  const operation = 'POST /admin/realms/{realm}/identity-provider/upload-certificate';
+  const recorded = mock.fixture('idp.uploadCertificate');
+  mock.on(operation, { ...recorded, json: { ...recorded.json, privateKey: canary } });
+  const keystore = { keystoreFormat: 'PKCS12', keyAlias: 'k', keyPassword: 'p', storePassword: 'p',
+    file: { filename: 'store.p12', contentType: 'application/x-pkcs12', base64: Buffer.from('keystore').toString('base64') } };
+  const result = await mcp.call('keycloak_read', { operation, args: { body: keystore } });
+  assert.deepEqual(result.value.value, { ...recorded.json, privateKey: '[REDACTED by keycloak-mcp]' });
+});
+
+test('E2 admin-event representations are redacted, the event itself is not', async t => {
+  const { mock, mcp } = await startScenario(t);
+  const events = (await mcp.call('keycloak_read', { operation: 'GET /admin/realms/{realm}/admin-events' })).value.value;
+  const recorded = mock.fixture('adminEvents.list').json;
+  assert.deepEqual(events.map(event => event.representation), recorded.map(() => '[REDACTED by keycloak-mcp]'));
+  assert.deepEqual(events.map(event => event.resourcePath), recorded.map(event => event.resourcePath));
+});
+
+// Each: operation, arguments, and an optional response replacing the recorded one (JSON, text or binary).
+const sensitiveEndpoints = [
+  ['GET /admin/realms/{realm}/clients/{client-uuid}/client-secret', clientPath, { json: { type: 'secret', value: canary } }],
+  ['GET /admin/realms/{realm}/clients-initial-access', {}],
+  ['GET /admin/realms/{realm}/users/{user-id}/credentials', { path: { 'user-id': 'user-1' } }],
+  ['GET /admin/realms/{realm}/clients/{client-uuid}/certificates/{attr}', { path: { 'client-uuid': 'client-1', attr: 'jwt.credential' } },
+    { headers: { 'content-type': 'application/octet-stream' }, body: Buffer.from(canary) }],
+  ['GET /admin/realms/{realm}/clients/{client-uuid}/installation/providers/{providerId}',
+    { path: { 'client-uuid': 'client-1', providerId: 'keycloak-oidc-keycloak-json' } }],
+  ['GET /admin/realms/{realm}/clients/{client-uuid}/installation/providers/{providerId}',
+    { path: { 'client-uuid': 'client-1', providerId: 'keycloak-oidc-jboss-subsystem' } }],
+  ['GET /admin/realms/{realm}/clients/{client-uuid}/evaluate-scopes/generate-example-access-token', clientPath],
+];
+
+async function readSensitive(t, settings) {
+  const { mock, mcp } = await startScenario(t, { settings });
+  const results = [];
+  for (const [operation, args, response] of sensitiveEndpoints) {
+    if (response) mock.on(operation, response);
+    results.push({ operation, providerId: args.path?.providerId, result: await mcp.call('keycloak_read', { operation, args }) });
+  }
+  return results;
+}
+
+test('E3 sensitive endpoints return only a marker for JSON, text and binary bodies', async t => {
+  for (const { operation, providerId, result } of await readSensitive(t)) {
+    assert.equal(result.value.status, 200);
+    assert.equal(result.value.value, '[REDACTED by keycloak-mcp: sensitive endpoint]', `${operation} ${providerId ?? ''}`);
+  }
+});
+
+test('E3 a certificate download is readable as an export and still redacted', async t => {
+  const { mock, mcp } = await startScenario(t);
+  mock.on('POST /admin/realms/{realm}/clients/{client-uuid}/certificates/{attr}/download',
+    { headers: { 'content-type': 'application/octet-stream' }, body: Buffer.from(canary) });
+  const result = await mcp.call('keycloak_read', { operation: 'POST /admin/realms/{realm}/clients/{client-uuid}/certificates/{attr}/download',
+    args: { path: { 'client-uuid': 'client-1', attr: 'jwt.credential' }, body: { format: 'JKS', keyAlias: 'a', keyPassword: 'b', storePassword: 'c' } } });
+  assert.deepEqual(result.value, { status: 200, contentType: 'application/octet-stream', value: '[REDACTED by keycloak-mcp: sensitive endpoint]' });
+});
+
+test('E4 KEYCLOAK_MCP_ALLOW_SENSITIVE_READS passes sensitive bodies through', async t => {
+  const results = await readSensitive(t, SENSITIVE_READS);
+  for (const { operation, providerId, result } of results) {
+    assert.equal(result.isError, false, operation);
+    assert.notEqual(result.value.value, '[REDACTED by keycloak-mcp: sensitive endpoint]', `${operation} ${providerId ?? ''}`);
+  }
+  const valueOf = suffix => results.find(({ operation }) => operation.endsWith(suffix)).result.value.value;
+  assert.deepEqual(valueOf('/client-secret'), { type: 'secret', value: canary });
+  assert.deepEqual(valueOf('/certificates/{attr}'), { base64: Buffer.from(canary).toString('base64'), contentType: 'application/octet-stream' });
+  const { mcp } = await startScenario(t, { settings: SENSITIVE_READS });
+  const events = (await mcp.call('keycloak_read', { operation: 'GET /admin/realms/{realm}/admin-events' })).value.value;
+  assert.ok(events.every(event => event.representation.startsWith('{')));
+});
+
+test('E5 neither the client secret nor a bearer token appears in any output, stderr line or receipt', async t => {
+  const secret = 'e5-service-account-secret-canary';
+  const { mock, mcp, server, journalDir } = await startScenario(t, { transport: 'stdio', settings: WRITER, mock: { clientSecret: secret } });
+  mock.on('GET /admin/realms/{realm}/clients', withSecret(mock.fixture('clients.list')));
+  const outputs = [
+    await mcp.call('keycloak_read', { operation: 'GET /admin/realms/{realm}/clients' }),
+    await mcp.call('keycloak_read', { operation: 'GET /admin/realms/{realm}/clients/{client-uuid}/client-secret', args: clientPath }),
+    await mcp.call('keycloak_read', { operation: 'GET /admin/realms/{realm}/users/{user-id}', args: { path: { 'user-id': 'missing' } } }),
+    await mcp.call('keycloak_workflow', { execute: true, steps: [
+      { operation: 'POST /admin/realms/{realm}/groups', args: { body: { name: 'e5-group' } },
+        compensate: { operation: 'DELETE /admin/realms/{realm}/groups/{group-id}', args: { path: { 'group-id': '$step.locationId' } } } },
+      { operation: 'GET /admin/realms/{realm}/users/{user-id}', args: { path: { 'user-id': 'missing' } } },
+    ] }),
+  ].map(result => result.text);
+  await server.close();
+  const journal = readdirSync(journalDir).map(file => readFileSync(join(journalDir, file), 'utf8'));
+  assert.equal(journal.length, 1);
+  const issued = Array.from({ length: mock.tokenCount }, (_, index) => `mock-access-token-${index + 1}`);
+  for (const text of [...outputs, server.stderr, ...journal]) {
+    for (const needle of [secret, canary, ...issued]) assert.equal(text.includes(needle), false, `${needle} leaked`);
+  }
+});
+
+test('E6 writing back a redacted read never sends the redaction marker to Keycloak', async t => {
+  const { mock, mcp } = await startScenario(t, { settings: WRITER });
+  const client = (await mcp.call('keycloak_read', { operation: 'GET /admin/realms/{realm}/clients/{client-uuid}', args: clientPath })).value.value;
+  const update = { operation: 'PUT /admin/realms/{realm}/clients/{client-uuid}', args: { ...clientPath, body: { ...client, description: 'updated' } },
+    compensate: { operation: 'PUT /admin/realms/{realm}/clients/{client-uuid}', args: { ...clientPath, body: client } } };
+  const refused = await mcp.call('keycloak_workflow', { execute: true, steps: [update] });
+  // Keycloak stores the marker as the new client secret (RepresentationToModel.java:625-642, determineNewSecret).
+  for (const request of mock.adminRequests()) assert.equal(request.text().includes('[REDACTED'), false, request.key);
+  assert.equal(refused.isError, true);
+  assert.match(refused.text, /^request contains a value redacted by keycloak-mcp/);
+  assert.deepEqual(mock.adminRequests().map(request => request.method), ['GET']);
+  // Leaving the redacted fields out, as the refusal asks, keeps the stored secret: Keycloak only sets
+  // the client attributes an update names (RepresentationToModel.java:583-592).
+  const unredacted = withoutRedactedFields(client);
+  const resent = await mcp.call('keycloak_workflow', { execute: true, steps: [{ ...update, args: { ...clientPath, body: { ...unredacted, description: 'updated' } },
+    compensate: { ...update.compensate, args: { ...clientPath, body: unredacted } } }] });
+  assert.equal(resent.value.status, 'COMPLETED', resent.text);
+});
+
+test('E6 the marker is refused in path, query and every body encoding before any request', async t => {
+  const { mock, mcp } = await startScenario(t, { settings: { ...WRITER, KEYCLOAK_MCP_ALLOW_IRREVERSIBLE: 'true' } });
+  const marker = '[REDACTED by keycloak-mcp]';
+  const converter = 'POST /admin/realms/{realm}/client-description-converter';
+  for (const args of [{ body: `{"secret":"${marker}"}` }, { contentType: 'application/json', body: { nested: [{ value: marker }] } },
+    { contentType: 'application/json', bodyBase64: Buffer.from(`"${marker}"`).toString('base64') }]) {
+    assertRefusedOffline(mock, await mcp.call('keycloak_read', { operation: converter, args }), /^request contains a value redacted by keycloak-mcp/);
+  }
+  assertRefusedOffline(mock, await mcp.call('keycloak_read', { operation: 'GET /admin/realms/{realm}/users/{user-id}', args: { path: { 'user-id': marker } } }),
+    /^request contains a value redacted by keycloak-mcp/);
+  assertRefusedOffline(mock, await mcp.call('keycloak_read', { operation: 'GET /admin/realms/{realm}/users', args: { query: { search: ['ok', `x${marker}`] } } }),
+    /^request contains a value redacted by keycloak-mcp/);
+  // A multipart form carries the marker in a file part or, like a keystore password, in a text part.
+  const keystore = { filename: 'idp.p12', contentType: 'application/x-pkcs12', base64: Buffer.from('keystore').toString('base64') };
+  for (const body of [
+    { keystoreFormat: 'Certificate PEM', file: { filename: 'idp.pem', contentType: 'application/x-pem-file', base64: Buffer.from(marker).toString('base64') } },
+    { keystoreFormat: 'PKCS12', keyAlias: 'idp', keyPassword: marker, storePassword: 'store', file: keystore },
+  ]) {
+    assertRefusedOffline(mock, await mcp.call('keycloak_read', { operation: 'POST /admin/realms/{realm}/identity-provider/upload-certificate', args: { body } }),
+      /^request contains a value redacted by keycloak-mcp/);
+  }
+  // A form body is percent-encoded on the wire; Keycloak decodes it before use.
+  const form = 'application/x-www-form-urlencoded';
+  const smtpConfig = new URLSearchParams({ config: JSON.stringify({ host: 'smtp.example.invalid', password: marker }) }).toString();
+  for (const step of [
+    { operation: 'POST /admin/realms/{realm}/organizations/{org-id}/members/invite-user', args: { path: { 'org-id': 'org-1' }, body: { email: 'a@example.invalid', firstName: marker } } },
+    { operation: 'POST /admin/realms/{realm}/testSMTPConnection', args: { contentType: form, bodyBase64: Buffer.from(smtpConfig).toString('base64') } },
+  ]) {
+    assertRefusedOffline(mock, await mcp.call('keycloak_workflow', { execute: true, steps: [{ ...step, irreversible: true }] }),
+      /^request contains a value redacted by keycloak-mcp/);
+  }
+});
+
+test('E7 a JSON body with a mixed-case media type is still redacted', async t => {
+  const { mock, mcp } = await startScenario(t);
+  mock.on('GET /admin/realms/{realm}/clients', { ...withSecret(mock.fixture('clients.list')), headers: { 'content-type': 'Application/JSON' } });
+  const result = await mcp.call('keycloak_read', { operation: 'GET /admin/realms/{realm}/clients' });
+  const decoded = result.value.value?.base64 ? Buffer.from(result.value.value.base64, 'base64').toString('utf8') : '';
+  assert.equal(result.text.includes(canary) || decoded.includes(canary), false);
+});

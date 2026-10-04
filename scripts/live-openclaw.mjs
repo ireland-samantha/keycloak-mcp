@@ -239,8 +239,11 @@ let failure = null;
 try {
   report.openclaw = { ...openclawPackage(), cli: (await cli('--version')).stdout.trim() };
   report.keycloakVersion = (await kc('GET', '/admin/serverinfo')).value.systemInfo.version;
-  report.sourceSha256 = Object.fromEntries(['openclaw/index.js', 'openclaw.plugin.json', 'package.json', 'src/keycloak.js', 'src/workflow.js',
-    'data/operations.json', 'data/openapi.json', 'data/operations-26.3.5.json', 'data/openapi-26.3.5.json']
+  // Every module under src/ and every bundled catalog file, found by listing, so a receipt names all the
+  // code and data that ran.
+  const listed = (directory, extension) => readdirSync(join(root, directory), { recursive: true }).filter(name => name.endsWith(extension))
+    .map(name => `${directory}/${name.split(sep).join('/')}`).sort();
+  report.sourceSha256 = Object.fromEntries(['openclaw/index.js', 'openclaw.plugin.json', 'package.json', ...listed('src', '.js'), ...listed('data', '.json')]
     .map(path => [path, sha256(readFileSync(join(root, path)))]));
   const catalog = JSON.parse(readFileSync(join(root, 'data/operations.json'), 'utf8'));
   report.catalog = { version: 'latest', sourceSha256: catalog.sourceSha256 };
