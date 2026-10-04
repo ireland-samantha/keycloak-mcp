@@ -37,7 +37,7 @@ Create a confidential Keycloak client with **service accounts enabled**. Grant i
 }
 ```
 
-Set file mode `0600`. The runtime rejects group-readable or world-readable configuration files. `KEYCLOAK_AUTH_REALM` names the realm that issues the service-account token; `KEYCLOAK_REALM` is the administered realm. The base URL must use HTTPS, except for loopback development. When `KEYCLOAK_MCP_CONFIG` names this file, it is authoritative for every setting it defines: environment variables only supply settings the file leaves out, and an empty environment value counts as unset. Switches such as `KEYCLOAK_MCP_ALLOW_WRITE` accept `true` or `"true"` and `false` or `"false"`; any other value stops startup with an error.
+Set file mode `0600`. The runtime rejects group-readable, world-readable, and symlinked configuration files. `KEYCLOAK_AUTH_REALM` names the realm that issues the service-account token; `KEYCLOAK_REALM` is the administered realm. The base URL must use HTTPS, except for loopback development. When `KEYCLOAK_MCP_CONFIG` names this file, it is authoritative for every setting it defines: environment variables only supply settings the file leaves out, and an empty environment value counts as unset. Switches such as `KEYCLOAK_MCP_ALLOW_WRITE` accept `true` or `"true"` and `false` or `"false"`; any other value stops startup with an error.
 
 ### Claude Code
 
@@ -78,7 +78,7 @@ An operation key is `METHOD /admin/realms/{realm}/...` or, for a configured SPI 
 
 ### Installed SPI routes
 
-Put a deployment-specific JSON catalog outside the repository, set its mode to `0600`, and set `KEYCLOAK_MCP_EXTENSION_CATALOG` to its absolute path in the private service-account config. Each route must declare whether it is read-only and whether a service-account token can call it:
+Put a deployment-specific JSON catalog outside the repository as a regular, non-symlink file, set its mode to `0600`, and set `KEYCLOAK_MCP_EXTENSION_CATALOG` to its absolute path in the private service-account config. Each route must declare whether it is read-only and whether a service-account token can call it:
 
 ```json
 {
