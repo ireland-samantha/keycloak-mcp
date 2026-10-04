@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
+import { symlinkSync } from 'node:fs';
 import { join } from 'node:path';
 import { test } from 'node:test';
-import { configFromEnv } from '../../src/api.js';
+import { configFromEnv, createCatalog } from '../../src/api.js';
 import { testEnv } from '../support/config.js';
 import { privateTempDir, writePrivateJson } from '../support/temp.js';
 
@@ -28,6 +29,19 @@ test('the private config file wins over the environment, which only fills in wha
   assert.equal(config.realm, testEnv.KEYCLOAK_REALM);
   assert.equal(config.lockDatabaseUrl, 'postgres://locks.example.invalid/keycloak');
   assert.equal(config.journalDir, '/var/lib/receipts');
+});
+
+test('private config and extension catalogs cannot be loaded through symlinks', () => {
+  const dir = privateTempDir('keycloak-mcp-private-');
+  const config = writePrivateJson(join(dir, 'config.json'), testEnv);
+  const configLink = join(dir, 'config-link.json');
+  symlinkSync(config, configLink);
+  assert.throws(() => configFromEnv({ KEYCLOAK_MCP_CONFIG: configLink }), /private file.*no symlinks/);
+
+  const catalog = writePrivateJson(join(dir, 'catalog.json'), { source: 'test', operations: [] });
+  const catalogLink = join(dir, 'catalog-link.json');
+  symlinkSync(catalog, catalogLink);
+  assert.throws(() => createCatalog(catalogLink), /private file.*no symlinks/);
 });
 
 test('an empty environment value counts as unset', () => {
