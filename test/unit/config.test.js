@@ -32,16 +32,27 @@ test('the private config file wins over the environment, which only fills in wha
   assert.equal(config.journalDir, '/var/lib/receipts');
 });
 
-test('private config and extension catalogs cannot be loaded through symlinks', () => {
+test('private config and extension catalogs cannot be loaded through symlinks', t => {
   const dir = privateTempDir('keycloak-mcp-private-');
+  const link = (target, path) => {
+    try { symlinkSync(target, path); }
+    catch (error) {
+      if (process.platform === 'win32' && ['EPERM', 'EACCES'].includes(error.code)) {
+        t.skip('symlink creation requires Windows developer mode or privileges');
+        return false;
+      }
+      throw error;
+    }
+    return true;
+  };
   const config = writePrivateJson(join(dir, 'config.json'), testEnv);
   const configLink = join(dir, 'config-link.json');
-  symlinkSync(config, configLink);
+  if (!link(config, configLink)) return;
   assert.throws(() => configFromEnv({ KEYCLOAK_MCP_CONFIG: configLink }), /private file.*no symlinks/);
 
   const catalog = writePrivateJson(join(dir, 'catalog.json'), { source: 'test', operations: [] });
   const catalogLink = join(dir, 'catalog-link.json');
-  symlinkSync(catalog, catalogLink);
+  if (!link(catalog, catalogLink)) return;
   assert.throws(() => createCatalog(catalogLink), /private file.*no symlinks/);
 });
 
